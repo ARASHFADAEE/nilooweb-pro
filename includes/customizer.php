@@ -181,6 +181,7 @@ function nasim_customizer_sections() {
                 'footer_copyright' => ['label' => __('متن کپی‌رایت', 'niloo-web'), 'default' => '© تمامی حقوق برای نیلوفر وفایی محفوظ می‌باشد.'],
                 'social_instagram' => ['label' => __('لینک اینستاگرام', 'niloo-web'), 'type' => 'url', 'default' => 'https://instagram.com/niloofarvafaei.ir'],
                 'social_telegram'  => ['label' => __('لینک تلگرام', 'niloo-web'), 'type' => 'url', 'default' => ''],
+                'social_bale'      => ['label' => __('لینک بله', 'niloo-web'), 'type' => 'url', 'default' => 'https://ble.ir/niloofarvafaei'],
                 'social_twitter'   => ['label' => __('توییتر / X', 'niloo-web'), 'type' => 'url', 'default' => ''],
                 'social_linkedin'  => ['label' => __('لینکدین', 'niloo-web'), 'type' => 'url', 'default' => ''],
                 'social_youtube'   => ['label' => __('یوتیوب', 'niloo-web'), 'type' => 'url', 'default' => ''],

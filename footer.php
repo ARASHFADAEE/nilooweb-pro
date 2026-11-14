@@ -8,23 +8,25 @@ $radio_url   = nasim_mod('radio_more_url') ?: home_url('/%d8%b1%d8%a7%d8%af%db%8
 $course_links = function_exists('nasim_niloo_footer_course_links') ? nasim_niloo_footer_course_links() : [];
 
 $socials = array_filter([
+    'instagram' => nasim_mod('social_instagram'),
+    'telegram'  => nasim_mod('social_telegram'),
+    'bale'      => nasim_mod('social_bale') ?: (function_exists('nasim_profile') ? (nasim_profile()['bale'] ?? '') : ''),
     'twitter'   => nasim_mod('social_twitter'),
     'linkedin'  => nasim_mod('social_linkedin'),
-    'instagram' => nasim_mod('social_instagram'),
     'youtube'   => nasim_mod('social_youtube'),
     'github'    => nasim_mod('social_github'),
     'discord'   => nasim_mod('social_discord'),
-    'telegram'  => nasim_mod('social_telegram'),
 ]);
 
 $social_labels = [
-    'twitter'   => 'Twitter',
-    'linkedin'  => 'Linkedin',
-    'instagram' => 'Instagram',
-    'youtube'   => 'Youtube',
-    'github'    => 'Github',
-    'discord'   => 'Discord',
-    'telegram'  => 'Telegram',
+    'instagram' => 'اینستاگرام',
+    'telegram'  => 'تلگرام',
+    'bale'      => 'بله',
+    'twitter'   => 'توییتر / X',
+    'linkedin'  => 'لینکدین',
+    'youtube'   => 'یوتیوب',
+    'github'    => 'گیت‌هاب',
+    'discord'   => 'دیسکورد',
 ];
 ?>
 
@@ -38,7 +40,9 @@ $social_labels = [
         <?php if ($socials) : ?>
         <div class="social-links" aria-label="شبکه‌های اجتماعی">
           <?php foreach ($socials as $key => $url) : ?>
-          <a href="<?php echo esc_url($url); ?>" aria-label="<?php echo esc_attr($social_labels[$key] ?? $key); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($social_labels[$key] ?? $key); ?></a>
+          <a class="social-link social-link--<?php echo esc_attr($key); ?>" href="<?php echo esc_url($url); ?>" aria-label="<?php echo esc_attr($social_labels[$key] ?? $key); ?>" target="_blank" rel="noopener noreferrer">
+            <?php echo nasim_icon($key); // phpcs:Ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted SVG from nasim_icon(). ?>
+          </a>
           <?php endforeach; ?>
         </div>
         <?php endif; ?>
@@ -93,9 +97,11 @@ $social_labels = [
     </div>
   </footer>
 
+  <?php if (!is_singular('nasim_course')) : ?>
   <nav class="mobile-bottom-nav" aria-label="میانبر موبایل: خانه، دوره‌ها، پنل">
     <?php nasim_mobile_bottom_nav(); ?>
   </nav>
+  <?php endif; ?>
 
 <?php wp_footer(); ?>
 </body>

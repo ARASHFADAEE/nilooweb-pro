@@ -246,38 +246,39 @@ add_action('wp_enqueue_scripts', 'nasim_spot_enqueue_assets', 25);
 /**
  * Player UI (mirrors Spot shortcode output for a single purchase).
  */
+/**
+ * Official SpotPlayer app download page.
+ */
+function nasim_spot_app_download_url(): string
+{
+    return (string) apply_filters('nasim_spot_app_download_url', 'https://spotplayer.ir/');
+}
+
 function nasim_spot_render_player(array $license_data, string $title = '', ?string $course = null): void
 {
-    if (function_exists('spot_shop_success')) {
+    $key = $license_data['key'] ?? '';
+    if (!$key && function_exists('spot_shop_success')) {
         spot_shop_success($license_data, $title, $course);
         return;
     }
 
-    $key = $license_data['key'] ?? '';
     if (!$key) {
-        echo '<p class="lms-notice is-error">لایسنس اسپات هنوز ایجاد نشده است.</p>';
+        echo '<p class="lms-notice is-error">توکن اسپات هنوز ایجاد نشده است.</p>';
         return;
     }
 
-    $domain = nasim_spot_option()['domain'] ?? 'app.spotplayer.ir';
-    $domain = $domain ?: 'app.spotplayer.ir';
+    $app_url = nasim_spot_app_download_url();
     ?>
-    <div class="nasim-spot-fallback">
-      <h2><?php echo esc_html($title); ?></h2>
-      <p>کلید لایسنس را در اپ اسپات پلیر وارد کنید:</p>
-      <textarea readonly dir="ltr" style="width:100%;min-height:88px"><?php echo esc_textarea($key); ?></textarea>
-      <?php if (!empty(nasim_spot_option()['web'])) : ?>
-      <div id="spotplayer" style="min-height:320px;margin-top:16px"></div>
-      <script src="https://<?php echo esc_attr($domain); ?>/assets/js/app-api.js"></script>
-      <script>
-        (function () {
-          if (typeof SpotPlayer === 'undefined') return;
-          var root = document.getElementById('spotplayer');
-          new SpotPlayer(root, '<?php echo esc_js(parse_url(home_url(), PHP_URL_PATH) ?: ''); ?>/spotx')
-            .Open('<?php echo esc_js($key); ?>', <?php echo $course && preg_match('/^[0-9a-f]{24}$/i', $course) ? "'" . esc_js($course) . "'" : 'null'; ?>);
-        })();
-      </script>
-      <?php endif; ?>
+    <div class="nasim-spot-license-card account-card">
+      <?php if ($title) : ?><h3><?php echo esc_html($title); ?></h3><?php endif; ?>
+      <p class="account-lead">توکن لایسنس را کپی کن و داخل اپ اسپات‌پلیر وارد کن.</p>
+      <div class="license-key-row is-large">
+        <code dir="ltr" data-license-key><?php echo esc_html($key); ?></code>
+        <button type="button" class="button button-primary button-small" data-copy-license>کپی توکن</button>
+      </div>
+      <div class="account-card-actions" style="margin-top:14px">
+        <a class="button button-outline" href="<?php echo esc_url($app_url); ?>" target="_blank" rel="noopener">دانلود برنامه اسپات‌پلیر <span>↓</span></a>
+      </div>
     </div>
     <?php
 }
@@ -288,10 +289,20 @@ function nasim_spot_render_account_tab(): void
         return;
     }
 
-    $user_id = get_current_user_id();
+    $user_id  = get_current_user_id();
     $licenses = nasim_user_spot_licenses($user_id);
+    $app_url  = nasim_spot_app_download_url();
+
+    echo '<div class="account-card" style="margin-bottom:16px">';
+    echo '<div class="account-card-head"><h3>دانلود اپ اسپات‌پلیر</h3></div>';
+    echo '<p class="account-lead">برنامه رسمی اسپات‌پلیر را نصب کن، بعد توکن لایسنس دوره‌ات را داخل اپ وارد کن.</p>';
+    echo '<a class="button button-primary" href="' . esc_url($app_url) . '" target="_blank" rel="noopener">دانلود از سایت اسپات‌پلیر <span>↓</span></a>';
+    echo '</div>';
+
     if (!$licenses) {
-        echo '<p class="account-lead">هنوز دوره اسپات‌پلیر فعالی ندارید.</p>';
+        echo '<div class="account-empty"><strong>هنوز توکن اسپاتی نداری</strong><p>بعد از خرید دوره‌های اسپات‌پلیر، توکن اینجا نمایش داده می‌شود.</p>';
+        $courses = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : home_url('/courses/');
+        echo '<a class="button button-outline" href="' . esc_url($courses) . '">مشاهده دوره‌ها</a></div>';
         return;
     }
 
@@ -301,29 +312,27 @@ function nasim_spot_render_account_tab(): void
     if ($view_payment && isset($licenses[$view_payment])) {
         $entry = $licenses[$view_payment];
         nasim_spot_render_player($entry['data'] ?? [], $entry['plan_title'] ?? '', $entry['course_ids'][0] ?? null);
-        echo '<p><a class="text-link" href="' . esc_url(nasim_subscription_url(['tab' => 'spot'])) . '">← بازگشت به لیست</a></p>';
+        echo '<p style="margin-top:12px"><a class="text-link" href="' . esc_url(nasim_subscription_url(['tab' => 'spot'])) . '">← بازگشت به لیست</a></p>';
         return;
     }
 
-    echo '<div class="home-course-grid" style="margin-top:12px">';
+    echo '<div class="account-spot-list">';
     foreach ($licenses as $pid => $entry) {
         $url = nasim_subscription_url(['tab' => 'spot', 'spot_payment' => $pid]);
-        echo '<a class="home-course-card" href="' . esc_url($url) . '" style="grid-template-columns:1fr">';
-        echo '<div class="home-course-body"><h3>' . esc_html($entry['plan_title'] ?? 'دوره') . '</h3>';
-        echo '<p>مشاهده در پلیر وب یا دریافت کلید لایسنس</p></div></a>';
+        $key = (string) (($entry['data']['key'] ?? '') ?: '');
+        echo '<article class="account-card nasim-spot-license-card">';
+        echo '<div class="account-card-head"><h3>' . esc_html($entry['plan_title'] ?? 'دوره') . '</h3>';
+        echo '<a class="text-link" href="' . esc_url($url) . '">جزئیات ←</a></div>';
+        if ($key) {
+            echo '<div class="license-key-row"><code dir="ltr" data-license-key>' . esc_html($key) . '</code>';
+            echo '<button type="button" class="button button-outline button-small" data-copy-license>کپی</button></div>';
+        } else {
+            echo '<p class="account-lead">توکن هنوز آماده نیست.</p>';
+        }
+        echo '</article>';
     }
     echo '</div>';
 }
-
-function nasim_spot_account_tab_link(): void
-{
-    if (!is_user_logged_in()) {
-        return;
-    }
-    $tab = sanitize_key(wp_unslash($_GET['tab'] ?? '')); // phpcs:ignore
-    echo '<a href="' . esc_url(nasim_subscription_url(['tab' => 'spot'])) . '" class="' . ('spot' === $tab ? 'is-active' : '') . '">اسپات پلیر</a>';
-}
-add_action('nasim_account_tabs_after', 'nasim_spot_account_tab_link');
 
 function nasim_spot_account_tab_panel(): void
 {
@@ -333,7 +342,13 @@ function nasim_spot_account_tab_panel(): void
     }
     ?>
     <section class="account-panel" id="spot">
-      <h2>دوره‌های اسپات پلیر</h2>
+      <div class="account-section-intro">
+        <div>
+          <span class="eyebrow">ضدکپی</span>
+          <h2>اسپات پلیر</h2>
+        </div>
+        <p>فقط توکن لایسنس و لینک دانلود برنامه اسپات‌پلیر.</p>
+      </div>
       <?php nasim_spot_render_account_tab(); ?>
     </section>
     <?php

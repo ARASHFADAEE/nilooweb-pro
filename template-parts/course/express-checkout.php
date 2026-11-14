@@ -52,7 +52,7 @@ $prefill_mobile = is_user_logged_in() ? nasim_get_user_mobile($user->ID) : '';
   <div class="express-buybar-inner container-wide">
     <div class="express-buybar-copy">
       <strong><?php echo esc_html($title); ?></strong>
-      <span class="express-buybar-price"><?php echo esc_html($price_label); ?><?php echo $is_purchase ? '' : ' <small>/ ماه</small>'; ?></span>
+      <span class="express-buybar-price"><?php echo esc_html($price_label); ?></span>
     </div>
     <button type="button" class="button button-primary" data-express-open>
       <?php echo esc_html($label); ?> <span>←</span>
@@ -67,7 +67,7 @@ $prefill_mobile = is_user_logged_in() ? nasim_get_user_mobile($user->ID) : '';
 
     <div class="express-modal-head">
       <span class="eyebrow"><span class="eyebrow-line"></span> خرید سریع</span>
-      <h2 id="expressModalTitle"><?php echo esc_html($is_purchase ? 'خرید این دوره' : 'خرید اشتراک'); ?></h2>
+      <h2 id="expressModalTitle">خرید این دوره</h2>
       <p><?php echo esc_html($title); ?> — <strong><?php echo esc_html($price_label); ?></strong></p>
     </div>
 

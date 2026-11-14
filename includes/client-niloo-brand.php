@@ -55,7 +55,7 @@ function nasim_niloo_customizer_sections(array $sections): array
     $sections['nasim_about']['fields']['about_title_highlight']['default']  = 'نیلوفر وفایی هستم';
     $sections['nasim_about']['fields']['about_text']['default']             = 'مدرس و توسعه‌دهنده وب، بنیان‌گذار وبلبز و آکادمی اولترا. تجربه‌ام در آموزش، طراحی و اجرای پروژه‌های واقعی کمک می‌کند ایده‌ها را به راهکار دیجیتال کاربردی تبدیل کنیم و مسیر رشد کسب‌وکار یا ورود شما به بازار کار را هموارتر کنیم.';
     $sections['nasim_about']['fields']['about_sticker']['default']          = 'DESIGN · DEVELOP · EDUCATE';
-    $sections['nasim_about']['fields']['about_image']['default']            = 'https://niloofarvafaei.ir/wp-content/uploads/2026/03/niloo-about.webp';
+    $sections['nasim_about']['fields']['about_image']['default']            = 'https://niloofarvafaei.ir/wp-content/uploads/2026/11/herosss.png';
     $sections['nasim_about']['fields']['about_button_text']['default']      = 'صفحه معرفی کامل';
     $sections['nasim_about']['fields']['about_button_url']['default']       = home_url('/connect/');
     $sections['nasim_about']['fields']['about_stat_1_value']['default']     = 'وبلبز';
@@ -82,6 +82,7 @@ function nasim_niloo_customizer_sections(array $sections): array
     $sections['nasim_footer']['fields']['footer_tagline']['default']   = 'آموزش طراحی سایت و کسب درآمد به زبان ساده و کاربردی همراه با پروژه‌های واقعی و پشتیبانی تا ورود شما به بازار کار';
     $sections['nasim_footer']['fields']['footer_copyright']['default'] = 'تمامی حقوق برای ©نیلوفر وفایی محفوظ می‌باشد.';
     $sections['nasim_footer']['fields']['social_instagram']['default'] = 'https://instagram.com/niloofarvafaei.ir';
+    $sections['nasim_footer']['fields']['social_bale']                = ['label' => __('بله', 'niloo-web'), 'type' => 'url', 'default' => 'https://ble.ir/niloofarvafaei'];
     $sections['nasim_footer']['fields']['social_twitter']             = ['label' => __('توییتر / X', 'niloo-web'), 'type' => 'url', 'default' => 'https://twitter.com/NiIfar77'];
     $sections['nasim_footer']['fields']['social_linkedin']            = ['label' => __('لینکدین', 'niloo-web'), 'type' => 'url', 'default' => 'https://www.linkedin.com/in/niloofar-vafaei-55b840242/'];
     $sections['nasim_footer']['fields']['social_youtube']             = ['label' => __('یوتیوب', 'niloo-web'), 'type' => 'url', 'default' => 'https://www.youtube.com/channel/UColubQELWRLE3miuKRr_Kzw'];
@@ -99,7 +100,7 @@ function nasim_niloo_customizer_sections(array $sections): array
         'courses_home_eyebrow'         => ['label' => __('تیتر کوچک', 'niloo-web'), 'default' => 'دوره‌های آموزشی'],
         'courses_home_title'           => ['label' => __('عنوان', 'niloo-web'), 'default' => 'مسیر یادگیری خود را'],
         'courses_home_title_highlight' => ['label' => __('عنوان رنگی', 'niloo-web'), 'default' => 'از اینجا شروع کنید'],
-        'courses_home_count'           => ['label' => __('تعداد دوره', 'niloo-web'), 'type' => 'number', 'default' => 2],
+        'courses_home_count'           => ['label' => __('تعداد دوره', 'niloo-web'), 'type' => 'number', 'default' => 4],
         'radio_eyebrow'                => ['label' => __('رادیو نیل: تیتر', 'niloo-web'), 'default' => 'رادیو نیل'],
         'radio_title'                  => ['label' => __('رادیو نیل: عنوان', 'niloo-web'), 'default' => 'پادکست و گفتگو'],
         'radio_title_highlight'        => ['label' => __('رادیو نیل: رنگی', 'niloo-web'), 'default' => 'در مسیر طراحی'],

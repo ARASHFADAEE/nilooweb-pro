@@ -96,13 +96,37 @@ function nasim_enqueue_assets() {
     if (nasim_is_course_player()) {
         $course_id = get_queried_object_id();
         $lesson    = nasim_current_lesson();
+        $use_plyr  = $lesson && function_exists('nasim_lesson_uses_plyr') && nasim_lesson_uses_plyr($course_id, $lesson);
 
-        wp_enqueue_script('nasim-lms', THEME_URL . '/assets/js/lms/lms.js', [], nasim_asset_version('/assets/js/lms/lms.js'), true);
+        if ($use_plyr) {
+            wp_enqueue_style(
+                'nasim-plyr',
+                THEME_URL . '/assets/vendor/plyr/plyr.css',
+                [],
+                nasim_asset_version('/assets/vendor/plyr/plyr.css')
+            );
+            wp_enqueue_script(
+                'nasim-plyr',
+                THEME_URL . '/assets/vendor/plyr/plyr.min.js',
+                [],
+                nasim_asset_version('/assets/vendor/plyr/plyr.min.js'),
+                true
+            );
+        }
+
+        wp_enqueue_script(
+            'nasim-lms',
+            THEME_URL . '/assets/js/lms/lms.js',
+            $use_plyr ? ['nasim-plyr'] : [],
+            nasim_asset_version('/assets/js/lms/lms.js'),
+            true
+        );
         wp_localize_script('nasim-lms', 'nasimLms', [
             'ajaxUrl'  => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('nasim_lesson'),
             'courseId' => $course_id,
             'lessonId' => $lesson ? $lesson['id'] : '',
+            'usePlyr'  => (bool) $use_plyr,
             'i18n'     => [
                 'complete'   => 'علامت‌گذاری به‌عنوان تکمیل‌شده ✓',
                 'completed'  => 'تکمیل شد ✓ (لغو)',

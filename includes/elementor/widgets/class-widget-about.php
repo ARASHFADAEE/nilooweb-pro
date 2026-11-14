@@ -89,7 +89,7 @@ class Nasim_Elementor_Widget_About extends Nasim_Elementor_Widget_Base
             'about_title_highlight' => $s['about_title_highlight'] ?? '',
             'about_text'            => $s['about_text'] ?? '',
             'about_sticker'         => $s['about_sticker'] ?? '',
-            'about_image'           => $s['about_image']['url'] ?? '',
+            'about_image'           => (string) (($s['about_image']['url'] ?? '') ?: nasim_mod('hero_image')),
             'about_button_text'     => $s['about_button_text'] ?? '',
             'about_button_url'      => $s['about_button_url']['url'] ?? '',
         ];

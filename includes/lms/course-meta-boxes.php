@@ -38,11 +38,10 @@ function nasim_render_course_details_meta_box($post) {
     <p>
         <label for="nasim_course_access_mode"><strong><?php esc_html_e('نحوه دسترسی', 'niloo-web'); ?></strong></label>
         <select id="nasim_course_access_mode" name="nasim_course_access_mode" class="widefat">
-            <option value="free" <?php selected($access, 'free'); ?>><?php esc_html_e('رایگان (برای همه)', 'niloo-web'); ?></option>
-            <option value="subscription" <?php selected($access, 'subscription'); ?>><?php esc_html_e('رایگان با اشتراک', 'niloo-web'); ?></option>
-            <option value="purchase" <?php selected($access, 'purchase'); ?>><?php esc_html_e('خرید جداگانه این دوره', 'niloo-web'); ?></option>
+            <option value="free" <?php selected($access === 'free', true); ?>><?php esc_html_e('رایگان (برای همه)', 'niloo-web'); ?></option>
+            <option value="purchase" <?php selected($access !== 'free', true); ?>><?php esc_html_e('پولی — نیاز به خرید', 'niloo-web'); ?></option>
         </select>
-        <span class="description"><?php esc_html_e('اشتراک فقط دوره‌های «رایگان با اشتراک» را باز می‌کند؛ دوره‌های خرید جداگانه باید جدا پرداخت شوند.', 'niloo-web'); ?></span>
+        <span class="description"><?php esc_html_e('دوره‌های پولی بعد از پرداخت در پنل کاربری و اسپات‌پلیر در دسترسند.', 'niloo-web'); ?></span>
     </p>
     <p>
         <label for="nasim_course_delivery"><strong><?php esc_html_e('نوع تحویل', 'niloo-web'); ?></strong></label>
@@ -148,8 +147,9 @@ function nasim_render_curriculum_lesson($section_key, $lesson_key, $lesson) {
                 <textarea name="<?php echo esc_attr($name); ?>[overview]" rows="3"><?php echo esc_textarea($field('overview')); ?></textarea>
             </label>
 
-            <label><?php esc_html_e('کد Embed ویدیو (iframe)', 'niloo-web'); ?>
-                <textarea name="<?php echo esc_attr($name); ?>[embed]" rows="3" dir="ltr" class="code" placeholder='<iframe src="https://..." allowfullscreen></iframe>'><?php echo esc_textarea($field('embed')); ?></textarea>
+            <label><?php esc_html_e('ویدیو درس', 'niloo-web'); ?>
+                <textarea name="<?php echo esc_attr($name); ?>[embed]" rows="3" dir="ltr" class="code" placeholder="https://example.com/lesson.mp4  یا  iframe آپارات/یوتیوب"><?php echo esc_textarea($field('embed')); ?></textarea>
+                <span class="description"><?php esc_html_e('دوره‌های رایگان: لینک مستقیم MP4/WebM. دوره‌های CDN: کد iframe.', 'niloo-web'); ?></span>
             </label>
 
             <div class="nasim-grid">
@@ -206,7 +206,9 @@ function nasim_sanitize_curriculum($raw_sections) {
                 'duration'       => sanitize_text_field($raw_lesson['duration'] ?? ''),
                 'description'    => sanitize_textarea_field($raw_lesson['description'] ?? ''),
                 'overview'       => sanitize_textarea_field($raw_lesson['overview'] ?? ''),
-                'embed'          => nasim_sanitize_embed($raw_lesson['embed'] ?? ''),
+                'embed'          => function_exists('nasim_normalize_lesson_embed')
+                    ? nasim_normalize_lesson_embed($raw_lesson['embed'] ?? '')
+                    : nasim_sanitize_embed($raw_lesson['embed'] ?? ''),
                 'is_free'        => !empty($raw_lesson['is_free']),
                 'resource_title' => sanitize_text_field($raw_lesson['resource_title'] ?? ''),
                 'resource_url'   => esc_url_raw($raw_lesson['resource_url'] ?? ''),

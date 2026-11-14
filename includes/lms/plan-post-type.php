@@ -62,9 +62,9 @@ function nasim_render_plan_meta_box($post) {
             <th><label for="nasim_plan_type"><?php esc_html_e('نوع پلن', 'niloo-web'); ?></label></th>
             <td>
                 <select name="nasim_plan_type" id="nasim_plan_type">
-                    <option value="subscription" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true) ?: 'subscription', 'subscription'); ?>><?php esc_html_e('اشتراک (روز) — دوره‌های «رایگان با اشتراک»', 'niloo-web'); ?></option>
-                    <option value="course" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'course'); ?>><?php esc_html_e('خرید جداگانه دوره (LMS)', 'niloo-web'); ?></option>
-                    <option value="spot_course" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'spot_course'); ?>><?php esc_html_e('خرید جداگانه دوره اسپات', 'niloo-web'); ?></option>
+                    <option value="subscription" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true) ?: 'subscription', 'subscription'); ?>><?php esc_html_e('اشتراک (غیرفعال در فروش — فقط سازگاری)', 'niloo-web'); ?></option>
+                    <option value="course" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'course'); ?>><?php esc_html_e('خرید دوره (LMS)', 'niloo-web'); ?></option>
+                    <option value="spot_course" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'spot_course'); ?>><?php esc_html_e('خرید دوره اسپات‌پلیر', 'niloo-web'); ?></option>
                 </select>
             </td>
         </tr>
@@ -72,7 +72,7 @@ function nasim_render_plan_meta_box($post) {
             <th><label for="nasim_plan_course_id"><?php esc_html_e('دوره مرتبط', 'niloo-web'); ?></label></th>
             <td>
                 <input type="number" min="0" id="nasim_plan_course_id" name="nasim_plan_course_id" value="<?php echo esc_attr((string) get_post_meta($post->ID, '_nasim_plan_course_id', true)); ?>" class="small-text" dir="ltr">
-                <p class="description"><?php esc_html_e('برای پلن‌های خرید جداگانه، شناسه پست دوره را وارد کنید.', 'niloo-web'); ?></p>
+                <p class="description"><?php esc_html_e('برای پلن‌های خرید دوره، شناسه پست دوره را وارد کنید.', 'niloo-web'); ?></p>
             </td>
         </tr>
     </table>

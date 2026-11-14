@@ -7,88 +7,79 @@ if (!defined('ABSPATH')) {
 $pack       = nasim_course_catalog_query();
 $query      = $pack['query'];
 $filters    = $pack['filters'];
-$stats      = $pack['stats'];
 $categories = $pack['categories'];
 $levels     = ['مقدماتی', 'متوسط', 'پیشرفته'];
 
-$access_tabs = [
-    'all'          => ['label' => 'همه', 'count' => $stats['all']],
-    'free'         => ['label' => 'رایگان', 'count' => $stats['free']],
-    'subscription' => ['label' => 'با اشتراک', 'count' => $stats['subscription']],
-    'purchase'     => ['label' => 'خرید جداگانه', 'count' => $stats['purchase']],
-];
-
-$has_active = ('all' !== $filters['access']) || $filters['cat'] || $filters['level'] || $filters['q'] || ('featured' !== $filters['sort']);
+$has_active = $filters['cat'] || $filters['level'] || $filters['q'] || ('featured' !== $filters['sort']);
+$active_n   = (int) (bool) $filters['cat'] + (int) (bool) $filters['level'] + (int) (bool) $filters['q'] + (int) ('featured' !== $filters['sort']);
+$action     = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : home_url('/courses/');
 ?>
-<main class="course-catalog" id="course-catalog">
+<main class="course-catalog" id="course-catalog" data-catalog>
   <div class="container-wide catalog-shell">
-    <aside class="catalog-aside" aria-label="فیلتر دوره‌ها">
-      <form id="catalogAsidePanel" class="catalog-filters" method="get" action="<?php echo esc_url(function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : home_url('/courses/')); ?>">
-        <div class="catalog-search">
-          <label class="screen-reader-text" for="catalog-q">جستجو</label>
-          <input id="catalog-q" type="search" name="q" value="<?php echo esc_attr($filters['q']); ?>" placeholder="جستجو در عنوان دوره‌ها…">
-          <button type="submit" class="button button-primary button-small">بگرد</button>
+    <aside class="catalog-aside" id="catalogAside" aria-label="فیلتر دوره‌ها">
+      <button type="button" class="catalog-sheet-backdrop" data-catalog-close tabindex="-1" aria-label="بستن فیلتر"></button>
+
+      <form id="catalogAsidePanel" class="catalog-filters" method="get" action="<?php echo esc_url($action); ?>" data-catalog-form>
+        <div class="catalog-sheet-grab" aria-hidden="true"><span></span></div>
+
+        <div class="catalog-sheet-head">
+          <div>
+            <p class="catalog-sheet-kicker">جستجو و فیلتر</p>
+            <h2 id="catalogSheetTitle">فیلتر دوره‌ها</h2>
+          </div>
+          <button type="button" class="catalog-sheet-x" data-catalog-close aria-label="بستن">×</button>
         </div>
 
-        <div class="catalog-block">
-          <h2>نوع دسترسی</h2>
-          <div class="catalog-chips" role="list">
-            <?php foreach ($access_tabs as $key => $tab) : ?>
-            <a role="listitem" class="catalog-chip<?php echo $filters['access'] === $key ? ' is-active' : ''; ?>" href="<?php echo esc_url(nasim_course_catalog_url(['access' => $key, 'paged' => 1])); ?>">
-              <?php echo esc_html($tab['label']); ?>
-              <b><?php echo esc_html(nasim_fa_digits($tab['count'])); ?></b>
-            </a>
-            <?php endforeach; ?>
+        <div class="catalog-sheet-body">
+          <input type="hidden" name="cat" id="catalog-cat" value="<?php echo esc_attr($filters['cat']); ?>" data-catalog-field="cat">
+          <input type="hidden" name="level" id="catalog-level" value="<?php echo esc_attr($filters['level']); ?>" data-catalog-field="level">
+
+          <div class="catalog-search">
+            <label class="screen-reader-text" for="catalog-q">جستجو</label>
+            <input id="catalog-q" type="search" name="q" value="<?php echo esc_attr($filters['q']); ?>" placeholder="جستجو در عنوان دوره‌ها…" autocomplete="off">
+            <button type="submit" class="button button-primary button-small catalog-search-go">بگرد</button>
+          </div>
+
+          <?php if ($categories) : ?>
+          <div class="catalog-block">
+            <h3>دسته‌بندی</h3>
+            <div class="catalog-chips catalog-chips--wrap" role="list">
+              <button type="button" role="listitem" class="catalog-chip<?php echo !$filters['cat'] ? ' is-active' : ''; ?>" data-filter="cat" data-value="">همه دسته‌ها</button>
+              <?php foreach ($categories as $term) : ?>
+              <button type="button" role="listitem" class="catalog-chip<?php echo $filters['cat'] === $term->slug ? ' is-active' : ''; ?>" data-filter="cat" data-value="<?php echo esc_attr($term->slug); ?>">
+                <?php echo esc_html($term->name); ?>
+                <b><?php echo esc_html(nasim_fa_digits($term->count)); ?></b>
+              </button>
+              <?php endforeach; ?>
+            </div>
+          </div>
+          <?php endif; ?>
+
+          <div class="catalog-block">
+            <h3>سطح</h3>
+            <div class="catalog-chips catalog-chips--wrap" role="list">
+              <button type="button" role="listitem" class="catalog-chip<?php echo !$filters['level'] ? ' is-active' : ''; ?>" data-filter="level" data-value="">همه سطوح</button>
+              <?php foreach ($levels as $level) : ?>
+              <button type="button" role="listitem" class="catalog-chip<?php echo $filters['level'] === $level ? ' is-active' : ''; ?>" data-filter="level" data-value="<?php echo esc_attr($level); ?>"><?php echo esc_html($level); ?></button>
+              <?php endforeach; ?>
+            </div>
+          </div>
+
+          <div class="catalog-block">
+            <h3>مرتب‌سازی</h3>
+            <label class="screen-reader-text" for="catalog-sort">مرتب‌سازی</label>
+            <select id="catalog-sort" name="sort" class="catalog-select" data-catalog-sort>
+              <option value="featured" <?php selected($filters['sort'], 'featured'); ?>>پیشنهادی آکادمی</option>
+              <option value="newest" <?php selected($filters['sort'], 'newest'); ?>>جدیدترین</option>
+              <option value="title" <?php selected($filters['sort'], 'title'); ?>>عنوان (الفبا)</option>
+            </select>
           </div>
         </div>
 
-        <?php if ($categories) : ?>
-        <div class="catalog-block">
-          <h2>دسته‌بندی</h2>
-          <div class="catalog-chips catalog-chips--wrap" role="list">
-            <a role="listitem" class="catalog-chip<?php echo !$filters['cat'] ? ' is-active' : ''; ?>" href="<?php echo esc_url(nasim_course_catalog_url(['cat' => '', 'paged' => 1])); ?>">همه دسته‌ها</a>
-            <?php foreach ($categories as $term) : ?>
-            <a role="listitem" class="catalog-chip<?php echo $filters['cat'] === $term->slug ? ' is-active' : ''; ?>" href="<?php echo esc_url(nasim_course_catalog_url(['cat' => $term->slug, 'paged' => 1])); ?>">
-              <?php echo esc_html($term->name); ?>
-              <b><?php echo esc_html(nasim_fa_digits($term->count)); ?></b>
-            </a>
-            <?php endforeach; ?>
-          </div>
+        <div class="catalog-sheet-foot">
+          <button type="button" class="catalog-clear" data-catalog-clear <?php echo $has_active ? '' : 'hidden'; ?>>پاک کردن</button>
+          <button type="submit" class="button button-primary catalog-apply">اعمال فیلتر</button>
         </div>
-        <?php endif; ?>
-
-        <div class="catalog-block">
-          <h2>سطح</h2>
-          <div class="catalog-chips catalog-chips--wrap" role="list">
-            <a role="listitem" class="catalog-chip<?php echo !$filters['level'] ? ' is-active' : ''; ?>" href="<?php echo esc_url(nasim_course_catalog_url(['level' => '', 'paged' => 1])); ?>">همه سطوح</a>
-            <?php foreach ($levels as $level) : ?>
-            <a role="listitem" class="catalog-chip<?php echo $filters['level'] === $level ? ' is-active' : ''; ?>" href="<?php echo esc_url(nasim_course_catalog_url(['level' => $level, 'paged' => 1])); ?>"><?php echo esc_html($level); ?></a>
-            <?php endforeach; ?>
-          </div>
-        </div>
-
-        <div class="catalog-block">
-          <h2>مرتب‌سازی</h2>
-          <label class="screen-reader-text" for="catalog-sort">مرتب‌سازی</label>
-          <select id="catalog-sort" name="sort" class="catalog-select" onchange="this.form.submit()">
-            <option value="featured" <?php selected($filters['sort'], 'featured'); ?>>پیشنهادی آکادمی</option>
-            <option value="newest" <?php selected($filters['sort'], 'newest'); ?>>جدیدترین</option>
-            <option value="title" <?php selected($filters['sort'], 'title'); ?>>عنوان (الفبا)</option>
-          </select>
-          <?php if ($filters['access'] && 'all' !== $filters['access']) : ?>
-          <input type="hidden" name="access" value="<?php echo esc_attr($filters['access']); ?>">
-          <?php endif; ?>
-          <?php if ($filters['cat']) : ?>
-          <input type="hidden" name="cat" value="<?php echo esc_attr($filters['cat']); ?>">
-          <?php endif; ?>
-          <?php if ($filters['level']) : ?>
-          <input type="hidden" name="level" value="<?php echo esc_attr($filters['level']); ?>">
-          <?php endif; ?>
-        </div>
-
-        <?php if ($has_active) : ?>
-        <a class="catalog-reset" href="<?php echo esc_url(nasim_course_catalog_url(['access' => 'all', 'cat' => '', 'level' => '', 'q' => '', 'sort' => 'featured', 'paged' => 1])); ?>">پاک کردن فیلترها</a>
-        <?php endif; ?>
       </form>
     </aside>
 
@@ -98,9 +89,6 @@ $has_active = ('all' !== $filters['access']) || $filters['cat'] || $filters['lev
           <?php
             $found = (int) $query->found_posts;
             echo esc_html(nasim_fa_digits($found) . ' دوره');
-            if ($filters['access'] !== 'all') {
-                echo ' · ' . esc_html($access_tabs[$filters['access']]['label'] ?? '');
-            }
             if ($filters['cat']) {
                 $term = get_term_by('slug', $filters['cat'], 'nasim_course_cat');
                 if ($term) {
@@ -110,7 +98,22 @@ $has_active = ('all' !== $filters['access']) || $filters['cat'] || $filters['lev
             ?>
         </p>
         <div class="catalog-mobile-filters">
-          <button type="button" class="button button-outline button-small" id="catalogFilterToggle" aria-expanded="false" aria-controls="catalogAsidePanel">فیلترها</button>
+          <button
+            type="button"
+            class="catalog-filter-btn<?php echo $has_active ? ' has-active' : ''; ?>"
+            id="catalogFilterToggle"
+            aria-expanded="false"
+            aria-controls="catalogAsidePanel"
+            aria-haspopup="dialog"
+            aria-label="باز کردن فیلتر دوره‌ها"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6h16M7 12h10M10 18h4"/>
+            </svg>
+            <?php if ($active_n > 0) : ?>
+            <span class="catalog-filter-count"><?php echo esc_html(nasim_fa_digits($active_n)); ?></span>
+            <?php endif; ?>
+          </button>
         </div>
       </div>
 
@@ -146,20 +149,19 @@ $has_active = ('all' !== $filters['access']) || $filters['cat'] || $filters['lev
       <div class="catalog-empty">
         <strong>دوره‌ای با این فیلتر پیدا نشد</strong>
         <p>فیلتر را عوض کن یا همه دوره‌ها را ببین.</p>
-        <a class="button button-primary" href="<?php echo esc_url(nasim_course_catalog_url(['access' => 'all', 'cat' => '', 'level' => '', 'q' => '', 'paged' => 1])); ?>">مشاهده همه دوره‌ها</a>
+        <a class="button button-primary" href="<?php echo esc_url(nasim_course_catalog_url(['cat' => '', 'level' => '', 'q' => '', 'paged' => 1])); ?>">مشاهده همه دوره‌ها</a>
       </div>
       <?php endif; ?>
-
-      <?php if (!nasim_has_active_subscription()) : ?>
-      <aside class="catalog-cta">
-        <div>
-          <span class="eyebrow"><span class="eyebrow-line"></span> اشتراک آموزشی</span>
-          <h2>دوره‌های «رایگان با اشتراک» با یک پلن باز می‌شوند</h2>
-          <p>اولترا وب و دوره‌های پرچمدار همچنان خرید جداگانه دارند.</p>
-        </div>
-        <a class="button button-primary" href="<?php echo esc_url(nasim_subscription_url(['tab' => 'plans'])); ?>">مشاهده پلن‌ها <span>←</span></a>
-      </aside>
-      <?php endif; ?>
     </section>
+  </div>
+
+  <div class="catalog-loading" data-catalog-loading hidden>
+    <div class="catalog-loading-card">
+      <div class="catalog-loading-orbit" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <strong>در حال اعمال فیلتر</strong>
+      <p>دوره‌های مناسب برات جور می‌شن…</p>
+    </div>
   </div>
 </main>

@@ -81,45 +81,35 @@ function nasim_lesson_url($course_id, $lesson_id) {
  * How a course is sold / unlocked.
  *
  * - free: open for everyone (no paywall)
- * - subscription: unlocked only with an active subscription
- * - purchase: must buy this course separately (Zibal plan / Spot)
+ * - purchase: must buy this course (Zibal plan / Spot)
  *
- * @return string free|subscription|purchase
+ * Legacy "subscription" meta is treated as purchase (no subscription product).
+ *
+ * @return string free|purchase
  */
 function nasim_course_access_mode($course_id) {
 
     $mode = sanitize_key((string) get_post_meta($course_id, '_nasim_course_access_mode', true));
 
-    if (in_array($mode, ['free', 'subscription', 'purchase'], true)) {
-        return $mode;
+    if ('free' === $mode) {
+        return 'free';
     }
 
-    // Legacy inference before meta was set.
-    $delivery = function_exists('nasim_course_delivery') ? nasim_course_delivery($course_id) : 'lms';
-    $plan_id  = (int) get_post_meta($course_id, '_nasim_linked_plan_id', true);
-    $price    = $plan_id ? (int) get_post_meta($plan_id, '_nasim_plan_price', true) : 0;
-
-    if ('spot' === $delivery || $price > 0) {
+    if (in_array($mode, ['purchase', 'subscription'], true)) {
         return 'purchase';
     }
 
-    return 'subscription';
+    // Legacy inference before meta was set — default to paid course.
+    return 'purchase';
 }
 
 
 /**
- * Short badge / label for course cards.
+ * Short badge / label for course cards (empty for paid — price already shows).
  */
 function nasim_course_access_label($course_id) {
 
-    switch (nasim_course_access_mode($course_id)) {
-        case 'free':
-            return 'رایگان';
-        case 'subscription':
-            return 'رایگان با اشتراک';
-        default:
-            return 'خرید جداگانه';
-    }
+    return 'free' === nasim_course_access_mode($course_id) ? 'رایگان' : '';
 }
 
 
@@ -133,7 +123,7 @@ function nasim_course_access_badge_class($course_id) {
 
 
 /**
- * Full course access: mode-aware (subscription only unlocks subscription courses).
+ * Full course access: free for all, otherwise requires a purchase grant.
  */
 function nasim_user_has_course_access($course_id, $user_id = null) {
 
@@ -152,15 +142,7 @@ function nasim_user_has_course_access($course_id, $user_id = null) {
         return true;
     }
 
-    if (in_array((int) $course_id, nasim_get_course_grants($user_id), true)) {
-        return true;
-    }
-
-    if ('subscription' === $mode && nasim_has_active_subscription($user_id)) {
-        return true;
-    }
-
-    return false;
+    return in_array((int) $course_id, nasim_get_course_grants($user_id), true);
 }
 
 
@@ -179,17 +161,12 @@ function nasim_course_checkout_url($course_id) {
     $plan_id = (int) get_post_meta($course_id, '_nasim_linked_plan_id', true);
 
     if ('purchase' === $mode && $plan_id) {
-        // Dedicated course-buy mode — never open as generic monthly subscription.
         return nasim_subscription_url([
             'tab'       => 'plans',
             'highlight' => $plan_id,
             'course'    => (int) $course_id,
             'buy'       => 'course',
         ]);
-    }
-
-    if ('subscription' === $mode) {
-        return nasim_subscription_url(['tab' => 'plans']);
     }
 
     return get_permalink($course_id);
@@ -201,14 +178,37 @@ function nasim_course_checkout_url($course_id) {
  */
 function nasim_course_cta_label($course_id) {
 
-    switch (nasim_course_access_mode($course_id)) {
-        case 'purchase':
-            return 'خرید این دوره';
-        case 'subscription':
-            return 'خرید اشتراک و شروع';
-        default:
-            return 'شروع دوره';
+    return 'free' === nasim_course_access_mode($course_id) ? 'شروع دوره' : 'خرید این دوره';
+}
+
+
+/**
+ * Courses the user owns (purchase grants), newest first.
+ *
+ * @return WP_Post[]
+ */
+function nasim_user_owned_courses($user_id = null) {
+
+    $user_id = $user_id ?? get_current_user_id();
+    if (!$user_id) {
+        return [];
     }
+
+    $ids = array_values(array_filter(array_map('absint', nasim_get_course_grants($user_id))));
+    if (!$ids) {
+        return [];
+    }
+
+    $posts = get_posts([
+        'post_type'      => 'nasim_course',
+        'post_status'    => 'publish',
+        'posts_per_page' => -1,
+        'post__in'       => $ids,
+        'orderby'        => 'post__in',
+        'no_found_rows'  => true,
+    ]);
+
+    return is_array($posts) ? $posts : [];
 }
 
 
@@ -322,20 +322,105 @@ function nasim_embed_allowed_html() {
             'loading'               => true,
         ],
         'video'  => [
-            'src'      => true,
-            'controls' => true,
-            'width'    => true,
-            'height'   => true,
-            'poster'   => true,
-            'preload'  => true,
+            'src'         => true,
+            'controls'    => true,
+            'width'       => true,
+            'height'      => true,
+            'poster'      => true,
+            'preload'     => true,
             'playsinline' => true,
-            'style'    => true,
+            'style'       => true,
+            'class'       => true,
+            'id'          => true,
+            'crossorigin' => true,
         ],
         'source' => [
             'src'  => true,
             'type' => true,
         ],
     ];
+}
+
+
+/**
+ * Direct file URL from lesson embed (MP4/WebM/Ogg) — used by Plyr on free courses.
+ */
+function nasim_lesson_direct_video_url($embed): string
+{
+    $embed = trim((string) $embed);
+    if ('' === $embed) {
+        return '';
+    }
+
+    if (preg_match('/^https?:\/\/[^\s<>"\']+\.(mp4|webm|ogg)(\?[^\s<>"\']*)?$/i', $embed)) {
+        return esc_url_raw($embed);
+    }
+
+    if (preg_match('/<(?:source|video)\b[^>]*\ssrc=["\'](https?:\/\/[^"\']+\.(?:mp4|webm|ogg)(?:\?[^"\']*)?)["\']/i', $embed, $m)) {
+        return esc_url_raw($m[1]);
+    }
+
+    return '';
+}
+
+
+/**
+ * MIME type for a direct video URL.
+ */
+function nasim_lesson_video_mime($url): string
+{
+    if (preg_match('/\.webm(\?|$)/i', (string) $url)) {
+        return 'video/webm';
+    }
+    if (preg_match('/\.ogg(\?|$)/i', (string) $url)) {
+        return 'video/ogg';
+    }
+
+    return 'video/mp4';
+}
+
+
+/**
+ * Whether this lesson should play via Plyr (direct file) instead of CDN/iframe.
+ */
+function nasim_lesson_uses_plyr($course_id, $lesson): bool
+{
+    $url = nasim_lesson_direct_video_url(is_array($lesson) ? ($lesson['embed'] ?? '') : '');
+    if ('' === $url) {
+        return false;
+    }
+
+    // Free courses always use direct-link Plyr; other modes also use Plyr when embed is a file URL.
+    return true;
+}
+
+
+/**
+ * Markup for the lesson player: Plyr for direct video, iframe/embed otherwise.
+ */
+function nasim_render_lesson_player_html($course_id, $lesson): string
+{
+    $embed = is_array($lesson) ? (string) ($lesson['embed'] ?? '') : '';
+    if ('' === $embed) {
+        return '';
+    }
+
+    $direct = nasim_lesson_direct_video_url($embed);
+    if ($direct && nasim_lesson_uses_plyr($course_id, $lesson)) {
+        $poster = get_the_post_thumbnail_url((int) $course_id, 'large');
+        $mime   = nasim_lesson_video_mime($direct);
+        $html   = '<video id="nasimPlyr" class="nasim-plyr" controls playsinline preload="metadata"';
+        if ($poster) {
+            $html .= ' poster="' . esc_url($poster) . '"';
+        }
+        $html .= '>';
+        $html .= '<source src="' . esc_url($direct) . '" type="' . esc_attr($mime) . '">';
+        $html .= '</video>';
+
+        return $html;
+    }
+
+    return wp_kses($embed, nasim_embed_allowed_html());
 }
 
 
@@ -358,13 +443,9 @@ function nasim_normalize_lesson_embed($code) {
         } elseif (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]+)/i', $url, $m)) {
             $code = '<iframe src="https://www.youtube.com/embed/' . rawurlencode($m[1]) . '" allowfullscreen="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>';
         } elseif (preg_match('/\.(mp4|webm|ogg)(\?|$)/i', $url)) {
-            $type = 'video/mp4';
-            if (preg_match('/\.webm(\?|$)/i', $url)) {
-                $type = 'video/webm';
-            } elseif (preg_match('/\.ogg(\?|$)/i', $url)) {
-                $type = 'video/ogg';
-            }
-            $code = '<video controls playsinline preload="metadata" style="width:100%;max-height:70vh"><source src="' . esc_url($url) . '" type="' . esc_attr($type) . '"></video>';
+            $type = nasim_lesson_video_mime($url);
+            // Keep a simple <video> so Plyr can pick up the direct source on free courses.
+            $code = '<video controls playsinline preload="metadata"><source src="' . esc_url($url) . '" type="' . esc_attr($type) . '"></video>';
         } else {
             return '';
         }

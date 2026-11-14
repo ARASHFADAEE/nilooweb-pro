@@ -673,6 +673,15 @@ function nasim_seo_article_cta() {
 
     $hubs = nasim_seo_hubs();
 
+    if (!nasim_store_enabled()) {
+        return [
+            'title'  => 'می‌خوای طراحی سایت را اصولی یاد بگیری؟',
+            'text'   => 'از دوره‌های پروژه محور آکادمی شروع کن و مسیر ورود به بازار کار را کوتاه‌تر کن.',
+            'button' => 'مشاهده دوره‌ها',
+            'url'    => $hubs['courses']['url'] ?? home_url('/courses/'),
+        ];
+    }
+
     return [
         'title'  => 'سایت وردپرسی‌ات نیاز به پشتیبان دارد؟',
         'text'   => 'از نگهداری ماهانه تا افزونه اختصاصی و ابزارهای آماده — مسیر رشد فروش را با هم می‌سازیم.',
@@ -735,13 +744,23 @@ function nasim_seo_inject_mid_cta($html) {
     }
 
     $hubs = nasim_seo_hubs();
-    $cta  = '<aside class="article-mid-cta" aria-label="پیشنهاد مرتبط">'
-        . '<strong>نیاز به پشتیبانی یا افزونه تخصصی داری؟</strong>'
-        . '<p>اگر همین مشکل را روی سایت واقعی می‌بینی، می‌توانم نگهداری ماهانه یا یک پلاگین اختصاصی برایت پیاده کنم.</p>'
-        . '<p class="article-mid-cta-links">'
-        . '<a href="' . esc_url($hubs['support']['url']) . '">درخواست پشتیبانی</a>'
-        . '<a href="' . esc_url($hubs['plugins']['url']) . '">مشاهده افزونه‌ها</a>'
-        . '</p></aside>';
+    if (!nasim_store_enabled()) {
+        $cta = '<aside class="article-mid-cta" aria-label="پیشنهاد مرتبط">'
+            . '<strong>می‌خوای این مهارت را کامل یاد بگیری؟</strong>'
+            . '<p>دوره‌های پروژه محور آکادمی مسیر یادگیری تا گرفتن پروژه واقعی را کوتاه‌تر می‌کنند.</p>'
+            . '<p class="article-mid-cta-links">'
+            . '<a href="' . esc_url($hubs['courses']['url'] ?? home_url('/courses/')) . '">مشاهده دوره‌ها</a>'
+            . '<a href="' . esc_url($hubs['support']['url'] ?? home_url('/request/')) . '">مشاوره</a>'
+            . '</p></aside>';
+    } else {
+        $cta = '<aside class="article-mid-cta" aria-label="پیشنهاد مرتبط">'
+            . '<strong>نیاز به پشتیبانی یا افزونه تخصصی داری؟</strong>'
+            . '<p>اگر همین مشکل را روی سایت واقعی می‌بینی، می‌توانم نگهداری ماهانه یا یک پلاگین اختصاصی برایت پیاده کنم.</p>'
+            . '<p class="article-mid-cta-links">'
+            . '<a href="' . esc_url($hubs['support']['url']) . '">درخواست پشتیبانی</a>'
+            . '<a href="' . esc_url($hubs['plugins']['url'] ?? '#') . '">مشاهده افزونه‌ها</a>'
+            . '</p></aside>';
+    }
 
     $count = 0;
     $html  = preg_replace_callback('/<\/h2>/i', function ($m) use (&$count, $cta) {

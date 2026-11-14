@@ -51,6 +51,23 @@ function nasim_is_course_player() {
 
 
 /**
+ * Body class for mobile sticky-player UX.
+ *
+ * @param string[] $classes
+ * @return string[]
+ */
+function nasim_course_player_body_class($classes) {
+
+    if (nasim_is_course_player()) {
+        $classes[] = 'is-course-player';
+    }
+
+    return $classes;
+}
+add_filter('body_class', 'nasim_course_player_body_class');
+
+
+/**
  * Lesson requested in the course player
  */
 function nasim_current_lesson() {

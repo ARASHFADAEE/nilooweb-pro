@@ -46,21 +46,9 @@ class Nasim_Elementor_Widget_Courses extends Nasim_Elementor_Widget_Base
         $this->add_control('count', [
             'label'   => __('تعداد دوره', 'niloo-web'),
             'type'    => Controls_Manager::NUMBER,
-            'default' => (int) nasim_mod('courses_home_count') ?: 2,
+            'default' => (int) nasim_mod('courses_home_count') ?: 4,
             'min'     => 1,
             'max'     => 24,
-        ]);
-
-        $this->add_control('access_mode', [
-            'label'   => __('فیلتر نحوه دسترسی', 'niloo-web'),
-            'type'    => Controls_Manager::SELECT,
-            'default' => 'any',
-            'options' => [
-                'any'          => __('همه', 'niloo-web'),
-                'purchase'     => __('خرید جداگانه', 'niloo-web'),
-                'subscription' => __('رایگان با اشتراک', 'niloo-web'),
-                'free'         => __('رایگان', 'niloo-web'),
-            ],
         ]);
 
         $this->add_control('course_ids', [
@@ -99,17 +87,17 @@ class Nasim_Elementor_Widget_Courses extends Nasim_Elementor_Widget_Base
             'courses_home_eyebrow'         => $s['courses_home_eyebrow'] ?? '',
             'courses_home_title'           => $s['courses_home_title'] ?? '',
             'courses_home_title_highlight' => $s['courses_home_title_highlight'] ?? '',
-            'courses_home_count'           => (int) ($s['count'] ?? 2),
+            'courses_home_count'           => (int) ($s['count'] ?? 4),
         ];
 
-        $ids  = array_filter(array_map('absint', (array) ($s['course_ids'] ?? [])));
-        $mode = sanitize_key((string) ($s['access_mode'] ?? 'any'));
+        $ids    = array_filter(array_map('absint', (array) ($s['course_ids'] ?? [])));
         $layout = sanitize_key((string) ($s['layout'] ?? 'showcase'));
+        $limit  = max(1, (int) ($s['count'] ?? 4));
 
         $args = [
             'post_type'      => 'nasim_course',
             'post_status'    => 'publish',
-            'posts_per_page' => max(1, (int) ($s['count'] ?? 2)),
+            'posts_per_page' => $limit,
             'orderby'        => ['menu_order' => 'ASC', 'date' => 'DESC'],
             'no_found_rows'  => true,
         ];
@@ -120,20 +108,8 @@ class Nasim_Elementor_Widget_Courses extends Nasim_Elementor_Widget_Base
             $args['posts_per_page'] = count($ids);
         }
 
-        if ('any' !== $mode && function_exists('nasim_course_access_mode')) {
-            // Filter after query for meta consistency (legacy inference).
-            $args['posts_per_page'] = max(24, (int) $args['posts_per_page']);
-        }
-
         $query = new WP_Query($args);
         $posts = $query->posts;
-
-        if ('any' !== $mode && function_exists('nasim_course_access_mode')) {
-            $posts = array_values(array_filter($posts, static function ($post) use ($mode) {
-                return nasim_course_access_mode($post->ID) === $mode;
-            }));
-            $posts = array_slice($posts, 0, max(1, (int) ($s['count'] ?? 2)));
-        }
 
         if (!$posts) {
             if ($this->is_preview_mode()) {
@@ -187,46 +163,7 @@ class Nasim_Elementor_Widget_Courses extends Nasim_Elementor_Widget_Base
         global $post;
         foreach ($posts as $post) :
             setup_postdata($post);
-            $outcomes = array_filter(array_map('trim', explode("\n", (string) get_post_meta(get_the_ID(), '_nasim_course_outcomes', true))));
-            $cid      = (int) get_the_ID();
-            $buy_url  = function_exists('nasim_course_checkout_url') ? nasim_course_checkout_url($cid) : get_permalink($cid);
-            $cta      = function_exists('nasim_course_cta_label') ? nasim_course_cta_label($cid) : 'شروع کنید';
-            $badge    = function_exists('nasim_course_access_label') ? nasim_course_access_label($cid) : '';
-            $badge_cl = function_exists('nasim_course_access_badge_class') ? nasim_course_access_badge_class($cid) : '';
-            $thumb    = function_exists('nasim_niloo_course_image_url')
-                ? nasim_niloo_course_image_url($cid, 'large')
-                : (string) get_the_post_thumbnail_url($cid, 'large');
-            ?>
-        <article class="home-course-card">
-          <a class="home-course-media" href="<?php the_permalink(); ?>">
-            <?php if ($thumb) : ?>
-              <img src="<?php echo esc_url($thumb); ?>" alt="<?php the_title_attribute(); ?>" loading="lazy" decoding="async">
-            <?php else : ?>
-              <span class="home-course-placeholder" aria-hidden="true">◆</span>
-            <?php endif; ?>
-            <?php if ($badge) : ?>
-            <span class="<?php echo esc_attr($badge_cl); ?> course-access-badge--overlay"><?php echo esc_html($badge); ?></span>
-            <?php endif; ?>
-          </a>
-          <div class="home-course-body">
-            <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-            <?php if (get_the_excerpt()) : ?>
-            <p><?php echo esc_html(wp_strip_all_tags(get_the_excerpt())); ?></p>
-            <?php endif; ?>
-            <?php if ($outcomes) : ?>
-            <ul class="home-course-features">
-              <?php foreach (array_slice($outcomes, 0, 5) as $line) : ?>
-              <li><?php echo esc_html($line); ?></li>
-              <?php endforeach; ?>
-            </ul>
-            <?php endif; ?>
-            <div class="home-course-actions">
-              <a class="button button-primary" href="<?php echo esc_url($buy_url); ?>"><?php echo esc_html($cta); ?> <span>←</span></a>
-              <a class="text-link" href="<?php the_permalink(); ?>">جزئیات</a>
-            </div>
-          </div>
-        </article>
-            <?php
+            get_template_part('template-parts/course/card-catalog');
         endforeach;
         wp_reset_postdata();
         ?>

@@ -4,7 +4,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$about_image = nasim_mod('about_image');
+$about_image = nasim_mod('about_image') ?: nasim_mod('hero_image');
+if ($about_image && str_contains($about_image, 'niloo-about.webp')) {
+    $about_image = nasim_mod('hero_image') ?: $about_image;
+}
 $profile     = nasim_profile();
 $bio_url     = nasim_profile_bio_url();
 $about_url   = nasim_seo_clean_url(nasim_mod('about_button_url') ?: $bio_url);

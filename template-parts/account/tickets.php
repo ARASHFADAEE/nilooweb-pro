@@ -123,12 +123,9 @@ $brand_initial = mb_substr(get_bloginfo('name'), 0, 1);
       <div class="account-card-head"><h2>پشتیبانی چطور کار می‌کند؟</h2></div>
       <ul class="ticket-help-list">
         <li><span>⏱</span><div><strong>زمان پاسخ</strong><small>معمولاً کمتر از ۲۴ ساعت کاری؛ تیکت‌های فوری زودتر بررسی می‌شوند.</small></div></li>
-        <li><span>◈</span><div><strong>لایسنس و دامنه</strong><small>برای آزادسازی یا جابه‌جایی دامنه، از تب «لایسنس و دانلود» هم می‌توانی اقدام کنی.</small></div></li>
-        <li><span>⬡</span><div><strong>مشکل افزونه</strong><small>نسخه افزونه، آدرس سایت و اسکرین‌شات خطا را بفرست تا سریع‌تر حل شود.</small></div></li>
+        <li><span>◈</span><div><strong>توکن اسپات‌پلیر</strong><small>برای مشکل پخش، از تب «اسپات پلیر» توکن را بردار یا اسکرین‌شات بفرست.</small></div></li>
+        <li><span>▶</span><div><strong>مشکل دوره</strong><small>نام دوره، شماره جلسه و توضیح خطا را بنویس تا سریع‌تر حل شود.</small></div></li>
       </ul>
-      <?php if (!$is_active) : ?>
-      <p class="account-hint">پشتیبانی فنی محصولات مخصوص اشتراک فعال است؛ سؤالات پیش از خرید و مالی برای همه باز است.</p>
-      <?php endif; ?>
     </aside>
   </div>
 
@@ -161,7 +158,7 @@ $brand_initial = mb_substr(get_bloginfo('name'), 0, 1);
 
       <label class="ticket-field">
         <span>عنوان تیکت</span>
-        <input type="text" name="subject" required minlength="<?php echo esc_attr($limits['subject_min']); ?>" maxlength="<?php echo esc_attr($limits['subject_max']); ?>" value="<?php echo esc_attr($old['subject'] ?? ''); ?>" placeholder="مثلاً: خطا هنگام آپلود فایل در افزونه S3">
+        <input type="text" name="subject" required minlength="<?php echo esc_attr($limits['subject_min']); ?>" maxlength="<?php echo esc_attr($limits['subject_max']); ?>" value="<?php echo esc_attr($old['subject'] ?? ''); ?>" placeholder="مثلاً: مشکل پخش جلسه ۳ دوره اولترا وب">
       </label>
 
       <div class="ticket-field-row">
@@ -204,7 +201,7 @@ $brand_initial = mb_substr(get_bloginfo('name'), 0, 1);
 
       <label class="ticket-field">
         <span>شرح مشکل یا سؤال</span>
-        <textarea name="message" rows="8" required minlength="<?php echo esc_attr($limits['message_min']); ?>" maxlength="<?php echo esc_attr($limits['message_max']); ?>" placeholder="چه اتفاقی افتاد؟ چه انتظاری داشتی؟ نسخه وردپرس و افزونه را هم بنویس."><?php echo esc_textarea($old['message'] ?? ''); ?></textarea>
+        <textarea name="message" rows="8" required minlength="<?php echo esc_attr($limits['message_min']); ?>" maxlength="<?php echo esc_attr($limits['message_max']); ?>" placeholder="چه اتفاقی افتاد؟ نام دوره، شماره جلسه و اسکرین‌شات خطا را هم بفرست."><?php echo esc_textarea($old['message'] ?? ''); ?></textarea>
       </label>
 
       <div class="ticket-form-foot">
@@ -220,7 +217,7 @@ $brand_initial = mb_substr(get_bloginfo('name'), 0, 1);
     <aside class="account-card ticket-help-card">
       <div class="account-card-head"><h2>قبل از ارسال</h2></div>
       <ul class="ticket-help-list">
-        <li><span>۱</span><div><strong>نسخه‌ها را بنویس</strong><small>نسخه وردپرس، PHP و افزونه/قالب.</small></div></li>
+        <li><span>۱</span><div><strong>جزئیات را بنویس</strong><small>نام دوره، شماره جلسه و دستگاه/مرورگر.</small></div></li>
         <li><span>۲</span><div><strong>مراحل تکرار خطا</strong><small>دقیقاً چه کاری کردی که مشکل پیش آمد.</small></div></li>
         <li><span>۳</span><div><strong>اسکرین‌شات یا لاگ</strong><small>تصویر خطا یا فایل debug.log را پیوست کن.</small></div></li>
       </ul>

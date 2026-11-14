@@ -1,6 +1,8 @@
 <?php
 
-if(!defined('ABSPATH')) exit;
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 $course_id   = get_queried_object_id();
 $lesson      = nasim_current_lesson();
@@ -41,112 +43,57 @@ get_header();
       <div class="course-meta">
         <span>◷ <?php echo esc_html($total); ?> درس</span>
         <?php if ($level) : ?><span>▱ سطح <?php echo esc_html($level); ?></span><?php endif; ?>
-        <span>♧ <?php echo $has_access ? 'دسترسی فعال' : 'دسترسی با اشتراک'; ?></span>
+        <span>♧ <?php echo $has_access ? 'دسترسی فعال' : 'نیاز به خرید'; ?></span>
       </div>
     </div>
 
     <div class="lms-layout">
-      <section class="lesson-main">
-        <div class="video-shell">
-          <div class="video-frame">
-            <?php if ($can_watch && !empty($lesson['embed'])) : ?>
-              <?php echo wp_kses($lesson['embed'], nasim_embed_allowed_html()); ?>
-            <?php elseif ($can_watch) : ?>
-              <div class="video-placeholder">
-                <div class="placeholder-play">▶</div>
-                <strong>ویدیوی این درس به‌زودی اضافه می‌شود</strong>
+      <div class="video-shell" id="lmsPlayer">
+        <div class="video-frame<?php echo ($can_watch && function_exists('nasim_lesson_uses_plyr') && nasim_lesson_uses_plyr($course_id, $lesson)) ? ' video-frame--plyr' : ''; ?>">
+          <?php if ($can_watch && !empty($lesson['embed'])) : ?>
+            <?php
+              echo function_exists('nasim_render_lesson_player_html')
+                  ? nasim_render_lesson_player_html($course_id, $lesson) // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in helper.
+                  : wp_kses($lesson['embed'], nasim_embed_allowed_html());
+            ?>
+          <?php elseif ($can_watch) : ?>
+            <div class="video-placeholder">
+              <div class="placeholder-play">▶</div>
+              <strong>ویدیوی این درس به‌زودی اضافه می‌شود</strong>
+            </div>
+          <?php else : ?>
+            <div class="video-placeholder video-locked">
+              <div class="placeholder-play"><?php echo nasim_lock_icon(); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?></div>
+              <strong>این درس بعد از خرید دوره باز می‌شود</strong>
+              <span>با خرید این دوره به همه جلسات دسترسی دائمی می‌گیری.</span>
+              <div class="video-locked-actions">
+                <a class="button button-primary" href="<?php echo esc_url(function_exists('nasim_course_checkout_url') ? nasim_course_checkout_url($course_id) : get_permalink($course_id)); ?>">خرید این دوره <span>←</span></a>
+                <?php if (!$logged_in) : ?>
+                <a class="button button-outline" href="<?php echo esc_url(wp_login_url(nasim_lesson_url($course_id, $lesson['id']))); ?>">ورود به حساب</a>
+                <?php endif; ?>
               </div>
+            </div>
+          <?php endif; ?>
+        </div>
+        <div class="video-underbar">
+          <span class="live-dot<?php echo $can_watch ? '' : ' is-locked'; ?>"></span>
+          <span class="video-underbar-status"><?php echo esc_html($can_watch ? (!empty($lesson['is_free']) && !$has_access ? 'درس رایگان' : 'در حال پخش') : 'قفل — نیاز به خرید'); ?></span>
+          <a class="subtle-button video-underbar-course" href="<?php echo esc_url(get_permalink($course_id)); ?>">صفحه دوره</a>
+          <nav class="video-dock-nav" aria-label="جابجایی سریع درس">
+            <?php if ($prev) : ?>
+            <a class="video-dock-btn" href="<?php echo esc_url(nasim_lesson_url($course_id, $prev['id']) . '#lmsPlayer'); ?>" title="درس قبلی">→ قبلی</a>
             <?php else : ?>
-              <div class="video-placeholder video-locked">
-                <div class="placeholder-play"><?php echo nasim_lock_icon(); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?></div>
-                <strong>این درس مخصوص مشترکین است</strong>
-                <span>با خرید اشتراک به همه درس‌های این دوره و دوره‌های دیگر دسترسی داری.</span>
-                <div class="video-locked-actions">
-                  <a class="button button-primary" href="<?php echo esc_url(nasim_subscription_url()); ?>">خرید اشتراک <span>←</span></a>
-                  <?php if (!$logged_in) : ?>
-                  <a class="button button-outline" href="<?php echo esc_url(wp_login_url(nasim_lesson_url($course_id, $lesson['id']))); ?>">ورود به حساب</a>
-                  <?php endif; ?>
-                </div>
-              </div>
+            <span class="video-dock-btn is-disabled" aria-disabled="true">→ قبلی</span>
             <?php endif; ?>
-          </div>
-          <div class="video-underbar">
-            <span class="live-dot<?php echo $can_watch ? '' : ' is-locked'; ?>"></span>
-            <span><?php echo esc_html($can_watch ? (!empty($lesson['is_free']) && !$has_access ? 'درس رایگان' : 'در حال پخش') : 'قفل — نیاز به اشتراک'); ?></span>
-            <a class="subtle-button" href="<?php echo esc_url(get_permalink($course_id)); ?>">صفحه دوره</a>
-          </div>
+            <span class="video-dock-count"><?php echo esc_html(nasim_fa_digits($lesson['number']) . '/' . $total); ?></span>
+            <?php if ($next) : ?>
+            <a class="video-dock-btn" href="<?php echo esc_url(nasim_lesson_url($course_id, $next['id']) . '#lmsPlayer'); ?>" title="درس بعدی">بعدی ←</a>
+            <?php else : ?>
+            <span class="video-dock-btn is-disabled" aria-disabled="true">بعدی ←</span>
+            <?php endif; ?>
+          </nav>
         </div>
-
-        <div class="lesson-title-row">
-          <div>
-            <span class="lesson-kicker">درس <?php echo esc_html(nasim_fa_digits($lesson['number'])); ?> از <?php echo esc_html($total); ?><?php echo $lesson['section'] ? ' · ' . esc_html($lesson['section']) : ''; ?></span>
-            <h2 id="lessonTitle"><?php echo esc_html($lesson['title']); ?></h2>
-          </div>
-          <?php if ($interactive) :
-              $is_bookmarked = in_array($lesson['id'], $bookmarks, true);
-              ?>
-          <button class="bookmark-button" id="bookmarkButton" aria-pressed="<?php echo $is_bookmarked ? 'true' : 'false'; ?>"><?php echo $is_bookmarked ? '♥ <span>ذخیره شد</span>' : '♡ <span>ذخیره درس</span>'; ?></button>
-          <?php endif; ?>
-        </div>
-
-        <?php if (!empty($lesson['description'])) : ?>
-        <p class="lesson-description"><?php echo esc_html($lesson['description']); ?></p>
-        <?php endif; ?>
-
-        <div class="lesson-actions">
-          <?php if ($prev) : ?>
-            <a class="button button-outline" href="<?php echo esc_url(nasim_lesson_url($course_id, $prev['id'])); ?>">→ درس قبلی</a>
-          <?php else : ?>
-            <span class="button button-outline is-disabled" aria-disabled="true">→ درس قبلی</span>
-          <?php endif; ?>
-
-          <?php if ($interactive) : ?>
-            <button class="button button-primary" id="completeLesson" aria-pressed="<?php echo $is_done ? 'true' : 'false'; ?>"><?php echo $is_done ? 'تکمیل شد ✓ (لغو)' : 'علامت‌گذاری به‌عنوان تکمیل‌شده ✓'; ?></button>
-          <?php endif; ?>
-
-          <?php if ($next) : ?>
-            <a class="button button-outline" href="<?php echo esc_url(nasim_lesson_url($course_id, $next['id'])); ?>">درس بعدی ←</a>
-          <?php else : ?>
-            <span class="button button-outline is-disabled" aria-disabled="true">درس بعدی ←</span>
-          <?php endif; ?>
-        </div>
-
-        <?php if ($can_watch) : ?>
-        <div class="lesson-tabs" role="tablist">
-          <button class="lesson-tab active" data-tab="overview" role="tab">درباره درس</button>
-          <?php if ($interactive) : ?><button class="lesson-tab" data-tab="notes" role="tab">یادداشت‌های من</button><?php endif; ?>
-          <?php if (!empty($lesson['resource_url'])) : ?><button class="lesson-tab" data-tab="resources" role="tab">فایل‌های همراه</button><?php endif; ?>
-        </div>
-
-        <div class="tab-panel" id="tab-overview">
-          <h3>در این درس چه یاد می‌گیری؟</h3>
-          <?php if ($overview) : ?>
-          <ul><?php foreach ($overview as $item) : ?><li><?php echo esc_html($item); ?></li><?php endforeach; ?></ul>
-          <?php else : ?>
-          <p><?php echo esc_html($lesson['description'] ?: 'توضیحات این درس به‌زودی اضافه می‌شود.'); ?></p>
-          <?php endif; ?>
-        </div>
-
-        <?php if ($interactive) : ?>
-        <div class="tab-panel" id="tab-notes" hidden>
-          <h3>یادداشت‌های شخصی</h3>
-          <textarea id="lessonNotes" rows="5" placeholder="نکته‌ها و تمرین‌های این درس را اینجا یادداشت کن..."><?php echo esc_textarea(nasim_get_lesson_note($course_id, $lesson['id'])); ?></textarea>
-          <div class="notes-actions"><span id="notesStatus">یادداشت‌ها در حساب کاربری‌ات ذخیره می‌شوند.</span><button class="button button-primary" id="saveNotes">ذخیره یادداشت</button></div>
-        </div>
-        <?php endif; ?>
-
-        <?php if (!empty($lesson['resource_url'])) : ?>
-        <div class="tab-panel" id="tab-resources" hidden>
-          <h3>فایل‌های همراه</h3>
-          <a class="resource-row" href="<?php echo esc_url($lesson['resource_url']); ?>" target="_blank" rel="noopener">
-            <span class="resource-icon"><?php echo esc_html(strtoupper(pathinfo(wp_parse_url($lesson['resource_url'], PHP_URL_PATH) ?: '', PATHINFO_EXTENSION)) ?: 'FILE'); ?></span>
-            <div><strong><?php echo esc_html($lesson['resource_title'] ?: 'دانلود فایل'); ?></strong><small>برای دانلود کلیک کن</small></div>
-            <span class="resource-tag">↓</span>
-          </a>
-        </div>
-        <?php endif; ?>
-        <?php endif; ?>
-      </section>
+      </div>
 
       <aside class="course-sidebar">
         <?php if ($logged_in && $has_access) : ?>
@@ -195,7 +142,7 @@ get_header();
                   $classes        = array_filter(['lesson-row', $is_current ? 'selected' : '', $item_is_done ? 'completed' : '', $item_can_watch ? '' : 'locked']);
                   $meta           = array_filter([$item['type'] ?? '', !empty($item['duration']) ? nasim_fa_digits($item['duration']) : '']);
                   ?>
-              <a class="<?php echo esc_attr(implode(' ', $classes)); ?>" href="<?php echo esc_url(nasim_lesson_url($course_id, $item['id'])); ?>" data-lesson="<?php echo esc_attr($item['id']); ?>"<?php echo $is_current ? ' aria-current="step"' : ''; ?>>
+              <a class="<?php echo esc_attr(implode(' ', $classes)); ?>" href="<?php echo esc_url(nasim_lesson_url($course_id, $item['id']) . '#lmsPlayer'); ?>" data-lesson="<?php echo esc_attr($item['id']); ?>"<?php echo $is_current ? ' aria-current="step"' : ''; ?>>
                 <span class="lesson-state"><?php echo $item_is_done ? '✓' : ($item_can_watch ? ($is_current ? '▶' : '▷') : nasim_lock_icon()); // phpcs:ignore WordPress.Security.EscapeOutput -- static markup. ?></span>
                 <span class="lesson-row-copy"><strong><?php echo esc_html($item['title']); ?></strong><?php if ($meta) : ?><small><?php echo esc_html(implode(' · ', $meta)); ?></small><?php endif; ?></span>
                 <?php if (!empty($item['is_free']) && !$has_access) : ?><span class="free-badge">رایگان</span><?php endif; ?>
@@ -215,6 +162,78 @@ get_header();
           <a href="<?php echo esc_url(home_url('/#about')); ?>">معرفی ←</a>
         </div>
       </aside>
+
+      <section class="lesson-meta">
+        <div class="lesson-title-row">
+          <div>
+            <span class="lesson-kicker">درس <?php echo esc_html(nasim_fa_digits($lesson['number'])); ?> از <?php echo esc_html($total); ?><?php echo $lesson['section'] ? ' · ' . esc_html($lesson['section']) : ''; ?></span>
+            <h2 id="lessonTitle"><?php echo esc_html($lesson['title']); ?></h2>
+          </div>
+          <?php if ($interactive) :
+              $is_bookmarked = in_array($lesson['id'], $bookmarks, true);
+              ?>
+          <button class="bookmark-button" id="bookmarkButton" aria-pressed="<?php echo $is_bookmarked ? 'true' : 'false'; ?>"><?php echo $is_bookmarked ? '♥ <span>ذخیره شد</span>' : '♡ <span>ذخیره درس</span>'; ?></button>
+          <?php endif; ?>
+        </div>
+
+        <?php if (!empty($lesson['description'])) : ?>
+        <p class="lesson-description"><?php echo esc_html($lesson['description']); ?></p>
+        <?php endif; ?>
+
+        <div class="lesson-actions">
+          <?php if ($prev) : ?>
+            <a class="button button-outline" href="<?php echo esc_url(nasim_lesson_url($course_id, $prev['id']) . '#lmsPlayer'); ?>">→ درس قبلی</a>
+          <?php else : ?>
+            <span class="button button-outline is-disabled" aria-disabled="true">→ درس قبلی</span>
+          <?php endif; ?>
+
+          <?php if ($interactive) : ?>
+            <button class="button button-primary" id="completeLesson" aria-pressed="<?php echo $is_done ? 'true' : 'false'; ?>"><?php echo $is_done ? 'تکمیل شد ✓ (لغو)' : 'علامت‌گذاری به‌عنوان تکمیل‌شده ✓'; ?></button>
+          <?php endif; ?>
+
+          <?php if ($next) : ?>
+            <a class="button button-outline" href="<?php echo esc_url(nasim_lesson_url($course_id, $next['id']) . '#lmsPlayer'); ?>">درس بعدی ←</a>
+          <?php else : ?>
+            <span class="button button-outline is-disabled" aria-disabled="true">درس بعدی ←</span>
+          <?php endif; ?>
+        </div>
+
+        <?php if ($can_watch) : ?>
+        <div class="lesson-tabs" role="tablist">
+          <button class="lesson-tab active" data-tab="overview" role="tab">درباره درس</button>
+          <?php if ($interactive) : ?><button class="lesson-tab" data-tab="notes" role="tab">یادداشت‌های من</button><?php endif; ?>
+          <?php if (!empty($lesson['resource_url'])) : ?><button class="lesson-tab" data-tab="resources" role="tab">فایل‌های همراه</button><?php endif; ?>
+        </div>
+
+        <div class="tab-panel" id="tab-overview">
+          <h3>در این درس چه یاد می‌گیری؟</h3>
+          <?php if ($overview) : ?>
+          <ul><?php foreach ($overview as $item) : ?><li><?php echo esc_html($item); ?></li><?php endforeach; ?></ul>
+          <?php else : ?>
+          <p><?php echo esc_html($lesson['description'] ?: 'توضیحات این درس به‌زودی اضافه می‌شود.'); ?></p>
+          <?php endif; ?>
+        </div>
+
+        <?php if ($interactive) : ?>
+        <div class="tab-panel" id="tab-notes" hidden>
+          <h3>یادداشت‌های شخصی</h3>
+          <textarea id="lessonNotes" rows="5" placeholder="نکته‌ها و تمرین‌های این درس را اینجا یادداشت کن..."><?php echo esc_textarea(nasim_get_lesson_note($course_id, $lesson['id'])); ?></textarea>
+          <div class="notes-actions"><span id="notesStatus">یادداشت‌ها در حساب کاربری‌ات ذخیره می‌شوند.</span><button class="button button-primary" id="saveNotes">ذخیره یادداشت</button></div>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($lesson['resource_url'])) : ?>
+        <div class="tab-panel" id="tab-resources" hidden>
+          <h3>فایل‌های همراه</h3>
+          <a class="resource-row" href="<?php echo esc_url($lesson['resource_url']); ?>" target="_blank" rel="noopener">
+            <span class="resource-icon"><?php echo esc_html(strtoupper(pathinfo(wp_parse_url($lesson['resource_url'], PHP_URL_PATH) ?: '', PATHINFO_EXTENSION)) ?: 'FILE'); ?></span>
+            <div><strong><?php echo esc_html($lesson['resource_title'] ?: 'دانلود فایل'); ?></strong><small>برای دانلود کلیک کن</small></div>
+            <span class="resource-tag">↓</span>
+          </a>
+        </div>
+        <?php endif; ?>
+        <?php endif; ?>
+      </section>
     </div>
   </main>
 

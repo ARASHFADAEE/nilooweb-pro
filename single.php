@@ -21,9 +21,18 @@ while (have_posts()) :
     $related     = nasim_related_posts(get_the_ID(), 4);
     $blog_label  = nasim_mod('articles_eyebrow') ?: 'مقالات';
     $crumbs      = nasim_seo_breadcrumb_items();
-    $cta         = nasim_seo_article_cta();
     $share       = nasim_seo_share_links();
     $toc         = $content['toc'];
+    $profile     = function_exists('nasim_profile') ? nasim_profile() : [];
+    $bio_url     = function_exists('nasim_profile_bio_url') ? nasim_profile_bio_url() : home_url('/connect/');
+    $courses_url = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : home_url('/courses/');
+    $sidebar_courses = get_posts([
+        'post_type'      => 'nasim_course',
+        'post_status'    => 'publish',
+        'posts_per_page' => 3,
+        'orderby'        => ['menu_order' => 'ASC', 'date' => 'DESC'],
+        'no_found_rows'  => true,
+    ]);
     ?>
 
   <div class="reading-progress" id="readingProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="پیشرفت مطالعه"></div>
@@ -112,7 +121,7 @@ while (have_posts()) :
 
         <?php if ($related) : ?>
         <section class="related-articles">
-          <div class="section-heading"><div><span class="eyebrow">ادامه مطالعه</span><h2>مقالات مرتبط برای <span>مدیران سایت وردپرسی</span></h2></div></div>
+          <div class="section-heading"><div><span class="eyebrow">ادامه مطالعه</span><h2>مقالات مرتبط برای <span>مسیر یادگیری</span></h2></div></div>
           <div class="related-grid">
             <?php foreach ($related as $item) : ?>
             <a href="<?php echo esc_url(get_permalink($item)); ?>" class="related-card">
@@ -135,21 +144,59 @@ while (have_posts()) :
           <?php endforeach; ?>
         </nav>
         <?php endif; ?>
-        <div class="sidebar-cta">
-          <span class="sidebar-cta-icon" aria-hidden="true">✳</span>
-          <h3><?php echo esc_html($cta['title']); ?></h3>
-          <p><?php echo esc_html($cta['text']); ?></p>
-          <a class="button button-primary" href="<?php echo esc_url($cta['url']); ?>"><?php echo esc_html($cta['button']); ?> ←</a>
-          <a class="sidebar-cta-secondary" href="<?php echo esc_url(nasim_seo_hubs()['plugins']['url']); ?>">مشاهده افزونه‌ها</a>
+
+        <div class="sidebar-card sidebar-about">
+          <div class="sidebar-about-top">
+            <span class="sidebar-about-avatar" aria-hidden="true"><?php echo esc_html(mb_substr($profile['name'] ?? 'ن', 0, 1)); ?></span>
+            <div>
+              <strong><?php echo esc_html($profile['name'] ?? 'نیلوفر وفایی'); ?></strong>
+              <small><?php echo esc_html($profile['role'] ?? 'مدرس طراحی سایت'); ?></small>
+            </div>
+          </div>
+          <p><?php echo esc_html($profile['about_short'] ?? ($profile['tagline'] ?? '')); ?></p>
+          <a class="button button-primary button-small" href="<?php echo esc_url($bio_url); ?>"><?php echo esc_html($profile['bio_label'] ?? 'معرفی من'); ?> ←</a>
         </div>
-        <div class="sidebar-card sidebar-links">
-          <strong>لینک‌های کلیدی</strong>
-          <?php foreach (['support', 'plugins', 'custom', 'courses'] as $hub_key) :
-              $hub = nasim_seo_hubs()[$hub_key];
-              ?>
-          <a href="<?php echo esc_url($hub['url']); ?>"><?php echo esc_html($hub['title']); ?></a>
-          <?php endforeach; ?>
+
+        <?php if ($sidebar_courses) : ?>
+        <div class="sidebar-card sidebar-courses">
+          <div class="sidebar-courses-head">
+            <strong>دوره‌های آموزشی</strong>
+            <a class="text-link" href="<?php echo esc_url($courses_url); ?>">همه ←</a>
+          </div>
+          <ul class="sidebar-course-list">
+            <?php foreach ($sidebar_courses as $course) :
+                $cid   = (int) $course->ID;
+                $thumb = function_exists('nasim_niloo_course_image_url')
+                    ? nasim_niloo_course_image_url($cid, 'thumbnail')
+                    : (string) get_the_post_thumbnail_url($cid, 'thumbnail');
+                $price = function_exists('nasim_course_catalog_price') ? nasim_course_catalog_price($cid) : 0;
+                $mode  = function_exists('nasim_course_access_mode') ? nasim_course_access_mode($cid) : 'purchase';
+                ?>
+            <li>
+              <a class="sidebar-course-row" href="<?php echo esc_url(get_permalink($cid)); ?>">
+                <?php if ($thumb) : ?>
+                <img src="<?php echo esc_url($thumb); ?>" alt="" width="56" height="56" loading="lazy" decoding="async">
+                <?php else : ?>
+                <span class="sidebar-course-fallback" aria-hidden="true">ن</span>
+                <?php endif; ?>
+                <span class="sidebar-course-copy">
+                  <strong><?php echo esc_html(get_the_title($cid)); ?></strong>
+                  <small><?php
+                    if ('free' === $mode) {
+                        echo 'رایگان';
+                    } elseif ($price > 0 && function_exists('nasim_format_price')) {
+                        echo esc_html(nasim_format_price($price));
+                    } else {
+                        echo 'مشاهده دوره';
+                    }
+                  ?></small>
+                </span>
+              </a>
+            </li>
+            <?php endforeach; ?>
+          </ul>
         </div>
+        <?php endif; ?>
       </aside>
     </article>
   </main>

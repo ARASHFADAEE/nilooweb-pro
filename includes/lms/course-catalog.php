@@ -14,17 +14,13 @@ if (!defined('ABSPATH')) {
 function nasim_course_catalog_filters(): array
 {
     // phpcs:disable WordPress.Security.NonceVerification.Recommended -- public filter form.
-    $access = sanitize_key(wp_unslash($_GET['access'] ?? 'all'));
-    $cat    = sanitize_title(wp_unslash($_GET['cat'] ?? ''));
-    $level  = sanitize_text_field(wp_unslash($_GET['level'] ?? ''));
-    $q      = sanitize_text_field(wp_unslash($_GET['q'] ?? ''));
-    $sort   = sanitize_key(wp_unslash($_GET['sort'] ?? 'featured'));
-    $paged  = max(1, (int) ($_GET['pg'] ?? get_query_var('paged') ?: get_query_var('page') ?: 1));
+    $cat   = sanitize_title(wp_unslash($_GET['cat'] ?? ''));
+    $level = sanitize_text_field(wp_unslash($_GET['level'] ?? ''));
+    $q     = sanitize_text_field(wp_unslash($_GET['q'] ?? ''));
+    $sort  = sanitize_key(wp_unslash($_GET['sort'] ?? 'featured'));
+    $paged = max(1, (int) ($_GET['pg'] ?? get_query_var('paged') ?: get_query_var('page') ?: 1));
     // phpcs:enable
 
-    if (!in_array($access, ['all', 'free', 'subscription', 'purchase'], true)) {
-        $access = 'all';
-    }
     if (!in_array($sort, ['featured', 'newest', 'title', 'price'], true)) {
         $sort = 'featured';
     }
@@ -32,7 +28,7 @@ function nasim_course_catalog_filters(): array
         $level = '';
     }
 
-    return compact('access', 'cat', 'level', 'q', 'sort', 'paged');
+    return compact('cat', 'level', 'q', 'sort', 'paged');
 }
 
 /**
@@ -47,9 +43,6 @@ function nasim_course_catalog_url(array $overrides = []): string
     $merged  = array_merge($current, $overrides);
 
     $args = [];
-    if (!empty($merged['access']) && 'all' !== $merged['access']) {
-        $args['access'] = $merged['access'];
-    }
     if (!empty($merged['cat'])) {
         $args['cat'] = $merged['cat'];
     }
@@ -103,13 +96,6 @@ function nasim_course_catalog_query(): array
         ];
     }
 
-    if ('all' !== $filters['access']) {
-        $args['meta_query'][] = [
-            'key'   => '_nasim_course_access_mode',
-            'value' => $filters['access'],
-        ];
-    }
-
     switch ($filters['sort']) {
         case 'newest':
             $args['orderby'] = 'date';
@@ -131,28 +117,6 @@ function nasim_course_catalog_query(): array
 
     $query = new WP_Query($args);
 
-    // Stats across all published courses (lightweight).
-    $stats = [
-        'all'          => 0,
-        'free'         => 0,
-        'subscription' => 0,
-        'purchase'     => 0,
-    ];
-    $all = get_posts([
-        'post_type'      => 'nasim_course',
-        'post_status'    => 'publish',
-        'posts_per_page' => -1,
-        'fields'         => 'ids',
-        'no_found_rows'  => true,
-    ]);
-    foreach ($all as $id) {
-        $mode = function_exists('nasim_course_access_mode') ? nasim_course_access_mode((int) $id) : 'subscription';
-        $stats['all']++;
-        if (isset($stats[$mode])) {
-            $stats[$mode]++;
-        }
-    }
-
     $categories = get_terms([
         'taxonomy'   => 'nasim_course_cat',
         'hide_empty' => true,
@@ -164,7 +128,7 @@ function nasim_course_catalog_query(): array
     return [
         'query'      => $query,
         'filters'    => $filters,
-        'stats'      => $stats,
+        'stats'      => ['all' => (int) $query->found_posts],
         'categories' => $categories,
     ];
 }

@@ -23,22 +23,25 @@ $meta_bits = array_filter([
     $duration,
     $level,
 ]);
+$primary_url = ('free' === $mode) ? get_permalink() : $buy_url;
 ?>
 <article class="ccard ccard--<?php echo esc_attr($mode); ?>">
-  <a class="ccard-media" href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true">
+  <a class="ccard-media" href="<?php the_permalink(); ?>">
     <?php if ($thumb) : ?>
-    <img src="<?php echo esc_url($thumb); ?>" alt="" loading="lazy" decoding="async">
+    <img src="<?php echo esc_url($thumb); ?>" alt="<?php the_title_attribute(); ?>" loading="lazy" decoding="async" width="400" height="400">
     <?php else : ?>
     <span class="ccard-fallback" aria-hidden="true">ن</span>
     <?php endif; ?>
+    <?php if ($label) : ?>
     <span class="<?php echo esc_attr($badge); ?> ccard-badge"><?php echo esc_html($label); ?></span>
+    <?php endif; ?>
   </a>
 
   <div class="ccard-body">
     <?php if ($terms && !is_wp_error($terms)) : ?>
     <div class="ccard-cats">
-      <?php foreach (array_slice($terms, 0, 2) as $term) : ?>
-      <a class="ccard-cat" href="<?php echo esc_url(nasim_course_catalog_url(['cat' => $term->slug, 'paged' => 1])); ?>"><?php echo esc_html($term->name); ?></a>
+      <?php foreach (array_slice($terms, 0, 1) as $term) : ?>
+      <span class="ccard-cat"><?php echo esc_html($term->name); ?></span>
       <?php endforeach; ?>
     </div>
     <?php endif; ?>
@@ -46,12 +49,12 @@ $meta_bits = array_filter([
     <h3 class="ccard-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 
     <?php if (has_excerpt()) : ?>
-    <p class="ccard-excerpt"><?php echo esc_html(wp_html_excerpt(get_the_excerpt(), 110, '…')); ?></p>
+    <p class="ccard-excerpt"><?php echo esc_html(wp_html_excerpt(get_the_excerpt(), 72, '…')); ?></p>
     <?php endif; ?>
 
     <?php if ($meta_bits) : ?>
     <ul class="ccard-meta">
-      <?php foreach ($meta_bits as $bit) : ?>
+      <?php foreach (array_slice($meta_bits, 0, 2) as $bit) : ?>
       <li><?php echo esc_html($bit); ?></li>
       <?php endforeach; ?>
     </ul>
@@ -61,18 +64,13 @@ $meta_bits = array_filter([
       <div class="ccard-price">
         <?php if ('free' === $mode) : ?>
         <strong class="is-free">رایگان</strong>
-        <?php elseif ('subscription' === $mode) : ?>
-        <strong class="is-sub">با اشتراک</strong>
         <?php elseif ($price > 0) : ?>
         <strong><?php echo esc_html(function_exists('nasim_format_price') ? nasim_format_price($price) : number_format($price) . ' تومان'); ?></strong>
         <?php else : ?>
-        <strong>خرید جداگانه</strong>
+        <strong>پولی</strong>
         <?php endif; ?>
       </div>
-      <div class="ccard-actions">
-        <a class="button button-primary button-small" href="<?php echo esc_url('free' === $mode ? get_permalink() : $buy_url); ?>"><?php echo esc_html($cta); ?></a>
-        <a class="text-link" href="<?php the_permalink(); ?>">جزئیات</a>
-      </div>
+      <a class="button button-primary button-small ccard-cta" href="<?php echo esc_url($primary_url); ?>"><?php echo esc_html($cta); ?></a>
     </div>
   </div>
 </article>

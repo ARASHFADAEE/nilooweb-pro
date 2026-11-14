@@ -1,17 +1,37 @@
 const menuToggle = document.getElementById('menuToggle');
-const mainNav = document.getElementById('mainNav');
+const navDrawer = document.getElementById('navDrawer');
+
+const setNavOpen = (open) => {
+  if (!navDrawer || !menuToggle) return;
+  navDrawer.hidden = false;
+  requestAnimationFrame(() => {
+    navDrawer.classList.toggle('is-open', open);
+    menuToggle.setAttribute('aria-expanded', String(open));
+    menuToggle.setAttribute('aria-label', open ? 'بستن منو' : 'باز کردن منو');
+    document.documentElement.classList.toggle('nav-drawer-open', open);
+    if (!open) {
+      window.setTimeout(() => {
+        if (!navDrawer.classList.contains('is-open')) navDrawer.hidden = true;
+      }, 360);
+    }
+  });
+};
 
 menuToggle?.addEventListener('click', () => {
-  const isOpen = mainNav.classList.toggle('open');
-  menuToggle.setAttribute('aria-expanded', String(isOpen));
-  menuToggle.setAttribute('aria-label', isOpen ? 'بستن منو' : 'باز کردن منو');
+  const open = !navDrawer?.classList.contains('is-open');
+  setNavOpen(open);
 });
 
-mainNav?.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
-    mainNav.classList.remove('open');
-    menuToggle?.setAttribute('aria-expanded', 'false');
-  });
+navDrawer?.querySelectorAll('[data-nav-close]').forEach((el) => {
+  el.addEventListener('click', () => setNavOpen(false));
+});
+
+navDrawer?.querySelectorAll('.nav-drawer-nav a').forEach((link) => {
+  link.addEventListener('click', () => setNavOpen(false));
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') setNavOpen(false);
 });
 
 const searchToggle = document.getElementById('searchToggle');
