@@ -57,7 +57,7 @@ class Nasim_Msgway {
     public function send($mobile, $template_id, array $params = [], $code = '') {
 
         if (!absint($template_id)) {
-            return new WP_Error('msgway_template', __('کد قالب پیامک تنظیم نشده است.', 'nasim-fitness'));
+            return new WP_Error('msgway_template', __('کد قالب پیامک تنظیم نشده است.', 'niloo-web'));
         }
 
         $body = [
@@ -90,7 +90,7 @@ class Nasim_Msgway {
     private function request($path, array $body) {
 
         if (!$this->is_configured()) {
-            return new WP_Error('msgway_not_configured', __('کلید API راه پیام تنظیم نشده است.', 'nasim-fitness'));
+            return new WP_Error('msgway_not_configured', __('کلید API راه پیام تنظیم نشده است.', 'niloo-web'));
         }
 
         $response = wp_remote_post(self::API_URL . $path, [
@@ -105,7 +105,7 @@ class Nasim_Msgway {
         ]);
 
         if (is_wp_error($response)) {
-            return new WP_Error('msgway_http', __('ارتباط با سامانه پیامک برقرار نشد.', 'nasim-fitness'), $response->get_error_message());
+            return new WP_Error('msgway_http', __('ارتباط با سامانه پیامک برقرار نشد.', 'niloo-web'), $response->get_error_message());
         }
 
         $http = (int) wp_remote_retrieve_response_code($response);
@@ -124,13 +124,13 @@ class Nasim_Msgway {
     private static function http_error_message($http) {
 
         $messages = [
-            400 => __('درخواست نامعتبر است (شماره، قالب یا پارامترها را بررسی کنید).', 'nasim-fitness'),
-            401 => __('کلید API نامعتبر است.', 'nasim-fitness'),
-            403 => __('دسترسی به این قالب یا خط مجاز نیست.', 'nasim-fitness'),
-            429 => __('تعداد درخواست‌ها بیش از حد مجاز است.', 'nasim-fitness'),
-            500 => __('خطای داخلی سامانه پیامک.', 'nasim-fitness'),
+            400 => __('درخواست نامعتبر است (شماره، قالب یا پارامترها را بررسی کنید).', 'niloo-web'),
+            401 => __('کلید API نامعتبر است.', 'niloo-web'),
+            403 => __('دسترسی به این قالب یا خط مجاز نیست.', 'niloo-web'),
+            429 => __('تعداد درخواست‌ها بیش از حد مجاز است.', 'niloo-web'),
+            500 => __('خطای داخلی سامانه پیامک.', 'niloo-web'),
         ];
 
-        return $messages[$http] ?? sprintf(__('خطای سامانه پیامک (کد %d).', 'nasim-fitness'), $http);
+        return $messages[$http] ?? sprintf(__('خطای سامانه پیامک (کد %d).', 'niloo-web'), $http);
     }
 }

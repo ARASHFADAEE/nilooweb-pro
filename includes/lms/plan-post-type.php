@@ -11,12 +11,12 @@ function nasim_register_plan_post_type() {
 
     register_post_type('nasim_plan', [
         'labels' => [
-            'name'          => __('پلن‌های اشتراک', 'nasim-fitness'),
-            'singular_name' => __('پلن اشتراک', 'nasim-fitness'),
-            'add_new'       => __('افزودن پلن', 'nasim-fitness'),
-            'add_new_item'  => __('افزودن پلن جدید', 'nasim-fitness'),
-            'edit_item'     => __('ویرایش پلن', 'nasim-fitness'),
-            'all_items'     => __('پلن‌های اشتراک', 'nasim-fitness'),
+            'name'          => __('پلن‌های اشتراک', 'niloo-web'),
+            'singular_name' => __('پلن اشتراک', 'niloo-web'),
+            'add_new'       => __('افزودن پلن', 'niloo-web'),
+            'add_new_item'  => __('افزودن پلن جدید', 'niloo-web'),
+            'edit_item'     => __('ویرایش پلن', 'niloo-web'),
+            'all_items'     => __('پلن‌های اشتراک', 'niloo-web'),
         ],
         'public'       => false,
         'show_ui'      => true,
@@ -29,7 +29,7 @@ add_action('init', 'nasim_register_plan_post_type');
 
 function nasim_add_plan_meta_box() {
 
-    add_meta_box('nasim_plan_details', __('جزئیات پلن', 'nasim-fitness'), 'nasim_render_plan_meta_box', 'nasim_plan', 'normal', 'high');
+    add_meta_box('nasim_plan_details', __('جزئیات پلن', 'niloo-web'), 'nasim_render_plan_meta_box', 'nasim_plan', 'normal', 'high');
 }
 add_action('add_meta_boxes', 'nasim_add_plan_meta_box');
 
@@ -42,36 +42,36 @@ function nasim_render_plan_meta_box($post) {
     ?>
     <table class="form-table" role="presentation">
         <tr>
-            <th><label for="nasim_plan_price"><?php esc_html_e('قیمت (تومان)', 'nasim-fitness'); ?></label></th>
+            <th><label for="nasim_plan_price"><?php esc_html_e('قیمت (تومان)', 'niloo-web'); ?></label></th>
             <td><input type="number" min="0" step="1000" id="nasim_plan_price" name="nasim_plan_price" value="<?php echo esc_attr($plan['price'] ?: ''); ?>" class="regular-text" dir="ltr"></td>
         </tr>
         <tr>
-            <th><label for="nasim_plan_days"><?php esc_html_e('مدت اشتراک (روز)', 'nasim-fitness'); ?></label></th>
+            <th><label for="nasim_plan_days"><?php esc_html_e('مدت اشتراک (روز)', 'niloo-web'); ?></label></th>
             <td><input type="number" min="1" id="nasim_plan_days" name="nasim_plan_days" value="<?php echo esc_attr($plan['days']); ?>" class="small-text" dir="ltr">
-                <p class="description"><?php esc_html_e('ماهانه = ۳۰ روز. اگر کاربر اشتراک فعال داشته باشد، مدت به انتهای اشتراک فعلی اضافه می‌شود.', 'nasim-fitness'); ?></p></td>
+                <p class="description"><?php esc_html_e('ماهانه = ۳۰ روز. اگر کاربر اشتراک فعال داشته باشد، مدت به انتهای اشتراک فعلی اضافه می‌شود.', 'niloo-web'); ?></p></td>
         </tr>
         <tr>
-            <th><label for="nasim_plan_features"><?php esc_html_e('ویژگی‌ها (هر مورد در یک خط)', 'nasim-fitness'); ?></label></th>
+            <th><label for="nasim_plan_features"><?php esc_html_e('ویژگی‌ها (هر مورد در یک خط)', 'niloo-web'); ?></label></th>
             <td><textarea id="nasim_plan_features" name="nasim_plan_features" rows="5" class="large-text"><?php echo esc_textarea(implode("\n", $plan['features'])); ?></textarea></td>
         </tr>
         <tr>
-            <th><?php esc_html_e('پلن پیشنهادی', 'nasim-fitness'); ?></th>
-            <td><label><input type="checkbox" name="nasim_plan_featured" value="1" <?php checked($plan['featured']); ?>> <?php esc_html_e('با برچسب «پیشنهاد ویژه» نمایش داده شود', 'nasim-fitness'); ?></label></td>
+            <th><?php esc_html_e('پلن پیشنهادی', 'niloo-web'); ?></th>
+            <td><label><input type="checkbox" name="nasim_plan_featured" value="1" <?php checked($plan['featured']); ?>> <?php esc_html_e('با برچسب «پیشنهاد ویژه» نمایش داده شود', 'niloo-web'); ?></label></td>
         </tr>
         <tr>
-            <th><label for="nasim_plan_type"><?php esc_html_e('نوع پلن', 'nasim-fitness'); ?></label></th>
+            <th><label for="nasim_plan_type"><?php esc_html_e('نوع پلن', 'niloo-web'); ?></label></th>
             <td>
                 <select name="nasim_plan_type" id="nasim_plan_type">
-                    <option value="subscription" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'subscription'); ?>><?php esc_html_e('اشتراک (روز)', 'nasim-fitness'); ?></option>
-                    <option value="spot_course" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'spot_course'); ?>><?php esc_html_e('خرید دوره اسپات (یک‌بار)', 'nasim-fitness'); ?></option>
+                    <option value="subscription" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'subscription'); ?>><?php esc_html_e('اشتراک (روز)', 'niloo-web'); ?></option>
+                    <option value="spot_course" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'spot_course'); ?>><?php esc_html_e('خرید دوره اسپات (یک‌بار)', 'niloo-web'); ?></option>
                 </select>
             </td>
         </tr>
         <tr>
-            <th><label for="nasim_plan_course_id"><?php esc_html_e('دوره مرتبط', 'nasim-fitness'); ?></label></th>
+            <th><label for="nasim_plan_course_id"><?php esc_html_e('دوره مرتبط', 'niloo-web'); ?></label></th>
             <td>
                 <input type="number" min="0" id="nasim_plan_course_id" name="nasim_plan_course_id" value="<?php echo esc_attr((string) get_post_meta($post->ID, '_nasim_plan_course_id', true)); ?>" class="small-text" dir="ltr">
-                <p class="description"><?php esc_html_e('برای پلن اسپات، شناسه پست nasim_course را وارد کنید.', 'nasim-fitness'); ?></p>
+                <p class="description"><?php esc_html_e('برای پلن اسپات، شناسه پست دوره (در منوی دوره‌ها) را وارد کنید.', 'niloo-web'); ?></p>
             </td>
         </tr>
     </table>
@@ -178,8 +178,8 @@ function nasim_plan_duration_label($plan) {
 function nasim_plan_columns($columns) {
 
     return array_merge(array_slice($columns, 0, 2), [
-        'nasim_price' => __('قیمت', 'nasim-fitness'),
-        'nasim_days'  => __('مدت', 'nasim-fitness'),
+        'nasim_price' => __('قیمت', 'niloo-web'),
+        'nasim_days'  => __('مدت', 'niloo-web'),
     ], array_slice($columns, 2));
 }
 add_filter('manage_nasim_plan_posts_columns', 'nasim_plan_columns');

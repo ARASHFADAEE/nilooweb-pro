@@ -1,5 +1,5 @@
 {
-  "name": "nasim-fitness-theme",
+  "name": "niloo-web-theme",
   "private": true,
   "scripts": {
     "build:css": "tailwindcss -i ./assets/src/app.css -o ./assets/css/app.css --minify",

@@ -13,12 +13,12 @@ function nasim_register_testimonial_post_type() {
 
     register_post_type('nasim_testimonial', [
         'labels' => [
-            'name'          => __('نظرات همراهان', 'nasim-fitness'),
-            'singular_name' => __('نظر همراه', 'nasim-fitness'),
-            'add_new'       => __('افزودن نظر', 'nasim-fitness'),
-            'add_new_item'  => __('افزودن نظر جدید', 'nasim-fitness'),
-            'edit_item'     => __('ویرایش نظر', 'nasim-fitness'),
-            'all_items'     => __('همه نظرات', 'nasim-fitness'),
+            'name'          => __('نظرات همراهان', 'niloo-web'),
+            'singular_name' => __('نظر همراه', 'niloo-web'),
+            'add_new'       => __('افزودن نظر', 'niloo-web'),
+            'add_new_item'  => __('افزودن نظر جدید', 'niloo-web'),
+            'edit_item'     => __('ویرایش نظر', 'niloo-web'),
+            'all_items'     => __('همه نظرات', 'niloo-web'),
         ],
         'public'       => false,
         'show_ui'      => true,
@@ -35,7 +35,7 @@ add_action('init', 'nasim_register_testimonial_post_type');
  */
 function nasim_add_testimonial_meta_box() {
 
-    add_meta_box('nasim_testimonial_details', __('جزئیات نظر', 'nasim-fitness'), 'nasim_render_testimonial_meta_box', 'nasim_testimonial', 'side');
+    add_meta_box('nasim_testimonial_details', __('جزئیات نظر', 'niloo-web'), 'nasim_render_testimonial_meta_box', 'nasim_testimonial', 'side');
 }
 add_action('add_meta_boxes', 'nasim_add_testimonial_meta_box');
 
@@ -48,11 +48,11 @@ function nasim_render_testimonial_meta_box($post) {
     wp_nonce_field('nasim_save_testimonial', 'nasim_testimonial_nonce');
     ?>
     <p>
-        <label for="nasim_testimonial_role"><?php esc_html_e('عنوان (مثلاً: همراه برنامه تمرینی)', 'nasim-fitness'); ?></label>
+        <label for="nasim_testimonial_role"><?php esc_html_e('عنوان (مثلاً: همراه برنامه تمرینی)', 'niloo-web'); ?></label>
         <input type="text" class="widefat" id="nasim_testimonial_role" name="nasim_testimonial_role" value="<?php echo esc_attr($role); ?>">
     </p>
     <p>
-        <label for="nasim_testimonial_rating"><?php esc_html_e('امتیاز', 'nasim-fitness'); ?></label>
+        <label for="nasim_testimonial_rating"><?php esc_html_e('امتیاز', 'niloo-web'); ?></label>
         <select class="widefat" id="nasim_testimonial_rating" name="nasim_testimonial_rating">
             <?php for ($i = 5; $i >= 1; $i--) : ?>
                 <option value="<?php echo esc_attr($i); ?>" <?php selected($rating, $i); ?>><?php echo esc_html(str_repeat('★', $i)); ?></option>

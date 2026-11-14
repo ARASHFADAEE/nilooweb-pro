@@ -186,7 +186,7 @@ function nasim_seo_run_migrations() {
         'announcement_link_text' => 'مشاهده افزونه‌ها',
     ];
 
-    $fitness_markers = ['سالم‌تر', 'نسیم فیتنس', 'تناسب', 'تمرین اصولی', 'تغذیه متعادل', 'قوی‌تر، سالم', 'مجله سلامتی', 'درباره نسیم'];
+    $fitness_markers = ['سالم‌تر', 'نیلو وب', 'تناسب', 'تمرین اصولی', 'تغذیه متعادل', 'قوی‌تر، سالم', 'مجله سلامتی', 'درباره نیلو'];
 
     foreach ($force_mods as $key => $value) {
         $current = (string) get_theme_mod($key, '');

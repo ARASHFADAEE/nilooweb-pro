@@ -11,8 +11,8 @@ function nasim_store_admin_menu() {
 
     add_submenu_page(
         'edit.php?post_type=nasim_product',
-        __('لایسنس‌ها', 'nasim-fitness'),
-        __('لایسنس‌ها', 'nasim-fitness'),
+        __('لایسنس‌ها', 'niloo-web'),
+        __('لایسنس‌ها', 'niloo-web'),
         'manage_options',
         'nasim-licenses',
         'nasim_render_licenses_page'
@@ -20,8 +20,8 @@ function nasim_store_admin_menu() {
 
     add_submenu_page(
         'edit.php?post_type=nasim_product',
-        __('راهنمای اتصال لایسنس', 'nasim-fitness'),
-        __('راهنمای اتصال', 'nasim-fitness'),
+        __('راهنمای اتصال لایسنس', 'niloo-web'),
+        __('راهنمای اتصال', 'niloo-web'),
         'manage_options',
         'nasim-license-guide',
         'nasim_render_license_guide_page'
@@ -55,20 +55,20 @@ add_action('admin_init', 'nasim_register_store_settings');
 function nasim_render_domain_slot_settings_fields() {
     ?>
     <tr>
-        <th colspan="2"><h2 style="margin:24px 0 8px"><?php esc_html_e('لایسنس و دامنه', 'nasim-fitness'); ?></h2></th>
+        <th colspan="2"><h2 style="margin:24px 0 8px"><?php esc_html_e('لایسنس و دامنه', 'niloo-web'); ?></h2></th>
     </tr>
     <tr>
-        <th><label for="nasim_license_default_slots"><?php esc_html_e('تعداد دامنه رایگان', 'nasim-fitness'); ?></label></th>
+        <th><label for="nasim_license_default_slots"><?php esc_html_e('تعداد دامنه رایگان', 'niloo-web'); ?></label></th>
         <td>
             <input type="number" min="1" id="nasim_license_default_slots" name="nasim_license_default_slots" value="<?php echo esc_attr((string) nasim_license_default_slots()); ?>" class="small-text">
-            <p class="description"><?php esc_html_e('تعداد دامنه رایگان برای هر افزونه/قالب جداگانه (پیشنهاد: ۱).', 'nasim-fitness'); ?></p>
+            <p class="description"><?php esc_html_e('تعداد دامنه رایگان برای هر افزونه/قالب جداگانه (پیشنهاد: ۱).', 'niloo-web'); ?></p>
         </td>
     </tr>
     <tr>
-        <th><label for="nasim_domain_slot_price"><?php esc_html_e('قیمت دامنه اضافه هر محصول (تومان)', 'nasim-fitness'); ?></label></th>
+        <th><label for="nasim_domain_slot_price"><?php esc_html_e('قیمت دامنه اضافه هر محصول (تومان)', 'niloo-web'); ?></label></th>
         <td>
             <input type="number" min="0" step="1000" id="nasim_domain_slot_price" name="nasim_domain_slot_price" value="<?php echo esc_attr((string) nasim_domain_slot_price()); ?>" class="regular-text" dir="ltr">
-            <p class="description"><?php esc_html_e('برای دامنه دوم همان افزونه. صفر = غیرفعال.', 'nasim-fitness'); ?></p>
+            <p class="description"><?php esc_html_e('برای دامنه دوم همان افزونه. صفر = غیرفعال.', 'niloo-web'); ?></p>
         </td>
     </tr>
     <?php
@@ -132,35 +132,35 @@ function nasim_render_licenses_page() {
     $base   = admin_url('edit.php?post_type=nasim_product&page=nasim-licenses');
     ?>
     <div class="wrap">
-        <h1><?php esc_html_e('لایسنس‌ها', 'nasim-fitness'); ?></h1>
-        <p><?php esc_html_e('هر اشتراک یک کلید لایسنس دارد. هر افزونه جداگانه یک دامنه رایگان می‌گیرد؛ دامنه اضافه فقط برای همان محصول خریداری می‌شود.', 'nasim-fitness'); ?></p>
+        <h1><?php esc_html_e('لایسنس‌ها', 'niloo-web'); ?></h1>
+        <p><?php esc_html_e('هر اشتراک یک کلید لایسنس دارد. هر افزونه جداگانه یک دامنه رایگان می‌گیرد؛ دامنه اضافه فقط برای همان محصول خریداری می‌شود.', 'niloo-web'); ?></p>
 
         <?php if (!empty($_GET['updated'])) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-        <div class="notice notice-success is-dismissible"><p><?php esc_html_e('ذخیره شد.', 'nasim-fitness'); ?></p></div>
+        <div class="notice notice-success is-dismissible"><p><?php esc_html_e('ذخیره شد.', 'niloo-web'); ?></p></div>
         <?php endif; ?>
 
         <form method="get" style="margin:16px 0">
             <input type="hidden" name="post_type" value="nasim_product">
             <input type="hidden" name="page" value="nasim-licenses">
-            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('جستجو کلید یا کاربر…', 'nasim-fitness'); ?>">
-            <?php submit_button(__('جستجو', 'nasim-fitness'), 'secondary', '', false); ?>
+            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('جستجو کلید یا کاربر…', 'niloo-web'); ?>">
+            <?php submit_button(__('جستجو', 'niloo-web'), 'secondary', '', false); ?>
         </form>
 
         <table class="wp-list-table widefat fixed striped">
             <thead>
                 <tr>
                     <th style="width:50px">#</th>
-                    <th><?php esc_html_e('کاربر', 'nasim-fitness'); ?></th>
-                    <th><?php esc_html_e('کلید', 'nasim-fitness'); ?></th>
-                    <th><?php esc_html_e('دامنه‌ها', 'nasim-fitness'); ?></th>
-                    <th><?php esc_html_e('سقف', 'nasim-fitness'); ?></th>
-                    <th><?php esc_html_e('اشتراک', 'nasim-fitness'); ?></th>
-                    <th><?php esc_html_e('عملیات', 'nasim-fitness'); ?></th>
+                    <th><?php esc_html_e('کاربر', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('کلید', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('دامنه‌ها', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('سقف', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('اشتراک', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('عملیات', 'niloo-web'); ?></th>
                 </tr>
             </thead>
             <tbody>
             <?php if (!$result['items']) : ?>
-                <tr><td colspan="7"><?php esc_html_e('لایسنسی ثبت نشده است.', 'nasim-fitness'); ?></td></tr>
+                <tr><td colspan="7"><?php esc_html_e('لایسنسی ثبت نشده است.', 'niloo-web'); ?></td></tr>
             <?php endif; ?>
             <?php foreach ($result['items'] as $license) :
                 $user         = get_userdata($license->user_id);
@@ -178,7 +178,7 @@ function nasim_render_licenses_page() {
                     <td><code dir="ltr"><?php echo esc_html($license->license_key); ?></code></td>
                     <td>
                         <?php if (!$activations) : ?>
-                            <em><?php esc_html_e('فعال نشده', 'nasim-fitness'); ?></em>
+                            <em><?php esc_html_e('فعال نشده', 'niloo-web'); ?></em>
                         <?php else : ?>
                             <ul style="margin:0;padding:0 16px 0 0">
                             <?php foreach ($activations as $row) : ?>
@@ -190,7 +190,7 @@ function nasim_render_licenses_page() {
                                         <input type="hidden" name="license_id" value="<?php echo esc_attr($license->id); ?>">
                                         <input type="hidden" name="domain" value="<?php echo esc_attr($row['domain'] ?? ''); ?>">
                                         <input type="hidden" name="product_slug" value="<?php echo esc_attr($row['slug'] ?? ''); ?>">
-                                        <button type="submit" name="nasim_license_action" value="release_domain" class="button-link-delete"><?php esc_html_e('آزاد کردن', 'nasim-fitness'); ?></button>
+                                        <button type="submit" name="nasim_license_action" value="release_domain" class="button-link-delete"><?php esc_html_e('آزاد کردن', 'niloo-web'); ?></button>
                                     </form>
                                 </li>
                             <?php endforeach; ?>
@@ -203,9 +203,9 @@ function nasim_render_licenses_page() {
                         <form method="post" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
                             <?php wp_nonce_field('nasim_admin_license'); ?>
                             <input type="hidden" name="license_id" value="<?php echo esc_attr($license->id); ?>">
-                            <button type="submit" name="nasim_license_action" value="add_slot" class="button"><?php esc_html_e('+۱ دامنه', 'nasim-fitness'); ?></button>
+                            <button type="submit" name="nasim_license_action" value="add_slot" class="button"><?php esc_html_e('+۱ دامنه', 'niloo-web'); ?></button>
                             <input type="number" min="1" name="max_activations" value="<?php echo esc_attr($license->max_activations); ?>" class="small-text">
-                            <button type="submit" name="nasim_license_action" value="set_slots" class="button"><?php esc_html_e('تنظیم سقف', 'nasim-fitness'); ?></button>
+                            <button type="submit" name="nasim_license_action" value="set_slots" class="button"><?php esc_html_e('تنظیم سقف', 'niloo-web'); ?></button>
                         </form>
                     </td>
                 </tr>
@@ -241,21 +241,21 @@ function nasim_render_license_guide_page() {
     $sdk      = file_exists($sdk_path) ? file_get_contents($sdk_path) : '';
     ?>
     <div class="wrap" style="max-width:920px">
-        <h1><?php esc_html_e('راهنمای اتصال لایسنس به افزونه / قالب', 'nasim-fitness'); ?></h1>
+        <h1><?php esc_html_e('راهنمای اتصال لایسنس به افزونه / قالب', 'niloo-web'); ?></h1>
 
         <div class="card" style="padding:16px 20px;margin-top:16px">
-            <h2><?php esc_html_e('مدل کار', 'nasim-fitness'); ?></h2>
+            <h2><?php esc_html_e('مدل کار', 'niloo-web'); ?></h2>
             <ol style="line-height:1.9">
-                <li><?php esc_html_e('کاربر اشتراک می‌خرد → یک کلید لایسنس در پنل کاربری‌اش ساخته می‌شود.', 'nasim-fitness'); ?></li>
-                <li><?php esc_html_e('هر افزونه/قالب جداگانه یک دامنه رایگان دارد (نه یک دامنه برای همه محصولات).', 'nasim-fitness'); ?></li>
-                <li><?php printf(esc_html__('دامنه دوم همان محصول با پرداخت %s اضافه می‌شود.', 'nasim-fitness'), esc_html(nasim_format_price(nasim_domain_slot_price()))); ?></li>
-                <li><?php esc_html_e('افزونه روی سایت مشتری با API، دامنه + اسلاگ خودش را چک می‌کند.', 'nasim-fitness'); ?></li>
+                <li><?php esc_html_e('کاربر اشتراک می‌خرد → یک کلید لایسنس در پنل کاربری‌اش ساخته می‌شود.', 'niloo-web'); ?></li>
+                <li><?php esc_html_e('هر افزونه/قالب جداگانه یک دامنه رایگان دارد (نه یک دامنه برای همه محصولات).', 'niloo-web'); ?></li>
+                <li><?php printf(esc_html__('دامنه دوم همان محصول با پرداخت %s اضافه می‌شود.', 'niloo-web'), esc_html(nasim_format_price(nasim_domain_slot_price()))); ?></li>
+                <li><?php esc_html_e('افزونه روی سایت مشتری با API، دامنه + اسلاگ خودش را چک می‌کند.', 'niloo-web'); ?></li>
             </ol>
         </div>
 
         <div class="card" style="padding:16px 20px;margin-top:16px">
-            <h2><?php esc_html_e('آدرس‌های API', 'nasim-fitness'); ?></h2>
-            <p><?php esc_html_e('پایه:', 'nasim-fitness'); ?> <code dir="ltr"><?php echo esc_html($api_base); ?></code></p>
+            <h2><?php esc_html_e('آدرس‌های API', 'niloo-web'); ?></h2>
+            <p><?php esc_html_e('پایه:', 'niloo-web'); ?> <code dir="ltr"><?php echo esc_html($api_base); ?></code></p>
             <table class="widefat striped">
                 <thead><tr><th>متد</th><th>مسیر</th><th>بدنه / پارامتر</th></tr></thead>
                 <tbody>
@@ -265,19 +265,19 @@ function nasim_render_license_guide_page() {
                     <tr><td>GET</td><td dir="ltr">/update/{slug}</td><td dir="ltr"><code>?license=...&amp;domain=example.com</code></td></tr>
                 </tbody>
             </table>
-            <p class="description"><?php esc_html_e('دامنه را بدون http و بدون www بفرستید (مثل mydomain.com).', 'nasim-fitness'); ?></p>
+            <p class="description"><?php esc_html_e('دامنه را بدون http و بدون www بفرستید (مثل mydomain.com).', 'niloo-web'); ?></p>
         </div>
 
         <div class="card" style="padding:16px 20px;margin-top:16px">
-            <h2><?php esc_html_e('۱) فایل کلاینت را در افزونه کپی کنید', 'nasim-fitness'); ?></h2>
-            <p><?php esc_html_e('فایل زیر را داخل افزونه/قالب خود بگذارید (مثلاً includes/class-nasim-license-client.php) و require کنید:', 'nasim-fitness'); ?></p>
+            <h2><?php esc_html_e('۱) فایل کلاینت را در افزونه کپی کنید', 'niloo-web'); ?></h2>
+            <p><?php esc_html_e('فایل زیر را داخل افزونه/قالب خود بگذارید (مثلاً includes/class-nasim-license-client.php) و require کنید:', 'niloo-web'); ?></p>
             <p><code dir="ltr"><?php echo esc_html(str_replace(ABSPATH, '', $sdk_path)); ?></code></p>
             <textarea class="large-text code" rows="18" readonly dir="ltr" style="font-size:12px;white-space:pre"><?php echo esc_textarea($sdk); ?></textarea>
         </div>
 
         <div class="card" style="padding:16px 20px;margin-top:16px">
-            <h2><?php esc_html_e('۲) در افزونه خود این کد را بگذارید', 'nasim-fitness'); ?></h2>
-            <p><?php esc_html_e('ثابت‌ها را با اسلاگ محصول (همان اسلاگ بسته‌ای که در متاباکس محصول زده‌اید) و آدرس این سایت تنظیم کنید:', 'nasim-fitness'); ?></p>
+            <h2><?php esc_html_e('۲) در افزونه خود این کد را بگذارید', 'niloo-web'); ?></h2>
+            <p><?php esc_html_e('ثابت‌ها را با اسلاگ محصول (همان اسلاگ بسته‌ای که در متاباکس محصول زده‌اید) و آدرس این سایت تنظیم کنید:', 'niloo-web'); ?></p>
             <?php
             $sample_boot = <<<'PHP'
 define('MY_PLUGIN_LICENSE_API', 'https://example.com/'); // آدرس همین سایت فروش
@@ -303,8 +303,8 @@ PHP;
         </div>
 
         <div class="card" style="padding:16px 20px;margin-top:16px">
-            <h2><?php esc_html_e('۳) صفحه تنظیمات لایسنس در افزونه', 'nasim-fitness'); ?></h2>
-            <p><?php esc_html_e('یک فیلد برای وارد کردن کلید لایسنس بسازید و با دکمه «فعال‌سازی» متدهای کلاینت را صدا بزنید:', 'nasim-fitness'); ?></p>
+            <h2><?php esc_html_e('۳) صفحه تنظیمات لایسنس در افزونه', 'niloo-web'); ?></h2>
+            <p><?php esc_html_e('یک فیلد برای وارد کردن کلید لایسنس بسازید و با دکمه «فعال‌سازی» متدهای کلاینت را صدا بزنید:', 'niloo-web'); ?></p>
             <?php
             $sample_settings = <<<'PHP'
 // ذخیره کلید
@@ -330,12 +330,12 @@ PHP;
         </div>
 
         <div class="card" style="padding:16px 20px;margin-top:16px">
-            <h2><?php esc_html_e('چک‌لیست محصول در این سایت', 'nasim-fitness'); ?></h2>
+            <h2><?php esc_html_e('چک‌لیست محصول در این سایت', 'niloo-web'); ?></h2>
             <ul style="line-height:1.9">
-                <li><?php esc_html_e('محصولات ← افزودن: نوع (افزونه/قالب)، اسلاگ بسته، نسخه، فایل ZIP', 'nasim-fitness'); ?></li>
-                <li><?php esc_html_e('اسلاگ بسته باید با پوشه افزونه/قالب و ثابت MY_PLUGIN_SLUG یکی باشد.', 'nasim-fitness'); ?></li>
-                <li><?php esc_html_e('دوره‌ها ← تنظیمات پرداخت: قیمت دامنه اضافه و درگاه زیبال', 'nasim-fitness'); ?></li>
-                <li><?php esc_html_e('محصولات ← لایسنس‌ها: مشاهده دامنه‌های فعال و افزایش دستی سقف', 'nasim-fitness'); ?></li>
+                <li><?php esc_html_e('محصولات ← افزودن: نوع (افزونه/قالب)، اسلاگ بسته، نسخه، فایل ZIP', 'niloo-web'); ?></li>
+                <li><?php esc_html_e('اسلاگ بسته باید با پوشه افزونه/قالب و ثابت MY_PLUGIN_SLUG یکی باشد.', 'niloo-web'); ?></li>
+                <li><?php esc_html_e('دوره‌ها ← تنظیمات پرداخت: قیمت دامنه اضافه و درگاه زیبال', 'niloo-web'); ?></li>
+                <li><?php esc_html_e('محصولات ← لایسنس‌ها: مشاهده دامنه‌های فعال و افزایش دستی سقف', 'niloo-web'); ?></li>
             </ul>
         </div>
     </div>

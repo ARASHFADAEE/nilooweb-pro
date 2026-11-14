@@ -11,7 +11,7 @@ function nasim_product_meta_boxes() {
 
     add_meta_box(
         'nasim_product_details',
-        __('جزئیات محصول دیجیتال', 'nasim-fitness'),
+        __('جزئیات محصول دیجیتال', 'niloo-web'),
         'nasim_render_product_meta_box',
         'nasim_product',
         'normal',
@@ -20,7 +20,7 @@ function nasim_product_meta_boxes() {
 
     add_meta_box(
         'nasim_product_card',
-        __('کارت فروشگاه: قیمت و آمار', 'nasim-fitness'),
+        __('کارت فروشگاه: قیمت و آمار', 'niloo-web'),
         'nasim_render_product_card_meta_box',
         'nasim_product',
         'normal',
@@ -36,50 +36,50 @@ function nasim_render_product_card_meta_box($post) {
     ?>
     <div class="nasim-product-meta">
       <div class="row">
-        <label for="nasim_product_price"><?php esc_html_e('قیمت (تومان)', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_price"><?php esc_html_e('قیمت (تومان)', 'niloo-web'); ?></label>
         <div>
           <input type="number" min="0" step="1000" dir="ltr" name="nasim_product_price" id="nasim_product_price" value="<?php echo esc_attr($meta['price'] ?: ''); ?>" class="regular-text">
-          <p class="hint"><?php esc_html_e('خالی یا صفر = روی کارت «با اشتراک» نمایش داده می‌شود.', 'nasim-fitness'); ?></p>
+          <p class="hint"><?php esc_html_e('خالی یا صفر = روی کارت «با اشتراک» نمایش داده می‌شود.', 'niloo-web'); ?></p>
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_sale_price"><?php esc_html_e('قیمت با تخفیف (تومان)', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_sale_price"><?php esc_html_e('قیمت با تخفیف (تومان)', 'niloo-web'); ?></label>
         <div>
           <input type="number" min="0" step="1000" dir="ltr" name="nasim_product_sale_price" id="nasim_product_sale_price" value="<?php echo esc_attr($meta['sale_price'] ?: ''); ?>" class="regular-text">
-          <p class="hint"><?php esc_html_e('اگر کمتر از قیمت باشد، قیمت قبلی خط می‌خورد و درصد تخفیف نمایش داده می‌شود.', 'nasim-fitness'); ?></p>
+          <p class="hint"><?php esc_html_e('اگر کمتر از قیمت باشد، قیمت قبلی خط می‌خورد و درصد تخفیف نمایش داده می‌شود.', 'niloo-web'); ?></p>
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_promo_label"><?php esc_html_e('برچسب تبلیغاتی', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_promo_label"><?php esc_html_e('برچسب تبلیغاتی', 'niloo-web'); ?></label>
         <div>
-          <input type="text" name="nasim_product_promo_label" id="nasim_product_promo_label" value="<?php echo esc_attr($meta['promo_label']); ?>" maxlength="40" placeholder="<?php esc_attr_e('مثلاً: تخفیف ویژه هفته', 'nasim-fitness'); ?>">
+          <input type="text" name="nasim_product_promo_label" id="nasim_product_promo_label" value="<?php echo esc_attr($meta['promo_label']); ?>" maxlength="40" placeholder="<?php esc_attr_e('مثلاً: تخفیف ویژه هفته', 'niloo-web'); ?>">
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_sales_base"><?php esc_html_e('فروش قبلی', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_sales_base"><?php esc_html_e('فروش قبلی', 'niloo-web'); ?></label>
         <div>
           <input type="number" min="0" dir="ltr" name="nasim_product_sales_base" id="nasim_product_sales_base" value="<?php echo esc_attr($meta['sales_base'] ?: ''); ?>" class="small-text">
-          <p class="hint"><?php printf(esc_html__('به دانلودهای این سایت (%s کاربر) اضافه می‌شود؛ مثلاً فروش در مارکت‌های دیگر.', 'nasim-fitness'), esc_html(number_format_i18n($meta['downloads']))); ?></p>
+          <p class="hint"><?php printf(esc_html__('به دانلودهای این سایت (%s کاربر) اضافه می‌شود؛ مثلاً فروش در مارکت‌های دیگر.', 'niloo-web'), esc_html(number_format_i18n($meta['downloads']))); ?></p>
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_satisfaction"><?php esc_html_e('رضایت (٪)', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_satisfaction"><?php esc_html_e('رضایت (٪)', 'niloo-web'); ?></label>
         <div>
           <input type="number" min="0" max="100" dir="ltr" name="nasim_product_satisfaction" id="nasim_product_satisfaction" value="<?php echo esc_attr($meta['satisfaction']); ?>" class="small-text">
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_support_grade"><?php esc_html_e('نمره پشتیبانی', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_support_grade"><?php esc_html_e('نمره پشتیبانی', 'niloo-web'); ?></label>
         <div>
           <select name="nasim_product_support_grade" id="nasim_product_support_grade">
-            <option value=""><?php esc_html_e('— نمایش داده نشود —', 'nasim-fitness'); ?></option>
+            <option value=""><?php esc_html_e('— نمایش داده نشود —', 'niloo-web'); ?></option>
             <?php foreach (['A+', 'A', 'B+', 'B', 'C'] as $grade) : ?>
             <option value="<?php echo esc_attr($grade); ?>" <?php selected($meta['support'], $grade); ?>><?php echo esc_html($grade); ?></option>
             <?php endforeach; ?>
           </select>
         </div>
       </div>
-      <p class="hint"><?php esc_html_e('زیرعنوان کارت از «چکیده» محصول خوانده می‌شود؛ اگر خالی باشد نام دسته‌بندی نمایش داده می‌شود.', 'nasim-fitness'); ?></p>
+      <p class="hint"><?php esc_html_e('زیرعنوان کارت از «چکیده» محصول خوانده می‌شود؛ اگر خالی باشد نام دسته‌بندی نمایش داده می‌شود.', 'niloo-web'); ?></p>
     </div>
     <?php
 }
@@ -103,66 +103,66 @@ function nasim_render_product_meta_box($post) {
     </style>
     <div class="nasim-product-meta">
       <div class="row">
-        <label for="nasim_product_type"><?php esc_html_e('نوع', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_type"><?php esc_html_e('نوع', 'niloo-web'); ?></label>
         <div>
           <select name="nasim_product_type" id="nasim_product_type">
-            <option value="plugin" <?php selected($meta['type'], 'plugin'); ?>><?php esc_html_e('افزونه', 'nasim-fitness'); ?></option>
-            <option value="theme" <?php selected($meta['type'], 'theme'); ?>><?php esc_html_e('قالب', 'nasim-fitness'); ?></option>
+            <option value="plugin" <?php selected($meta['type'], 'plugin'); ?>><?php esc_html_e('افزونه', 'niloo-web'); ?></option>
+            <option value="theme" <?php selected($meta['type'], 'theme'); ?>><?php esc_html_e('قالب', 'niloo-web'); ?></option>
           </select>
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_slug"><?php esc_html_e('اسلاگ بسته', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_slug"><?php esc_html_e('اسلاگ بسته', 'niloo-web'); ?></label>
         <div>
           <input type="text" dir="ltr" name="nasim_product_slug" id="nasim_product_slug" value="<?php echo esc_attr($meta['slug']); ?>" placeholder="my-plugin">
-          <p class="hint"><?php esc_html_e('همان اسلاگ پوشه افزونه/قالب؛ برای API آپدیت استفاده می‌شود.', 'nasim-fitness'); ?></p>
+          <p class="hint"><?php esc_html_e('همان اسلاگ پوشه افزونه/قالب؛ برای API آپدیت استفاده می‌شود.', 'niloo-web'); ?></p>
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_version"><?php esc_html_e('نسخه', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_version"><?php esc_html_e('نسخه', 'niloo-web'); ?></label>
         <div>
           <input type="text" dir="ltr" name="nasim_product_version" id="nasim_product_version" value="<?php echo esc_attr($meta['version']); ?>" placeholder="1.0.0">
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_requires"><?php esc_html_e('حداقل وردپرس', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_requires"><?php esc_html_e('حداقل وردپرس', 'niloo-web'); ?></label>
         <div>
           <input type="text" dir="ltr" name="nasim_product_requires" id="nasim_product_requires" value="<?php echo esc_attr($meta['requires']); ?>" placeholder="6.0">
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_tested"><?php esc_html_e('تست‌شده تا', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_tested"><?php esc_html_e('تست‌شده تا', 'niloo-web'); ?></label>
         <div>
           <input type="text" dir="ltr" name="nasim_product_tested" id="nasim_product_tested" value="<?php echo esc_attr($meta['tested']); ?>" placeholder="6.7">
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_homepage"><?php esc_html_e('صفحه محصول', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_homepage"><?php esc_html_e('صفحه محصول', 'niloo-web'); ?></label>
         <div>
           <input type="url" dir="ltr" name="nasim_product_homepage" id="nasim_product_homepage" value="<?php echo esc_attr($meta['homepage']); ?>">
         </div>
       </div>
       <div class="row">
-        <label for="nasim_product_demo_url"><?php esc_html_e('لینک پیش‌نمایش (دمو)', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_demo_url"><?php esc_html_e('لینک پیش‌نمایش (دمو)', 'niloo-web'); ?></label>
         <div>
           <input type="url" dir="ltr" name="nasim_product_demo_url" id="nasim_product_demo_url" value="<?php echo esc_attr($meta['demo_url']); ?>" placeholder="https://demo.example.com/">
-          <p class="hint"><?php esc_html_e('آدرس سایت دمو که افزونه/قالب روی آن نصب است. خالی بماند، دکمه پیش‌نمایش نمایش داده نمی‌شود.', 'nasim-fitness'); ?></p>
+          <p class="hint"><?php esc_html_e('آدرس سایت دمو که افزونه/قالب روی آن نصب است. خالی بماند، دکمه پیش‌نمایش نمایش داده نمی‌شود.', 'niloo-web'); ?></p>
         </div>
       </div>
       <div class="row">
-        <label><?php esc_html_e('فایل ZIP', 'nasim-fitness'); ?></label>
+        <label><?php esc_html_e('فایل ZIP', 'niloo-web'); ?></label>
         <div>
           <div class="nasim-product-file">
             <input type="hidden" name="nasim_product_file" id="nasim_product_file" value="<?php echo esc_attr($meta['file_id']); ?>">
             <code id="nasim_product_file_label"><?php echo $file ? esc_html($file->post_title) : '—'; ?></code>
-            <button type="button" class="button" id="nasim_product_file_pick"><?php esc_html_e('انتخاب فایل', 'nasim-fitness'); ?></button>
-            <button type="button" class="button" id="nasim_product_file_clear"><?php esc_html_e('حذف', 'nasim-fitness'); ?></button>
+            <button type="button" class="button" id="nasim_product_file_pick"><?php esc_html_e('انتخاب فایل', 'niloo-web'); ?></button>
+            <button type="button" class="button" id="nasim_product_file_clear"><?php esc_html_e('حذف', 'niloo-web'); ?></button>
           </div>
-          <p class="hint"><?php esc_html_e('فقط فایل ZIP. لینک مستقیم عمومی نشود؛ دانلود از پنل کاربر انجام می‌شود.', 'nasim-fitness'); ?></p>
+          <p class="hint"><?php esc_html_e('فقط فایل ZIP. لینک مستقیم عمومی نشود؛ دانلود از پنل کاربر انجام می‌شود.', 'niloo-web'); ?></p>
         </div>
       </div>
       <div class="row" style="align-items:start">
-        <label for="nasim_product_changelog"><?php esc_html_e('تغییرات نسخه', 'nasim-fitness'); ?></label>
+        <label for="nasim_product_changelog"><?php esc_html_e('تغییرات نسخه', 'niloo-web'); ?></label>
         <div>
           <textarea name="nasim_product_changelog" id="nasim_product_changelog" rows="6"><?php echo esc_textarea($meta['changelog']); ?></textarea>
         </div>
@@ -262,8 +262,8 @@ add_action('save_post_nasim_product', 'nasim_save_product_meta');
  */
 function nasim_product_columns($columns) {
 
-    $columns['nasim_type']    = __('نوع', 'nasim-fitness');
-    $columns['nasim_version'] = __('نسخه', 'nasim-fitness');
+    $columns['nasim_type']    = __('نوع', 'niloo-web');
+    $columns['nasim_version'] = __('نسخه', 'niloo-web');
 
     return $columns;
 }

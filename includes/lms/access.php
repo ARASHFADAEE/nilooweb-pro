@@ -102,7 +102,7 @@ function nasim_access_page_url($args = []) {
 
 function nasim_access_admin_menu() {
 
-    add_submenu_page('edit.php?post_type=nasim_course', __('مدیریت دسترسی', 'nasim-fitness'), __('مدیریت دسترسی', 'nasim-fitness'), 'edit_users', 'nasim-access', 'nasim_render_access_page');
+    add_submenu_page('edit.php?post_type=nasim_course', __('مدیریت دسترسی', 'niloo-web'), __('مدیریت دسترسی', 'niloo-web'), 'edit_users', 'nasim-access', 'nasim_render_access_page');
 }
 add_action('admin_menu', 'nasim_access_admin_menu');
 
@@ -141,48 +141,48 @@ function nasim_render_access_page() {
     ];
     ?>
     <div class="wrap">
-        <h1><?php esc_html_e('مدیریت دسترسی', 'nasim-fitness'); ?></h1>
+        <h1><?php esc_html_e('مدیریت دسترسی', 'niloo-web'); ?></h1>
 
         <?php if (isset($notices[$notice])) : ?>
         <div class="notice notice-<?php echo esc_attr($notices[$notice][0]); ?> is-dismissible"><p><?php echo esc_html($notices[$notice][1]); ?></p></div>
         <?php endif; ?>
 
         <div class="card" style="max-width:760px">
-            <h2><?php esc_html_e('افزودن دسترسی دستی', 'nasim-fitness'); ?></h2>
+            <h2><?php esc_html_e('افزودن دسترسی دستی', 'niloo-web'); ?></h2>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <input type="hidden" name="action" value="nasim_grant_access">
                 <?php wp_nonce_field('nasim_grant_access'); ?>
                 <table class="form-table" role="presentation">
                     <tr>
-                        <th><label for="nasim_user"><?php esc_html_e('کاربر', 'nasim-fitness'); ?></label></th>
+                        <th><label for="nasim_user"><?php esc_html_e('کاربر', 'niloo-web'); ?></label></th>
                         <td><input type="text" id="nasim_user" name="nasim_user" class="regular-text" dir="ltr" required value="<?php echo esc_attr($prefill ? $prefill->user_login : ''); ?>" placeholder="email / username / ID">
-                            <p class="description"><?php esc_html_e('ایمیل، نام کاربری یا شناسه عددی کاربر.', 'nasim-fitness'); ?></p></td>
+                            <p class="description"><?php esc_html_e('ایمیل، نام کاربری یا شناسه عددی کاربر.', 'niloo-web'); ?></p></td>
                     </tr>
                     <tr>
-                        <th><?php esc_html_e('نوع دسترسی', 'nasim-fitness'); ?></th>
+                        <th><?php esc_html_e('نوع دسترسی', 'niloo-web'); ?></th>
                         <td>
-                            <label><input type="radio" name="nasim_access_type" value="subscription" checked> <?php esc_html_e('اشتراک (همه دوره‌ها، برای مدت مشخص)', 'nasim-fitness'); ?></label><br>
-                            <label><input type="radio" name="nasim_access_type" value="courses"> <?php esc_html_e('دوره‌های مشخص (دائمی، بدون نیاز به اشتراک)', 'nasim-fitness'); ?></label>
+                            <label><input type="radio" name="nasim_access_type" value="subscription" checked> <?php esc_html_e('اشتراک (همه دوره‌ها، برای مدت مشخص)', 'niloo-web'); ?></label><br>
+                            <label><input type="radio" name="nasim_access_type" value="courses"> <?php esc_html_e('دوره‌های مشخص (دائمی، بدون نیاز به اشتراک)', 'niloo-web'); ?></label>
                         </td>
                     </tr>
                     <tr class="nasim-access-subscription">
-                        <th><label for="nasim_plan_id"><?php esc_html_e('مدت اشتراک', 'nasim-fitness'); ?></label></th>
+                        <th><label for="nasim_plan_id"><?php esc_html_e('مدت اشتراک', 'niloo-web'); ?></label></th>
                         <td>
                             <select id="nasim_plan_id" name="nasim_plan_id">
                                 <?php foreach ($plans as $plan) : ?>
                                 <option value="<?php echo esc_attr($plan['id']); ?>"><?php echo esc_html($plan['title'] . ' (' . nasim_fa_digits($plan['days']) . ' روز)'); ?></option>
                                 <?php endforeach; ?>
-                                <option value="0"><?php esc_html_e('تعداد روز دلخواه', 'nasim-fitness'); ?></option>
+                                <option value="0"><?php esc_html_e('تعداد روز دلخواه', 'niloo-web'); ?></option>
                             </select>
                             <input type="number" min="1" max="3650" name="nasim_days" class="small-text" dir="ltr" placeholder="30">
-                            <p class="description"><?php esc_html_e('اگر کاربر اشتراک فعال داشته باشد، مدت به انتهای آن اضافه می‌شود.', 'nasim-fitness'); ?></p>
+                            <p class="description"><?php esc_html_e('اگر کاربر اشتراک فعال داشته باشد، مدت به انتهای آن اضافه می‌شود.', 'niloo-web'); ?></p>
                         </td>
                     </tr>
                     <tr class="nasim-access-courses">
-                        <th><?php esc_html_e('دوره‌ها', 'nasim-fitness'); ?></th>
+                        <th><?php esc_html_e('دوره‌ها', 'niloo-web'); ?></th>
                         <td>
                             <?php if (!$course_list) : ?>
-                                <em><?php esc_html_e('هنوز دوره‌ای منتشر نشده است.', 'nasim-fitness'); ?></em>
+                                <em><?php esc_html_e('هنوز دوره‌ای منتشر نشده است.', 'niloo-web'); ?></em>
                             <?php endif; ?>
                             <?php foreach ($course_list as $course_id => $course_title) : ?>
                             <label style="display:block;margin-bottom:4px"><input type="checkbox" name="nasim_courses[]" value="<?php echo esc_attr($course_id); ?>"> <?php echo esc_html($course_title); ?></label>
@@ -190,35 +190,35 @@ function nasim_render_access_page() {
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="nasim_note"><?php esc_html_e('توضیح (اختیاری)', 'nasim-fitness'); ?></label></th>
-                        <td><input type="text" id="nasim_note" name="nasim_note" class="regular-text" placeholder="<?php esc_attr_e('مثلاً: پرداخت کارت‌به‌کارت، هدیه، جبران اختلال', 'nasim-fitness'); ?>"></td>
+                        <th><label for="nasim_note"><?php esc_html_e('توضیح (اختیاری)', 'niloo-web'); ?></label></th>
+                        <td><input type="text" id="nasim_note" name="nasim_note" class="regular-text" placeholder="<?php esc_attr_e('مثلاً: پرداخت کارت‌به‌کارت، هدیه، جبران اختلال', 'niloo-web'); ?>"></td>
                     </tr>
                 </table>
-                <?php submit_button(__('افزودن دسترسی', 'nasim-fitness')); ?>
+                <?php submit_button(__('افزودن دسترسی', 'niloo-web')); ?>
             </form>
         </div>
 
-        <h2 style="margin-top:30px"><?php esc_html_e('کاربران دارای دسترسی', 'nasim-fitness'); ?></h2>
+        <h2 style="margin-top:30px"><?php esc_html_e('کاربران دارای دسترسی', 'niloo-web'); ?></h2>
 
         <form method="get" style="margin-bottom:10px">
             <input type="hidden" name="post_type" value="nasim_course">
             <input type="hidden" name="page" value="nasim-access">
-            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('جستجوی کاربر...', 'nasim-fitness'); ?>">
-            <?php submit_button(__('جستجو', 'nasim-fitness'), 'secondary', '', false); ?>
+            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('جستجوی کاربر...', 'niloo-web'); ?>">
+            <?php submit_button(__('جستجو', 'niloo-web'), 'secondary', '', false); ?>
         </form>
 
         <table class="wp-list-table widefat fixed striped">
             <thead>
                 <tr>
-                    <th><?php esc_html_e('کاربر', 'nasim-fitness'); ?></th>
-                    <th><?php esc_html_e('اشتراک', 'nasim-fitness'); ?></th>
-                    <th><?php esc_html_e('دوره‌های اختصاصی', 'nasim-fitness'); ?></th>
-                    <th style="width:180px"><?php esc_html_e('عملیات', 'nasim-fitness'); ?></th>
+                    <th><?php esc_html_e('کاربر', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('اشتراک', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('دوره‌های اختصاصی', 'niloo-web'); ?></th>
+                    <th style="width:180px"><?php esc_html_e('عملیات', 'niloo-web'); ?></th>
                 </tr>
             </thead>
             <tbody>
             <?php if (!$user_query->get_results()) : ?>
-                <tr><td colspan="4"><?php esc_html_e('کاربری با دسترسی فعال پیدا نشد.', 'nasim-fitness'); ?></td></tr>
+                <tr><td colspan="4"><?php esc_html_e('کاربری با دسترسی فعال پیدا نشد.', 'niloo-web'); ?></td></tr>
             <?php endif; ?>
             <?php foreach ($user_query->get_results() as $user) :
                 $grants = nasim_get_course_grants($user->ID);
@@ -231,7 +231,7 @@ function nasim_render_access_page() {
                     <td>
                         <?php if (nasim_has_active_subscription($user->ID)) : ?>
                             <?php echo esc_html(sprintf('تا %s (%s روز)', nasim_jdate(nasim_subscription_expires($user->ID)), nasim_fa_digits(nasim_subscription_days_left($user->ID)))); ?><br>
-                            <a class="submitdelete" href="<?php echo esc_url(nasim_revoke_access_url($user->ID, 'subscription')); ?>" onclick="return confirm('<?php echo esc_js('اشتراک این کاربر لغو شود؟'); ?>')"><?php esc_html_e('لغو اشتراک', 'nasim-fitness'); ?></a>
+                            <a class="submitdelete" href="<?php echo esc_url(nasim_revoke_access_url($user->ID, 'subscription')); ?>" onclick="return confirm('<?php echo esc_js('اشتراک این کاربر لغو شود؟'); ?>')"><?php esc_html_e('لغو اشتراک', 'niloo-web'); ?></a>
                         <?php else : ?>
                             —
                         <?php endif; ?>
@@ -241,11 +241,11 @@ function nasim_render_access_page() {
                         <?php foreach ($grants as $course_id) : ?>
                             <div>
                                 <?php echo esc_html(get_the_title($course_id) ?: '#' . $course_id); ?>
-                                <a class="submitdelete" href="<?php echo esc_url(nasim_revoke_access_url($user->ID, 'course', $course_id)); ?>" onclick="return confirm('<?php echo esc_js('دسترسی به این دوره لغو شود؟'); ?>')" aria-label="<?php esc_attr_e('لغو دسترسی دوره', 'nasim-fitness'); ?>">✕</a>
+                                <a class="submitdelete" href="<?php echo esc_url(nasim_revoke_access_url($user->ID, 'course', $course_id)); ?>" onclick="return confirm('<?php echo esc_js('دسترسی به این دوره لغو شود؟'); ?>')" aria-label="<?php esc_attr_e('لغو دسترسی دوره', 'niloo-web'); ?>">✕</a>
                             </div>
                         <?php endforeach; ?>
                     </td>
-                    <td><a class="button button-small" href="<?php echo esc_url(nasim_access_page_url(['user_id' => $user->ID])); ?>"><?php esc_html_e('افزودن دسترسی', 'nasim-fitness'); ?></a></td>
+                    <td><a class="button button-small" href="<?php echo esc_url(nasim_access_page_url(['user_id' => $user->ID])); ?>"><?php esc_html_e('افزودن دسترسی', 'niloo-web'); ?></a></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -301,7 +301,7 @@ function nasim_revoke_access_url($user_id, $type, $course_id = 0) {
 function nasim_handle_grant_access() {
 
     if (!current_user_can('edit_users')) {
-        wp_die(esc_html__('دسترسی غیرمجاز.', 'nasim-fitness'), 403);
+        wp_die(esc_html__('دسترسی غیرمجاز.', 'niloo-web'), 403);
     }
 
     check_admin_referer('nasim_grant_access');
@@ -358,7 +358,7 @@ function nasim_handle_revoke_access() {
     $user_id = absint($_GET['user_id'] ?? 0);
 
     if (!current_user_can('edit_users')) {
-        wp_die(esc_html__('دسترسی غیرمجاز.', 'nasim-fitness'), 403);
+        wp_die(esc_html__('دسترسی غیرمجاز.', 'niloo-web'), 403);
     }
 
     check_admin_referer('nasim_revoke_access_' . $user_id);
@@ -393,7 +393,7 @@ add_action('admin_post_nasim_revoke_access', 'nasim_handle_revoke_access');
  */
 function nasim_users_access_column($columns) {
 
-    $columns['nasim_access'] = __('دسترسی دوره‌ها', 'nasim-fitness');
+    $columns['nasim_access'] = __('دسترسی دوره‌ها', 'niloo-web');
 
     return $columns;
 }
@@ -426,7 +426,7 @@ add_filter('manage_users_custom_column', 'nasim_users_access_column_content', 10
 function nasim_users_access_row_action($actions, $user) {
 
     if (current_user_can('edit_users')) {
-        $actions['nasim_access'] = '<a href="' . esc_url(nasim_access_page_url(['user_id' => $user->ID])) . '">' . esc_html__('افزودن دسترسی', 'nasim-fitness') . '</a>';
+        $actions['nasim_access'] = '<a href="' . esc_url(nasim_access_page_url(['user_id' => $user->ID])) . '">' . esc_html__('افزودن دسترسی', 'niloo-web') . '</a>';
     }
 
     return $actions;
@@ -446,32 +446,32 @@ function nasim_user_access_fields($user) {
     $expires = nasim_subscription_expires($user->ID);
     $grants  = nasim_get_course_grants($user->ID);
     ?>
-    <h2><?php esc_html_e('دسترسی دوره‌ها', 'nasim-fitness'); ?></h2>
+    <h2><?php esc_html_e('دسترسی دوره‌ها', 'niloo-web'); ?></h2>
     <table class="form-table" role="presentation">
         <tr>
-            <th><?php esc_html_e('اشتراک', 'nasim-fitness'); ?></th>
+            <th><?php esc_html_e('اشتراک', 'niloo-web'); ?></th>
             <td>
                 <?php if ($expires > time()) : ?>
                     <?php echo esc_html(sprintf('فعال تا %s (%s روز باقی‌مانده)', nasim_jdate($expires), nasim_fa_digits(nasim_subscription_days_left($user->ID)))); ?>
                 <?php elseif ($expires) : ?>
                     <?php echo esc_html(sprintf('منقضی شده در %s', nasim_jdate($expires))); ?>
                 <?php else : ?>
-                    <?php esc_html_e('بدون اشتراک', 'nasim-fitness'); ?>
+                    <?php esc_html_e('بدون اشتراک', 'niloo-web'); ?>
                 <?php endif; ?>
             </td>
         </tr>
         <tr>
-            <th><?php esc_html_e('دوره‌های اختصاصی', 'nasim-fitness'); ?></th>
+            <th><?php esc_html_e('دوره‌های اختصاصی', 'niloo-web'); ?></th>
             <td><?php echo esc_html($grants ? implode('، ', array_map('get_the_title', $grants)) : '—'); ?></td>
         </tr>
         <tr>
-            <th><label for="nasim_add_days"><?php esc_html_e('افزودن روز اشتراک', 'nasim-fitness'); ?></label></th>
+            <th><label for="nasim_add_days"><?php esc_html_e('افزودن روز اشتراک', 'niloo-web'); ?></label></th>
             <td><input type="number" min="1" max="3650" id="nasim_add_days" name="nasim_add_days" class="small-text" dir="ltr">
                 <?php if ($expires > time()) : ?>
-                <label style="margin-inline-start:16px"><input type="checkbox" name="nasim_cancel_subscription" value="1"> <?php esc_html_e('لغو اشتراک', 'nasim-fitness'); ?></label>
+                <label style="margin-inline-start:16px"><input type="checkbox" name="nasim_cancel_subscription" value="1"> <?php esc_html_e('لغو اشتراک', 'niloo-web'); ?></label>
                 <?php endif; ?>
                 <p class="description">
-                    <a href="<?php echo esc_url(nasim_access_page_url(['user_id' => $user->ID])); ?>"><?php esc_html_e('مدیریت کامل دسترسی (اشتراک با پلن یا دسترسی به دوره‌های مشخص) ←', 'nasim-fitness'); ?></a>
+                    <a href="<?php echo esc_url(nasim_access_page_url(['user_id' => $user->ID])); ?>"><?php esc_html_e('مدیریت کامل دسترسی (اشتراک با پلن یا دسترسی به دوره‌های مشخص) ←', 'niloo-web'); ?></a>
                 </p>
             </td>
         </tr>

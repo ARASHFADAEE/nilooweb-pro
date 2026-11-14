@@ -10,8 +10,8 @@ function nasim_tickets_admin_menu() {
     $badge   = $waiting ? ' <span class="awaiting-mod"><span class="pending-count">' . (int) $waiting . '</span></span>' : '';
 
     add_menu_page(
-        __('تیکت‌های پشتیبانی', 'nasim-fitness'),
-        __('پشتیبانی', 'nasim-fitness') . $badge,
+        __('تیکت‌های پشتیبانی', 'niloo-web'),
+        __('پشتیبانی', 'niloo-web') . $badge,
         'manage_options',
         'nasim-tickets',
         'nasim_render_tickets_admin_page',
@@ -146,11 +146,11 @@ function nasim_render_tickets_admin_list() {
     $base        = nasim_ticket_admin_url();
     ?>
     <div class="wrap">
-        <h1 class="wp-heading-inline"><?php esc_html_e('تیکت‌های پشتیبانی', 'nasim-fitness'); ?></h1>
+        <h1 class="wp-heading-inline"><?php esc_html_e('تیکت‌های پشتیبانی', 'niloo-web'); ?></h1>
         <hr class="wp-header-end">
 
         <ul class="subsubsub">
-            <li><a href="<?php echo esc_url($base); ?>" class="<?php echo $status ? '' : 'current'; ?>"><?php esc_html_e('همه', 'nasim-fitness'); ?> <span class="count">(<?php echo (int) array_sum($counts); ?>)</span></a> |</li>
+            <li><a href="<?php echo esc_url($base); ?>" class="<?php echo $status ? '' : 'current'; ?>"><?php esc_html_e('همه', 'niloo-web'); ?> <span class="count">(<?php echo (int) array_sum($counts); ?>)</span></a> |</li>
             <?php $i = 0; foreach ($statuses as $key => $label) : $i++; ?>
             <li><a href="<?php echo esc_url(add_query_arg('status', $key, $base)); ?>" class="<?php echo $status === $key ? 'current' : ''; ?>"><?php echo esc_html($label); ?> <span class="count">(<?php echo (int) $counts[$key]; ?>)</span></a><?php echo $i < count($statuses) ? ' |' : ''; ?></li>
             <?php endforeach; ?>
@@ -160,30 +160,30 @@ function nasim_render_tickets_admin_list() {
             <input type="hidden" name="page" value="nasim-tickets">
             <?php if ($status) : ?><input type="hidden" name="status" value="<?php echo esc_attr($status); ?>"><?php endif; ?>
             <select name="department">
-                <option value=""><?php esc_html_e('همه دپارتمان‌ها', 'nasim-fitness'); ?></option>
+                <option value=""><?php esc_html_e('همه دپارتمان‌ها', 'niloo-web'); ?></option>
                 <?php foreach ($departments as $key => $label) : ?>
                 <option value="<?php echo esc_attr($key); ?>" <?php selected($department, $key); ?>><?php echo esc_html($label); ?></option>
                 <?php endforeach; ?>
             </select>
-            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('شماره، عنوان، کاربر یا دامنه…', 'nasim-fitness'); ?>">
-            <?php submit_button(__('فیلتر', 'nasim-fitness'), 'secondary', '', false); ?>
+            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('شماره، عنوان، کاربر یا دامنه…', 'niloo-web'); ?>">
+            <?php submit_button(__('فیلتر', 'niloo-web'), 'secondary', '', false); ?>
         </form>
 
         <table class="wp-list-table widefat fixed striped">
             <thead>
                 <tr>
                     <th style="width:60px">#</th>
-                    <th><?php esc_html_e('عنوان', 'nasim-fitness'); ?></th>
-                    <th><?php esc_html_e('کاربر', 'nasim-fitness'); ?></th>
-                    <th><?php esc_html_e('دپارتمان', 'nasim-fitness'); ?></th>
-                    <th style="width:80px"><?php esc_html_e('اولویت', 'nasim-fitness'); ?></th>
-                    <th style="width:120px"><?php esc_html_e('وضعیت', 'nasim-fitness'); ?></th>
-                    <th style="width:150px"><?php esc_html_e('آخرین به‌روزرسانی', 'nasim-fitness'); ?></th>
+                    <th><?php esc_html_e('عنوان', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('کاربر', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('دپارتمان', 'niloo-web'); ?></th>
+                    <th style="width:80px"><?php esc_html_e('اولویت', 'niloo-web'); ?></th>
+                    <th style="width:120px"><?php esc_html_e('وضعیت', 'niloo-web'); ?></th>
+                    <th style="width:150px"><?php esc_html_e('آخرین به‌روزرسانی', 'niloo-web'); ?></th>
                 </tr>
             </thead>
             <tbody>
             <?php if (!$result['items']) : ?>
-                <tr><td colspan="7"><?php esc_html_e('تیکتی پیدا نشد.', 'nasim-fitness'); ?></td></tr>
+                <tr><td colspan="7"><?php esc_html_e('تیکتی پیدا نشد.', 'niloo-web'); ?></td></tr>
             <?php endif; ?>
             <?php foreach ($result['items'] as $ticket) :
                 $user = get_userdata($ticket->user_id);
@@ -226,11 +226,11 @@ function nasim_render_tickets_admin_list() {
 
         <form method="post" action="options.php" class="card" style="max-width:640px;margin-top:24px;padding:12px 20px">
             <?php settings_fields('nasim_ticket_settings'); ?>
-            <h2><?php esc_html_e('اعلان ایمیلی', 'nasim-fitness'); ?></h2>
-            <p class="description"><?php esc_html_e('تیکت جدید و پاسخ کاربران به این ایمیل اطلاع داده می‌شود. خالی = ایمیل مدیر سایت.', 'nasim-fitness'); ?></p>
+            <h2><?php esc_html_e('اعلان ایمیلی', 'niloo-web'); ?></h2>
+            <p class="description"><?php esc_html_e('تیکت جدید و پاسخ کاربران به این ایمیل اطلاع داده می‌شود. خالی = ایمیل مدیر سایت.', 'niloo-web'); ?></p>
             <p>
                 <input type="email" name="nasim_ticket_notify_email" value="<?php echo esc_attr((string) get_option('nasim_ticket_notify_email', '')); ?>" class="regular-text" dir="ltr" placeholder="<?php echo esc_attr((string) get_option('admin_email')); ?>">
-                <?php submit_button(__('ذخیره', 'nasim-fitness'), 'secondary', 'submit', false); ?>
+                <?php submit_button(__('ذخیره', 'niloo-web'), 'secondary', 'submit', false); ?>
             </p>
         </form>
     </div>
@@ -243,7 +243,7 @@ function nasim_render_ticket_admin_view($ticket_id) {
     $ticket = nasim_get_ticket($ticket_id);
 
     if (!$ticket) {
-        echo '<div class="wrap"><h1>' . esc_html__('تیکت پیدا نشد', 'nasim-fitness') . '</h1></div>';
+        echo '<div class="wrap"><h1>' . esc_html__('تیکت پیدا نشد', 'niloo-web') . '</h1></div>';
         return;
     }
 
@@ -260,13 +260,13 @@ function nasim_render_ticket_admin_view($ticket_id) {
     ?>
     <div class="wrap">
         <h1 class="wp-heading-inline"><?php echo esc_html(sprintf('#%d — %s', $ticket->id, $ticket->subject)); ?></h1>
-        <a href="<?php echo esc_url(nasim_ticket_admin_url()); ?>" class="page-title-action"><?php esc_html_e('← همه تیکت‌ها', 'nasim-fitness'); ?></a>
+        <a href="<?php echo esc_url(nasim_ticket_admin_url()); ?>" class="page-title-action"><?php esc_html_e('← همه تیکت‌ها', 'niloo-web'); ?></a>
         <hr class="wp-header-end">
 
         <?php if ('replied' === $notice) : ?>
-        <div class="notice notice-success is-dismissible"><p><?php esc_html_e('پاسخ ارسال شد.', 'nasim-fitness'); ?></p></div>
+        <div class="notice notice-success is-dismissible"><p><?php esc_html_e('پاسخ ارسال شد.', 'niloo-web'); ?></p></div>
         <?php elseif ('status' === $notice) : ?>
-        <div class="notice notice-success is-dismissible"><p><?php esc_html_e('وضعیت تیکت به‌روزرسانی شد.', 'nasim-fitness'); ?></p></div>
+        <div class="notice notice-success is-dismissible"><p><?php esc_html_e('وضعیت تیکت به‌روزرسانی شد.', 'niloo-web'); ?></p></div>
         <?php endif; ?>
         <?php if ($error) : ?>
         <div class="notice notice-error"><p><?php echo esc_html($error); ?></p></div>
@@ -296,44 +296,44 @@ function nasim_render_ticket_admin_view($ticket_id) {
                 </div>
 
                 <form class="card nasim-tk-reply" style="max-width:none;margin-top:18px" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" enctype="multipart/form-data">
-                    <h2><?php esc_html_e('ارسال پاسخ', 'nasim-fitness'); ?></h2>
+                    <h2><?php esc_html_e('ارسال پاسخ', 'niloo-web'); ?></h2>
                     <input type="hidden" name="action" value="nasim_admin_ticket_reply">
                     <input type="hidden" name="ticket_id" value="<?php echo esc_attr($ticket->id); ?>">
                     <?php wp_nonce_field('nasim_admin_ticket_reply'); ?>
-                    <textarea name="message" required placeholder="<?php esc_attr_e('پاسخ به کاربر…', 'nasim-fitness'); ?>"></textarea>
+                    <textarea name="message" required placeholder="<?php esc_attr_e('پاسخ به کاربر…', 'niloo-web'); ?>"></textarea>
                     <div class="row">
                         <input type="file" name="attachment" accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.zip,.txt,.log">
-                        <label><?php esc_html_e('وضعیت بعد از ارسال:', 'nasim-fitness'); ?>
+                        <label><?php esc_html_e('وضعیت بعد از ارسال:', 'niloo-web'); ?>
                             <select name="status">
-                                <option value="answered"><?php esc_html_e('پاسخ داده شد', 'nasim-fitness'); ?></option>
-                                <option value="closed"><?php esc_html_e('بستن تیکت', 'nasim-fitness'); ?></option>
-                                <option value="open"><?php esc_html_e('باز (در حال بررسی)', 'nasim-fitness'); ?></option>
+                                <option value="answered"><?php esc_html_e('پاسخ داده شد', 'niloo-web'); ?></option>
+                                <option value="closed"><?php esc_html_e('بستن تیکت', 'niloo-web'); ?></option>
+                                <option value="open"><?php esc_html_e('باز (در حال بررسی)', 'niloo-web'); ?></option>
                             </select>
                         </label>
-                        <?php submit_button(__('ارسال پاسخ', 'nasim-fitness'), 'primary', '', false); ?>
+                        <?php submit_button(__('ارسال پاسخ', 'niloo-web'), 'primary', '', false); ?>
                     </div>
                 </form>
             </div>
 
             <aside class="nasim-tk-side">
                 <div class="card">
-                    <h2><?php esc_html_e('جزئیات تیکت', 'nasim-fitness'); ?></h2>
+                    <h2><?php esc_html_e('جزئیات تیکت', 'niloo-web'); ?></h2>
                     <dl>
-                        <dt><?php esc_html_e('وضعیت', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('وضعیت', 'niloo-web'); ?></dt>
                         <dd><span class="nasim-tk-badge is-<?php echo esc_attr($ticket->status); ?>"><?php echo esc_html(nasim_ticket_label($statuses, $ticket->status)); ?></span></dd>
-                        <dt><?php esc_html_e('دپارتمان', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('دپارتمان', 'niloo-web'); ?></dt>
                         <dd><?php echo esc_html(nasim_ticket_label(nasim_ticket_departments(), $ticket->department)); ?></dd>
-                        <dt><?php esc_html_e('اولویت', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('اولویت', 'niloo-web'); ?></dt>
                         <dd><?php echo esc_html(nasim_ticket_label(nasim_ticket_priorities(), $ticket->priority)); ?></dd>
                         <?php if ($ticket->product_id) : ?>
-                        <dt><?php esc_html_e('محصول', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('محصول', 'niloo-web'); ?></dt>
                         <dd><a href="<?php echo esc_url(get_edit_post_link($ticket->product_id)); ?>"><?php echo esc_html(get_the_title($ticket->product_id)); ?></a></dd>
                         <?php endif; ?>
                         <?php if ($ticket->site_url) : ?>
-                        <dt><?php esc_html_e('سایت', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('سایت', 'niloo-web'); ?></dt>
                         <dd dir="ltr"><a href="<?php echo esc_url($ticket->site_url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($ticket->site_url); ?></a></dd>
                         <?php endif; ?>
-                        <dt><?php esc_html_e('ایجاد', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('ایجاد', 'niloo-web'); ?></dt>
                         <dd><?php echo esc_html(nasim_jdate(nasim_payment_time($ticket->created_at), true)); ?></dd>
                     </dl>
                     <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-top:14px;display:flex;gap:6px">
@@ -345,32 +345,32 @@ function nasim_render_ticket_admin_view($ticket_id) {
                             <option value="<?php echo esc_attr($key); ?>" <?php selected($ticket->status, $key); ?>><?php echo esc_html($label); ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <?php submit_button(__('تغییر وضعیت', 'nasim-fitness'), 'secondary', '', false); ?>
+                        <?php submit_button(__('تغییر وضعیت', 'niloo-web'), 'secondary', '', false); ?>
                     </form>
                 </div>
 
                 <div class="card">
-                    <h2><?php esc_html_e('مشتری', 'nasim-fitness'); ?></h2>
+                    <h2><?php esc_html_e('مشتری', 'niloo-web'); ?></h2>
                     <?php if ($user) : ?>
                     <dl>
-                        <dt><?php esc_html_e('نام', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('نام', 'niloo-web'); ?></dt>
                         <dd><a href="<?php echo esc_url(get_edit_user_link($user->ID)); ?>"><?php echo esc_html($user->display_name); ?></a></dd>
-                        <dt><?php esc_html_e('نام کاربری', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('نام کاربری', 'niloo-web'); ?></dt>
                         <dd dir="ltr"><?php echo esc_html($user->user_login); ?></dd>
                         <?php if (function_exists('nasim_get_user_mobile') && nasim_get_user_mobile($user->ID)) : ?>
-                        <dt><?php esc_html_e('موبایل', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('موبایل', 'niloo-web'); ?></dt>
                         <dd dir="ltr"><?php echo esc_html(nasim_get_user_mobile($user->ID)); ?></dd>
                         <?php endif; ?>
                         <?php if (is_email($user->user_email)) : ?>
-                        <dt><?php esc_html_e('ایمیل', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('ایمیل', 'niloo-web'); ?></dt>
                         <dd dir="ltr"><?php echo esc_html($user->user_email); ?></dd>
                         <?php endif; ?>
-                        <dt><?php esc_html_e('اشتراک', 'nasim-fitness'); ?></dt>
-                        <dd><?php echo $sub_active ? '<span style="color:#19834a">' . esc_html__('فعال', 'nasim-fitness') . '</span>' . ($expires ? ' · ' . esc_html(nasim_jdate($expires)) : '') : '<span style="color:#b42318">' . esc_html__('ندارد / منقضی', 'nasim-fitness') . '</span>'; ?></dd>
+                        <dt><?php esc_html_e('اشتراک', 'niloo-web'); ?></dt>
+                        <dd><?php echo $sub_active ? '<span style="color:#19834a">' . esc_html__('فعال', 'niloo-web') . '</span>' . ($expires ? ' · ' . esc_html(nasim_jdate($expires)) : '') : '<span style="color:#b42318">' . esc_html__('ندارد / منقضی', 'niloo-web') . '</span>'; ?></dd>
                         <?php if ($license) : ?>
-                        <dt><?php esc_html_e('لایسنس', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('لایسنس', 'niloo-web'); ?></dt>
                         <dd dir="ltr"><code><?php echo esc_html($license->license_key); ?></code></dd>
-                        <dt><?php esc_html_e('دامنه‌ها', 'nasim-fitness'); ?></dt>
+                        <dt><?php esc_html_e('دامنه‌ها', 'niloo-web'); ?></dt>
                         <dd dir="ltr">
                             <?php
                             $domains = array_map(function ($row) {
@@ -382,7 +382,7 @@ function nasim_render_ticket_admin_view($ticket_id) {
                         <?php endif; ?>
                     </dl>
                     <?php else : ?>
-                    <p><?php esc_html_e('کاربر حذف شده است.', 'nasim-fitness'); ?></p>
+                    <p><?php esc_html_e('کاربر حذف شده است.', 'niloo-web'); ?></p>
                     <?php endif; ?>
                 </div>
             </aside>

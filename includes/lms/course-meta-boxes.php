@@ -9,8 +9,8 @@ if(!defined('ABSPATH')) exit;
  */
 function nasim_add_course_meta_boxes() {
 
-    add_meta_box('nasim_course_curriculum', __('سرفصل‌های دوره', 'nasim-fitness'), 'nasim_render_curriculum_meta_box', 'nasim_course', 'normal', 'high');
-    add_meta_box('nasim_course_details', __('جزئیات دوره', 'nasim-fitness'), 'nasim_render_course_details_meta_box', 'nasim_course', 'side');
+    add_meta_box('nasim_course_curriculum', __('سرفصل‌های دوره', 'niloo-web'), 'nasim_render_curriculum_meta_box', 'nasim_course', 'normal', 'high');
+    add_meta_box('nasim_course_details', __('جزئیات دوره', 'niloo-web'), 'nasim_render_course_details_meta_box', 'nasim_course', 'side');
 }
 add_action('add_meta_boxes', 'nasim_add_course_meta_boxes');
 
@@ -21,12 +21,12 @@ function nasim_render_course_details_meta_box($post) {
     $outcomes = get_post_meta($post->ID, '_nasim_course_outcomes', true);
     ?>
     <p>
-        <label for="nasim_course_level"><strong><?php esc_html_e('سطح دوره', 'nasim-fitness'); ?></strong></label>
+        <label for="nasim_course_level"><strong><?php esc_html_e('سطح دوره', 'niloo-web'); ?></strong></label>
         <input type="text" class="widefat" id="nasim_course_level" name="nasim_course_level" value="<?php echo esc_attr($level); ?>" placeholder="مقدماتی" list="nasim_course_levels">
         <datalist id="nasim_course_levels"><option value="مقدماتی"><option value="متوسط"><option value="پیشرفته"><option value="همه سطوح"></datalist>
     </p>
     <p>
-        <label for="nasim_course_outcomes"><strong><?php esc_html_e('در این دوره یاد می‌گیری (هر مورد در یک خط)', 'nasim-fitness'); ?></strong></label>
+        <label for="nasim_course_outcomes"><strong><?php esc_html_e('در این دوره یاد می‌گیری (هر مورد در یک خط)', 'niloo-web'); ?></strong></label>
         <textarea class="widefat" id="nasim_course_outcomes" name="nasim_course_outcomes" rows="6"><?php echo esc_textarea($outcomes); ?></textarea>
     </p>
     <?php
@@ -35,19 +35,19 @@ function nasim_render_course_details_meta_box($post) {
     $wc_id    = (int) get_post_meta($post->ID, '_nasim_wc_product_id', true);
     ?>
     <p>
-        <label for="nasim_course_delivery"><strong><?php esc_html_e('نوع تحویل', 'nasim-fitness'); ?></strong></label>
+        <label for="nasim_course_delivery"><strong><?php esc_html_e('نوع تحویل', 'niloo-web'); ?></strong></label>
         <select id="nasim_course_delivery" name="nasim_course_delivery" class="widefat">
-            <option value="lms" <?php selected($delivery, 'lms'); ?>><?php esc_html_e('پلیر داخلی قالب (LMS)', 'nasim-fitness'); ?></option>
-            <option value="spot" <?php selected($delivery, 'spot'); ?>><?php esc_html_e('اسپات پلیر (ضدکپی)', 'nasim-fitness'); ?></option>
-            <option value="hybrid" <?php selected($delivery, 'hybrid'); ?>><?php esc_html_e('هر دو', 'nasim-fitness'); ?></option>
+            <option value="lms" <?php selected($delivery, 'lms'); ?>><?php esc_html_e('پلیر داخلی قالب (LMS)', 'niloo-web'); ?></option>
+            <option value="spot" <?php selected($delivery, 'spot'); ?>><?php esc_html_e('اسپات پلیر (ضدکپی)', 'niloo-web'); ?></option>
+            <option value="hybrid" <?php selected($delivery, 'hybrid'); ?>><?php esc_html_e('هر دو', 'niloo-web'); ?></option>
         </select>
     </p>
     <p>
-        <label for="nasim_spotplayer_course"><strong><?php esc_html_e('شناسه دوره اسپات (با , جدا)', 'nasim-fitness'); ?></strong></label>
+        <label for="nasim_spotplayer_course"><strong><?php esc_html_e('شناسه دوره اسپات (با , جدا)', 'niloo-web'); ?></strong></label>
         <textarea class="widefat ltr" id="nasim_spotplayer_course" name="nasim_spotplayer_course" rows="2" placeholder="24char,24char"><?php echo esc_textarea($spot); ?></textarea>
     </p>
     <?php if ($wc_id) : ?>
-    <p class="description"><?php printf(esc_html__('متصل به محصول ووکامرس #%d', 'nasim-fitness'), $wc_id); ?></p>
+    <p class="description"><?php printf(esc_html__('متصل به محصول ووکامرس #%d', 'niloo-web'), $wc_id); ?></p>
     <?php endif; ?>
     <?php
 }
@@ -58,7 +58,7 @@ function nasim_render_curriculum_meta_box($post) {
     wp_nonce_field('nasim_save_course', 'nasim_course_nonce');
     ?>
     <div class="nasim-curriculum" id="nasimCurriculum">
-        <p class="description"><?php esc_html_e('فصل‌ها و درس‌ها را با کشیدن آیکون ⇅ مرتب کنید. کد Embed ویدیو (iframe) را از سرویس ویدیویی (آپارات، آروان، یوتیوب و...) کپی کنید. درس‌های «رایگان» برای همه قابل مشاهده‌اند و بقیه فقط برای مشترکین.', 'nasim-fitness'); ?></p>
+        <p class="description"><?php esc_html_e('فصل‌ها و درس‌ها را با کشیدن آیکون ⇅ مرتب کنید. کد Embed ویدیو (iframe) را از سرویس ویدیویی (آپارات، آروان، یوتیوب و...) کپی کنید. درس‌های «رایگان» برای همه قابل مشاهده‌اند و بقیه فقط برای مشترکین.', 'niloo-web'); ?></p>
 
         <div class="nasim-sections">
             <?php foreach (nasim_get_curriculum($post->ID) as $section_index => $section) : ?>
@@ -66,7 +66,7 @@ function nasim_render_curriculum_meta_box($post) {
             <?php endforeach; ?>
         </div>
 
-        <button type="button" class="button button-primary nasim-add-section"><?php esc_html_e('+ افزودن فصل', 'nasim-fitness'); ?></button>
+        <button type="button" class="button button-primary nasim-add-section"><?php esc_html_e('+ افزودن فصل', 'niloo-web'); ?></button>
     </div>
 
     <script type="text/html" id="tmpl-nasim-section"><?php nasim_render_curriculum_section('__S__', []); ?></script>
@@ -82,15 +82,15 @@ function nasim_render_curriculum_section($section_key, $section) {
     <div class="nasim-section" data-key="<?php echo esc_attr($section_key); ?>">
         <div class="nasim-section-head">
             <span class="nasim-handle dashicons dashicons-sort" title="جابه‌جایی"></span>
-            <input type="text" class="nasim-section-title" name="<?php echo esc_attr($name); ?>[title]" value="<?php echo esc_attr($section['title'] ?? ''); ?>" placeholder="<?php esc_attr_e('عنوان فصل (مثلاً: فصل اول - آشنایی)', 'nasim-fitness'); ?>">
-            <button type="button" class="button-link button-link-delete nasim-remove-section"><?php esc_html_e('حذف فصل', 'nasim-fitness'); ?></button>
+            <input type="text" class="nasim-section-title" name="<?php echo esc_attr($name); ?>[title]" value="<?php echo esc_attr($section['title'] ?? ''); ?>" placeholder="<?php esc_attr_e('عنوان فصل (مثلاً: فصل اول - آشنایی)', 'niloo-web'); ?>">
+            <button type="button" class="button-link button-link-delete nasim-remove-section"><?php esc_html_e('حذف فصل', 'niloo-web'); ?></button>
         </div>
         <div class="nasim-lessons">
             <?php foreach ($section['lessons'] ?? [] as $lesson_index => $lesson) : ?>
                 <?php nasim_render_curriculum_lesson($section_key, 'l' . $lesson_index, $lesson); ?>
             <?php endforeach; ?>
         </div>
-        <button type="button" class="button nasim-add-lesson"><?php esc_html_e('+ افزودن درس', 'nasim-fitness'); ?></button>
+        <button type="button" class="button nasim-add-lesson"><?php esc_html_e('+ افزودن درس', 'niloo-web'); ?></button>
     </div>
     <?php
 }
@@ -106,54 +106,54 @@ function nasim_render_curriculum_lesson($section_key, $lesson_key, $lesson) {
     <details class="nasim-lesson" <?php echo empty($lesson) ? 'open' : ''; ?>>
         <summary>
             <span class="nasim-handle dashicons dashicons-sort" title="جابه‌جایی"></span>
-            <span class="nasim-lesson-preview"><?php echo esc_html($field('title') ?: __('درس جدید', 'nasim-fitness')); ?></span>
+            <span class="nasim-lesson-preview"><?php echo esc_html($field('title') ?: __('درس جدید', 'niloo-web')); ?></span>
             <span class="nasim-lesson-badges">
                 <?php if ($field('duration')) : ?><span class="nasim-badge"><?php echo esc_html($field('duration')); ?></span><?php endif; ?>
-                <?php if (!empty($lesson['is_free'])) : ?><span class="nasim-badge nasim-badge-free"><?php esc_html_e('رایگان', 'nasim-fitness'); ?></span><?php endif; ?>
-                <?php if (empty($lesson['embed']) && !empty($lesson)) : ?><span class="nasim-badge nasim-badge-warning"><?php esc_html_e('بدون ویدیو', 'nasim-fitness'); ?></span><?php endif; ?>
+                <?php if (!empty($lesson['is_free'])) : ?><span class="nasim-badge nasim-badge-free"><?php esc_html_e('رایگان', 'niloo-web'); ?></span><?php endif; ?>
+                <?php if (empty($lesson['embed']) && !empty($lesson)) : ?><span class="nasim-badge nasim-badge-warning"><?php esc_html_e('بدون ویدیو', 'niloo-web'); ?></span><?php endif; ?>
             </span>
-            <button type="button" class="button-link button-link-delete nasim-remove-lesson"><?php esc_html_e('حذف', 'nasim-fitness'); ?></button>
+            <button type="button" class="button-link button-link-delete nasim-remove-lesson"><?php esc_html_e('حذف', 'niloo-web'); ?></button>
         </summary>
 
         <div class="nasim-lesson-body">
             <input type="hidden" name="<?php echo esc_attr($name); ?>[id]" value="<?php echo esc_attr($field('id')); ?>">
 
             <div class="nasim-grid">
-                <label class="nasim-col-2"><?php esc_html_e('عنوان درس', 'nasim-fitness'); ?>
+                <label class="nasim-col-2"><?php esc_html_e('عنوان درس', 'niloo-web'); ?>
                     <input type="text" class="nasim-lesson-title" name="<?php echo esc_attr($name); ?>[title]" value="<?php echo esc_attr($field('title')); ?>">
                 </label>
-                <label><?php esc_html_e('نوع درس', 'nasim-fitness'); ?>
+                <label><?php esc_html_e('نوع درس', 'niloo-web'); ?>
                     <input type="text" name="<?php echo esc_attr($name); ?>[type]" value="<?php echo esc_attr($field('type')); ?>" placeholder="تمرین عملی">
                 </label>
-                <label><?php esc_html_e('مدت (دقیقه:ثانیه)', 'nasim-fitness'); ?>
+                <label><?php esc_html_e('مدت (دقیقه:ثانیه)', 'niloo-web'); ?>
                     <input type="text" name="<?php echo esc_attr($name); ?>[duration]" value="<?php echo esc_attr($field('duration')); ?>" placeholder="7:30" dir="ltr">
                 </label>
             </div>
 
-            <label><?php esc_html_e('توضیح کوتاه درس', 'nasim-fitness'); ?>
+            <label><?php esc_html_e('توضیح کوتاه درس', 'niloo-web'); ?>
                 <textarea name="<?php echo esc_attr($name); ?>[description]" rows="2"><?php echo esc_textarea($field('description')); ?></textarea>
             </label>
 
-            <label><?php esc_html_e('در این درس چه یاد می‌گیری؟ (هر مورد در یک خط)', 'nasim-fitness'); ?>
+            <label><?php esc_html_e('در این درس چه یاد می‌گیری؟ (هر مورد در یک خط)', 'niloo-web'); ?>
                 <textarea name="<?php echo esc_attr($name); ?>[overview]" rows="3"><?php echo esc_textarea($field('overview')); ?></textarea>
             </label>
 
-            <label><?php esc_html_e('کد Embed ویدیو (iframe)', 'nasim-fitness'); ?>
+            <label><?php esc_html_e('کد Embed ویدیو (iframe)', 'niloo-web'); ?>
                 <textarea name="<?php echo esc_attr($name); ?>[embed]" rows="3" dir="ltr" class="code" placeholder='<iframe src="https://..." allowfullscreen></iframe>'><?php echo esc_textarea($field('embed')); ?></textarea>
             </label>
 
             <div class="nasim-grid">
-                <label class="nasim-col-2"><?php esc_html_e('عنوان فایل همراه', 'nasim-fitness'); ?>
+                <label class="nasim-col-2"><?php esc_html_e('عنوان فایل همراه', 'niloo-web'); ?>
                     <input type="text" name="<?php echo esc_attr($name); ?>[resource_title]" value="<?php echo esc_attr($field('resource_title')); ?>" placeholder="چک‌لیست شروع تمرین">
                 </label>
-                <label class="nasim-col-2"><?php esc_html_e('لینک فایل همراه', 'nasim-fitness'); ?>
+                <label class="nasim-col-2"><?php esc_html_e('لینک فایل همراه', 'niloo-web'); ?>
                     <input type="url" name="<?php echo esc_attr($name); ?>[resource_url]" value="<?php echo esc_attr($field('resource_url')); ?>" dir="ltr">
                 </label>
             </div>
 
             <label class="nasim-checkbox">
                 <input type="checkbox" name="<?php echo esc_attr($name); ?>[is_free]" value="1" <?php checked(!empty($lesson['is_free'])); ?>>
-                <?php esc_html_e('درس رایگان (پیش‌نمایش برای همه)', 'nasim-fitness'); ?>
+                <?php esc_html_e('درس رایگان (پیش‌نمایش برای همه)', 'niloo-web'); ?>
             </label>
         </div>
     </details>

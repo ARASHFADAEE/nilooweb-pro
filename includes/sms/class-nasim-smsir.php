@@ -42,7 +42,7 @@ class Nasim_SmsIr {
     public function send_verify($mobile, $template_id, array $parameters) {
 
         if (!absint($template_id)) {
-            return new WP_Error('smsir_template', __('کد قالب پیامک تنظیم نشده است.', 'nasim-fitness'));
+            return new WP_Error('smsir_template', __('کد قالب پیامک تنظیم نشده است.', 'niloo-web'));
         }
 
         $body = [
@@ -71,7 +71,7 @@ class Nasim_SmsIr {
     private function request($method, $path, $body = null) {
 
         if (!$this->is_configured()) {
-            return new WP_Error('smsir_not_configured', __('کلید API پیامک تنظیم نشده است.', 'nasim-fitness'));
+            return new WP_Error('smsir_not_configured', __('کلید API پیامک تنظیم نشده است.', 'niloo-web'));
         }
 
         $args = [
@@ -91,7 +91,7 @@ class Nasim_SmsIr {
         $response = wp_remote_request(self::API_URL . $path, $args);
 
         if (is_wp_error($response)) {
-            return new WP_Error('smsir_http', __('ارتباط با سامانه پیامک برقرار نشد.', 'nasim-fitness'), $response->get_error_message());
+            return new WP_Error('smsir_http', __('ارتباط با سامانه پیامک برقرار نشد.', 'niloo-web'), $response->get_error_message());
         }
 
         $http = (int) wp_remote_retrieve_response_code($response);
@@ -110,11 +110,11 @@ class Nasim_SmsIr {
     private static function http_error_message($http) {
 
         $messages = [
-            401 => __('کلید API نامعتبر است.', 'nasim-fitness'),
-            429 => __('تعداد درخواست‌ها بیش از حد مجاز است.', 'nasim-fitness'),
-            500 => __('خطای داخلی سامانه پیامک.', 'nasim-fitness'),
+            401 => __('کلید API نامعتبر است.', 'niloo-web'),
+            429 => __('تعداد درخواست‌ها بیش از حد مجاز است.', 'niloo-web'),
+            500 => __('خطای داخلی سامانه پیامک.', 'niloo-web'),
         ];
 
-        return $messages[$http] ?? sprintf(__('خطای سامانه پیامک (کد %d).', 'nasim-fitness'), $http);
+        return $messages[$http] ?? sprintf(__('خطای سامانه پیامک (کد %d).', 'niloo-web'), $http);
     }
 }

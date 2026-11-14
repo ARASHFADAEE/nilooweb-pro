@@ -24,7 +24,7 @@ add_action('after_setup_theme', 'nasim_elementor_theme_setup', 20);
 function nasim_elementor_body_class(array $classes): array
 {
     if (is_singular() && nasim_is_built_with_elementor(get_queried_object_id())) {
-        $classes[] = 'nasim-elementor-page';
+        $classes[] = 'niloo-elementor-page';
     }
 
     return $classes;

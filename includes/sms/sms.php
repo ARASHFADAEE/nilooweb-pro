@@ -98,10 +98,10 @@ function nasim_sms_send_values($mobile, $template, array $values) {
 function nasim_subscription_sms_variables() {
 
     return [
-        'NAME'   => __('نام کاربر', 'nasim-fitness'),
-        'PLAN'   => __('نام پلن', 'nasim-fitness'),
-        'EXPIRE' => __('تاریخ پایان اشتراک', 'nasim-fitness'),
-        'DAYS'   => __('روزهای باقی‌مانده', 'nasim-fitness'),
+        'NAME'   => __('نام کاربر', 'niloo-web'),
+        'PLAN'   => __('نام پلن', 'niloo-web'),
+        'EXPIRE' => __('تاریخ پایان اشتراک', 'niloo-web'),
+        'DAYS'   => __('روزهای باقی‌مانده', 'niloo-web'),
     ];
 }
 
@@ -127,7 +127,7 @@ function nasim_subscription_sms_values($user_id, $expires_at, $plan_id = 0) {
 
     $all = [
         'NAME'   => $user ? ($user->first_name ?: $user->display_name) : '',
-        'PLAN'   => $plan ?: __('اشتراک', 'nasim-fitness'),
+        'PLAN'   => $plan ?: __('اشتراک', 'niloo-web'),
         'EXPIRE' => nasim_jdate($expires_at),
         'DAYS'   => nasim_fa_digits(max(0, (int) ceil(($expires_at - time()) / DAY_IN_SECONDS))),
     ];

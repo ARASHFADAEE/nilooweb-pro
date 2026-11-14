@@ -84,21 +84,21 @@ function nasim_niloo_customizer_sections(array $sections): array
 
     if (!isset($sections['nasim_courses_home'])) {
         $sections['nasim_courses_home'] = [
-            'title'  => __('دوره‌ها در صفحه اصلی', 'nasim-fitness'),
+            'title'  => __('دوره‌ها در صفحه اصلی', 'niloo-web'),
             'fields' => [],
         ];
     }
 
     $sections['nasim_courses_home']['fields'] = array_merge($sections['nasim_courses_home']['fields'] ?? [], [
-        'courses_home_eyebrow'         => ['label' => __('تیتر کوچک', 'nasim-fitness'), 'default' => 'دوره‌های آموزشی'],
-        'courses_home_title'           => ['label' => __('عنوان', 'nasim-fitness'), 'default' => 'مسیر یادگیری خود را'],
-        'courses_home_title_highlight' => ['label' => __('عنوان رنگی', 'nasim-fitness'), 'default' => 'از اینجا شروع کنید'],
-        'courses_home_count'           => ['label' => __('تعداد دوره', 'nasim-fitness'), 'type' => 'number', 'default' => 2],
-        'radio_eyebrow'                => ['label' => __('رادیو نیل: تیتر', 'nasim-fitness'), 'default' => 'رادیو نیل'],
-        'radio_title'                  => ['label' => __('رادیو نیل: عنوان', 'nasim-fitness'), 'default' => 'پادکست و گفتگو'],
-        'radio_title_highlight'        => ['label' => __('رادیو نیل: رنگی', 'nasim-fitness'), 'default' => 'در مسیر طراحی'],
-        'radio_cat'                    => ['label' => __('اسلاگ دسته مقالات رادیو', 'nasim-fitness'), 'default' => 'podcast'],
-        'radio_more_url'               => ['label' => __('لینک همه', 'nasim-fitness'), 'type' => 'url', 'default' => home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/')],
+        'courses_home_eyebrow'         => ['label' => __('تیتر کوچک', 'niloo-web'), 'default' => 'دوره‌های آموزشی'],
+        'courses_home_title'           => ['label' => __('عنوان', 'niloo-web'), 'default' => 'مسیر یادگیری خود را'],
+        'courses_home_title_highlight' => ['label' => __('عنوان رنگی', 'niloo-web'), 'default' => 'از اینجا شروع کنید'],
+        'courses_home_count'           => ['label' => __('تعداد دوره', 'niloo-web'), 'type' => 'number', 'default' => 2],
+        'radio_eyebrow'                => ['label' => __('رادیو نیل: تیتر', 'niloo-web'), 'default' => 'رادیو نیل'],
+        'radio_title'                  => ['label' => __('رادیو نیل: عنوان', 'niloo-web'), 'default' => 'پادکست و گفتگو'],
+        'radio_title_highlight'        => ['label' => __('رادیو نیل: رنگی', 'niloo-web'), 'default' => 'در مسیر طراحی'],
+        'radio_cat'                    => ['label' => __('اسلاگ دسته مقالات رادیو', 'niloo-web'), 'default' => 'podcast'],
+        'radio_more_url'               => ['label' => __('لینک همه', 'niloo-web'), 'type' => 'url', 'default' => home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/')],
     ]);
 
     return $sections;

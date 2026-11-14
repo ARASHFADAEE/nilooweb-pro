@@ -102,8 +102,8 @@ function nasim_sanitize_theme_settings($input) {
 function nasim_theme_settings_menu() {
 
     add_menu_page(
-        __('تنظیمات قالب', 'nasim-fitness'),
-        __('تنظیمات قالب', 'nasim-fitness'),
+        __('تنظیمات نیلو', 'niloo-web'),
+        __('تنظیمات نیلو', 'niloo-web'),
         'manage_options',
         'nasim-theme-settings',
         'nasim_render_theme_settings_page',
@@ -145,9 +145,9 @@ function nasim_settings_secret_field($field, $description) {
     $name    = 'nasim_theme_settings';
     $has_key = '' !== (string) nasim_setting($field);
     ?>
-    <input type="password" id="<?php echo esc_attr($field); ?>" name="<?php echo esc_attr($name . '[' . $field . ']'); ?>" value="" class="regular-text" dir="ltr" autocomplete="new-password" placeholder="<?php echo $has_key ? esc_attr__('ذخیره شده — برای تغییر، کلید جدید را وارد کنید', 'nasim-fitness') : ''; ?>">
+    <input type="password" id="<?php echo esc_attr($field); ?>" name="<?php echo esc_attr($name . '[' . $field . ']'); ?>" value="" class="regular-text" dir="ltr" autocomplete="new-password" placeholder="<?php echo $has_key ? esc_attr__('ذخیره شده — برای تغییر، کلید جدید را وارد کنید', 'niloo-web') : ''; ?>">
     <?php if ($has_key) : ?>
-    <label style="margin-inline-start:10px"><input type="checkbox" name="<?php echo esc_attr($name . '[' . $field . '_clear]'); ?>" value="1"> <?php esc_html_e('حذف کلید', 'nasim-fitness'); ?></label>
+    <label style="margin-inline-start:10px"><input type="checkbox" name="<?php echo esc_attr($name . '[' . $field . '_clear]'); ?>" value="1"> <?php esc_html_e('حذف کلید', 'niloo-web'); ?></label>
     <?php endif; ?>
     <p class="description"><?php echo esc_html($description); ?></p>
     <?php
@@ -178,82 +178,82 @@ function nasim_render_theme_settings_page() {
     }
     ?>
     <div class="wrap">
-        <h1><?php esc_html_e('تنظیمات قالب', 'nasim-fitness'); ?></h1>
+        <h1><?php esc_html_e('تنظیمات نیلو', 'niloo-web'); ?></h1>
 
         <?php if ($test) : ?>
         <div class="notice notice-<?php echo 'ok' === $test['status'] ? 'success' : 'error'; ?> is-dismissible"><p><?php echo esc_html($test['message']); ?></p></div>
         <?php endif; ?>
 
-        <?php if (defined('NASIM_OTP_DEBUG') && NASIM_OTP_DEBUG) : ?>
-        <div class="notice notice-warning"><p><?php esc_html_e('حالت اشکال‌زدایی OTP فعال است (NASIM_OTP_DEBUG): کدها به‌جای پیامک در لاگ PHP نوشته می‌شوند. روی سایت اصلی این ثابت را حذف کنید.', 'nasim-fitness'); ?></p></div>
+        <?php if ((defined('NILOO_OTP_DEBUG') && NILOO_OTP_DEBUG) || (defined('NASIM_OTP_DEBUG') && NASIM_OTP_DEBUG)) : ?>
+        <div class="notice notice-warning"><p><?php esc_html_e('حالت اشکال‌زدایی OTP فعال است (NILOO_OTP_DEBUG): کدها به‌جای پیامک در لاگ PHP نوشته می‌شوند. روی سایت اصلی این ثابت را حذف کنید.', 'niloo-web'); ?></p></div>
         <?php endif; ?>
 
         <form method="post" action="options.php">
             <?php settings_fields('nasim_theme_settings'); ?>
 
-            <h2 class="title"><?php esc_html_e('سامانه پیامک', 'nasim-fitness'); ?></h2>
+            <h2 class="title"><?php esc_html_e('سامانه پیامک', 'niloo-web'); ?></h2>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th><?php esc_html_e('ارسال پیامک با', 'nasim-fitness'); ?></th>
+                    <th><?php esc_html_e('ارسال پیامک با', 'niloo-web'); ?></th>
                     <td>
                         <?php foreach (nasim_sms_providers() as $key => $label) : ?>
                         <label style="margin-inline-end:18px"><input type="radio" name="<?php echo esc_attr($name); ?>[sms_provider]" value="<?php echo esc_attr($key); ?>" <?php checked($provider, $key); ?> data-sms-provider> <?php echo esc_html($label); ?></label>
                         <?php endforeach; ?>
-                        <p class="description"><?php esc_html_e('کد ورود/ثبت‌نام و پیامک فعال‌سازی اشتراک با سامانه انتخاب‌شده فرستاده می‌شود. تنظیمات هر دو سامانه ذخیره می‌ماند تا بتوانید هر وقت خواستید جابه‌جا کنید.', 'nasim-fitness'); ?></p>
+                        <p class="description"><?php esc_html_e('کد ورود/ثبت‌نام و پیامک فعال‌سازی اشتراک با سامانه انتخاب‌شده فرستاده می‌شود. تنظیمات هر دو سامانه ذخیره می‌ماند تا بتوانید هر وقت خواستید جابه‌جا کنید.', 'niloo-web'); ?></p>
                     </td>
                 </tr>
             </table>
 
             <div data-sms-section="smsir">
-                <h2 class="title"><?php esc_html_e('sms.ir', 'nasim-fitness'); ?></h2>
-                <p><?php esc_html_e('پیامک‌ها با متد ارسال سریع (Verify) فرستاده می‌شوند. قالب‌ها را در پنل sms.ir بخش «ارسال سریع» بسازید؛ متن قالب کد باید متغیر کد را داشته باشد، مثلاً: کد ورود شما: #CODE#', 'nasim-fitness'); ?></p>
+                <h2 class="title"><?php esc_html_e('sms.ir', 'niloo-web'); ?></h2>
+                <p><?php esc_html_e('پیامک‌ها با متد ارسال سریع (Verify) فرستاده می‌شوند. قالب‌ها را در پنل sms.ir بخش «ارسال سریع» بسازید؛ متن قالب کد باید متغیر کد را داشته باشد، مثلاً: کد ورود شما: #CODE#', 'niloo-web'); ?></p>
                 <table class="form-table" role="presentation">
                     <tr>
-                        <th><label for="smsir_api_key"><?php esc_html_e('کلید API', 'nasim-fitness'); ?></label></th>
+                        <th><label for="smsir_api_key"><?php esc_html_e('کلید API', 'niloo-web'); ?></label></th>
                         <td>
-                            <?php nasim_settings_secret_field('smsir_api_key', __('از پنل sms.ir، بخش برنامه‌نویسان ← لیست کلیدهای API. برای تست می‌توانید کلید نوع Sandbox بسازید (قالب پیش‌فرض آن 123456 با متغیر CODE است).', 'nasim-fitness')); ?>
+                            <?php nasim_settings_secret_field('smsir_api_key', __('از پنل sms.ir، بخش برنامه‌نویسان ← لیست کلیدهای API. برای تست می‌توانید کلید نوع Sandbox بسازید (قالب پیش‌فرض آن 123456 با متغیر CODE است).', 'niloo-web')); ?>
                             <?php if (null !== $credit) : ?>
                             <p>
                                 <?php if (is_wp_error($credit)) : ?>
-                                <span style="color:#b32d2e"><?php echo esc_html(sprintf(__('اتصال ناموفق: %s', 'nasim-fitness'), $credit->get_error_message())); ?></span>
+                                <span style="color:#b32d2e"><?php echo esc_html(sprintf(__('اتصال ناموفق: %s', 'niloo-web'), $credit->get_error_message())); ?></span>
                                 <?php else : ?>
-                                <span style="color:#008a20"><?php echo esc_html(sprintf(__('اتصال برقرار است · اعتبار فعلی: %s', 'nasim-fitness'), number_format_i18n((float) $credit, 1))); ?></span>
+                                <span style="color:#008a20"><?php echo esc_html(sprintf(__('اتصال برقرار است · اعتبار فعلی: %s', 'niloo-web'), number_format_i18n((float) $credit, 1))); ?></span>
                                 <?php endif; ?>
                             </p>
                             <?php endif; ?>
                         </td>
                     </tr>
                     <?php
-                    nasim_settings_template_field('smsir_login_template', __('کد قالب (پترن) ورود', 'nasim-fitness'));
-                    nasim_settings_template_field('smsir_register_template', __('کد قالب (پترن) ثبت‌نام', 'nasim-fitness'), __('اگر خالی بماند، از قالب ورود استفاده می‌شود.', 'nasim-fitness'));
+                    nasim_settings_template_field('smsir_login_template', __('کد قالب (پترن) ورود', 'niloo-web'));
+                    nasim_settings_template_field('smsir_register_template', __('کد قالب (پترن) ثبت‌نام', 'niloo-web'), __('اگر خالی بماند، از قالب ورود استفاده می‌شود.', 'niloo-web'));
                     ?>
                     <tr>
-                        <th><label for="smsir_code_param"><?php esc_html_e('نام متغیر کد در قالب', 'nasim-fitness'); ?></label></th>
+                        <th><label for="smsir_code_param"><?php esc_html_e('نام متغیر کد در قالب', 'niloo-web'); ?></label></th>
                         <td><input type="text" id="smsir_code_param" name="<?php echo esc_attr($name); ?>[smsir_code_param]" value="<?php echo esc_attr(nasim_setting('smsir_code_param')); ?>" class="regular-text" dir="ltr">
-                            <p class="description"><?php esc_html_e('بدون علامت #؛ مثلاً برای #CODE# بنویسید CODE', 'nasim-fitness'); ?></p></td>
+                            <p class="description"><?php esc_html_e('بدون علامت #؛ مثلاً برای #CODE# بنویسید CODE', 'niloo-web'); ?></p></td>
                     </tr>
-                    <?php nasim_settings_template_field('smsir_subscription_template', __('کد قالب فعال‌سازی اشتراک', 'nasim-fitness'), __('متغیرهای قالب را با همان نام‌های بخش «پیامک فعال‌سازی اشتراک» بسازید، مثلاً #NAME#', 'nasim-fitness')); ?>
+                    <?php nasim_settings_template_field('smsir_subscription_template', __('کد قالب فعال‌سازی اشتراک', 'niloo-web'), __('متغیرهای قالب را با همان نام‌های بخش «پیامک فعال‌سازی اشتراک» بسازید، مثلاً #NAME#', 'niloo-web')); ?>
                 </table>
             </div>
 
             <div data-sms-section="msgway">
-                <h2 class="title"><?php esc_html_e('راه پیام', 'nasim-fitness'); ?></h2>
-                <p><?php esc_html_e('کد یک‌بارمصرف توسط قالب ساخته و بررسی می‌شود و در فیلد code برای راه پیام فرستاده می‌شود. در پنل راه پیام برای کد ورود/ثبت‌نام یک قالب از نوع کد یک‌بارمصرف (OTP) بسازید.', 'nasim-fitness'); ?></p>
+                <h2 class="title"><?php esc_html_e('راه پیام', 'niloo-web'); ?></h2>
+                <p><?php esc_html_e('کد یک‌بارمصرف توسط قالب ساخته و بررسی می‌شود و در فیلد code برای راه پیام فرستاده می‌شود. در پنل راه پیام برای کد ورود/ثبت‌نام یک قالب از نوع کد یک‌بارمصرف (OTP) بسازید.', 'niloo-web'); ?></p>
                 <table class="form-table" role="presentation">
                     <tr>
-                        <th><label for="msgway_api_key"><?php esc_html_e('کلید API', 'nasim-fitness'); ?></label></th>
-                        <td><?php nasim_settings_secret_field('msgway_api_key', __('از پنل راه پیام (msgway.com)، بخش توسعه‌دهندگان.', 'nasim-fitness')); ?></td>
+                        <th><label for="msgway_api_key"><?php esc_html_e('کلید API', 'niloo-web'); ?></label></th>
+                        <td><?php nasim_settings_secret_field('msgway_api_key', __('از پنل راه پیام (msgway.com)، بخش توسعه‌دهندگان.', 'niloo-web')); ?></td>
                     </tr>
                     <?php
-                    nasim_settings_template_field('msgway_login_template', __('کد قالب (templateID) ورود', 'nasim-fitness'));
-                    nasim_settings_template_field('msgway_register_template', __('کد قالب (templateID) ثبت‌نام', 'nasim-fitness'), __('اگر خالی بماند، از قالب ورود استفاده می‌شود.', 'nasim-fitness'));
-                    nasim_settings_template_field('msgway_subscription_template', __('کد قالب فعال‌سازی اشتراک', 'nasim-fitness'), __('پارامترهای قالب به ترتیب بخش «پیامک فعال‌سازی اشتراک» پر می‌شوند (هر پارامتر حداکثر ۴۰ کاراکتر).', 'nasim-fitness'));
+                    nasim_settings_template_field('msgway_login_template', __('کد قالب (templateID) ورود', 'niloo-web'));
+                    nasim_settings_template_field('msgway_register_template', __('کد قالب (templateID) ثبت‌نام', 'niloo-web'), __('اگر خالی بماند، از قالب ورود استفاده می‌شود.', 'niloo-web'));
+                    nasim_settings_template_field('msgway_subscription_template', __('کد قالب فعال‌سازی اشتراک', 'niloo-web'), __('پارامترهای قالب به ترتیب بخش «پیامک فعال‌سازی اشتراک» پر می‌شوند (هر پارامتر حداکثر ۴۰ کاراکتر).', 'niloo-web'));
                     ?>
                     <tr>
-                        <th><label for="msgway_line"><?php esc_html_e('خط ارسال', 'nasim-fitness'); ?></label></th>
+                        <th><label for="msgway_line"><?php esc_html_e('خط ارسال', 'niloo-web'); ?></label></th>
                         <td>
                             <select id="msgway_line" name="<?php echo esc_attr($name); ?>[msgway_line]">
-                                <option value="0"><?php esc_html_e('پیش‌فرض راه پیام', 'nasim-fitness'); ?></option>
+                                <option value="0"><?php esc_html_e('پیش‌فرض راه پیام', 'niloo-web'); ?></option>
                                 <?php foreach (Nasim_Msgway::LINES as $line => $label) : ?>
                                 <option value="<?php echo esc_attr($line); ?>" <?php selected((int) nasim_setting('msgway_line'), $line); ?>><?php echo esc_html($label); ?></option>
                                 <?php endforeach; ?>
@@ -263,14 +263,14 @@ function nasim_render_theme_settings_page() {
                 </table>
             </div>
 
-            <h2 class="title"><?php esc_html_e('پیامک فعال‌سازی اشتراک', 'nasim-fitness'); ?></h2>
+            <h2 class="title"><?php esc_html_e('پیامک فعال‌سازی اشتراک', 'niloo-web'); ?></h2>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th><?php esc_html_e('وضعیت', 'nasim-fitness'); ?></th>
-                    <td><label><input type="checkbox" name="<?php echo esc_attr($name); ?>[sms_subscription]" value="1" <?php checked(nasim_setting('sms_subscription')); ?>> <?php esc_html_e('بعد از خرید، تمدید یا افزودن دستی اشتراک، به موبایل کاربر پیامک ارسال شود', 'nasim-fitness'); ?></label></td>
+                    <th><?php esc_html_e('وضعیت', 'niloo-web'); ?></th>
+                    <td><label><input type="checkbox" name="<?php echo esc_attr($name); ?>[sms_subscription]" value="1" <?php checked(nasim_setting('sms_subscription')); ?>> <?php esc_html_e('بعد از خرید، تمدید یا افزودن دستی اشتراک، به موبایل کاربر پیامک ارسال شود', 'niloo-web'); ?></label></td>
                 </tr>
                 <tr>
-                    <th><label for="sms_subscription_params"><?php esc_html_e('متغیرهای قالب (به ترتیب)', 'nasim-fitness'); ?></label></th>
+                    <th><label for="sms_subscription_params"><?php esc_html_e('متغیرهای قالب (به ترتیب)', 'niloo-web'); ?></label></th>
                     <td>
                         <input type="text" id="sms_subscription_params" name="<?php echo esc_attr($name); ?>[sms_subscription_params]" value="<?php echo esc_attr(implode(',', nasim_subscription_sms_params())); ?>" class="regular-text" dir="ltr">
                         <p class="description">
@@ -279,38 +279,38 @@ function nasim_render_theme_settings_page() {
                             foreach (nasim_subscription_sms_variables() as $variable => $label) {
                                 $variables[] = $variable . ' = ' . $label;
                             }
-                            echo esc_html(sprintf(__('با کاما جدا کنید. متغیرهای مجاز: %s', 'nasim-fitness'), implode('، ', $variables)));
+                            echo esc_html(sprintf(__('با کاما جدا کنید. متغیرهای مجاز: %s', 'niloo-web'), implode('، ', $variables)));
                             ?>
                         </p>
-                        <p class="description"><?php esc_html_e('نمونه متن قالب: «#NAME# عزیز، اشتراک #PLAN# شما فعال شد و تا #EXPIRE# اعتبار دارد.» — در راه پیام به‌جای نام متغیر، پارامترها به همین ترتیب جایگذاری می‌شوند.', 'nasim-fitness'); ?></p>
+                        <p class="description"><?php esc_html_e('نمونه متن قالب: «#NAME# عزیز، اشتراک #PLAN# شما فعال شد و تا #EXPIRE# اعتبار دارد.» — در راه پیام به‌جای نام متغیر، پارامترها به همین ترتیب جایگذاری می‌شوند.', 'niloo-web'); ?></p>
                     </td>
                 </tr>
             </table>
 
-            <h2 class="title"><?php esc_html_e('ورود و ثبت‌نام', 'nasim-fitness'); ?></h2>
+            <h2 class="title"><?php esc_html_e('ورود و ثبت‌نام', 'niloo-web'); ?></h2>
             <table class="form-table" role="presentation">
                 <tr>
-                    <th><?php esc_html_e('روش‌های فعال', 'nasim-fitness'); ?></th>
+                    <th><?php esc_html_e('روش‌های فعال', 'niloo-web'); ?></th>
                     <td>
-                        <label><input type="checkbox" name="<?php echo esc_attr($name); ?>[auth_otp_login]" value="1" <?php checked(nasim_setting('auth_otp_login')); ?>> <?php esc_html_e('ورود با کد یک‌بارمصرف (پیامک)', 'nasim-fitness'); ?></label><br>
-                        <label><input type="checkbox" name="<?php echo esc_attr($name); ?>[auth_registration]" value="1" <?php checked(nasim_setting('auth_registration')); ?>> <?php esc_html_e('ثبت‌نام کاربر جدید (با تأیید شماره موبایل)', 'nasim-fitness'); ?></label>
-                        <p class="description"><?php esc_html_e('ورود با نام کاربری و رمز عبور همیشه فعال است.', 'nasim-fitness'); ?></p>
+                        <label><input type="checkbox" name="<?php echo esc_attr($name); ?>[auth_otp_login]" value="1" <?php checked(nasim_setting('auth_otp_login')); ?>> <?php esc_html_e('ورود با کد یک‌بارمصرف (پیامک)', 'niloo-web'); ?></label><br>
+                        <label><input type="checkbox" name="<?php echo esc_attr($name); ?>[auth_registration]" value="1" <?php checked(nasim_setting('auth_registration')); ?>> <?php esc_html_e('ثبت‌نام کاربر جدید (با تأیید شماره موبایل)', 'niloo-web'); ?></label>
+                        <p class="description"><?php esc_html_e('ورود با نام کاربری و رمز عبور همیشه فعال است.', 'niloo-web'); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th><label for="otp_length"><?php esc_html_e('تعداد ارقام کد', 'nasim-fitness'); ?></label></th>
+                    <th><label for="otp_length"><?php esc_html_e('تعداد ارقام کد', 'niloo-web'); ?></label></th>
                     <td><input type="number" min="4" max="8" id="otp_length" name="<?php echo esc_attr($name); ?>[otp_length]" value="<?php echo esc_attr(nasim_setting('otp_length')); ?>" class="small-text"></td>
                 </tr>
                 <tr>
-                    <th><label for="otp_ttl"><?php esc_html_e('اعتبار کد (ثانیه)', 'nasim-fitness'); ?></label></th>
+                    <th><label for="otp_ttl"><?php esc_html_e('اعتبار کد (ثانیه)', 'niloo-web'); ?></label></th>
                     <td><input type="number" min="60" max="600" id="otp_ttl" name="<?php echo esc_attr($name); ?>[otp_ttl]" value="<?php echo esc_attr(nasim_setting('otp_ttl')); ?>" class="small-text"></td>
                 </tr>
                 <tr>
-                    <th><label for="otp_resend"><?php esc_html_e('فاصله ارسال مجدد (ثانیه)', 'nasim-fitness'); ?></label></th>
+                    <th><label for="otp_resend"><?php esc_html_e('فاصله ارسال مجدد (ثانیه)', 'niloo-web'); ?></label></th>
                     <td><input type="number" min="30" max="600" id="otp_resend" name="<?php echo esc_attr($name); ?>[otp_resend]" value="<?php echo esc_attr(nasim_setting('otp_resend')); ?>" class="small-text"></td>
                 </tr>
                 <tr>
-                    <th><?php esc_html_e('صفحات', 'nasim-fitness'); ?></th>
+                    <th><?php esc_html_e('صفحات', 'niloo-web'); ?></th>
                     <td><code dir="ltr"><?php echo esc_html(nasim_auth_url('login')); ?></code> · <code dir="ltr"><?php echo esc_html(nasim_auth_url('register')); ?></code></td>
                 </tr>
             </table>
@@ -319,17 +319,17 @@ function nasim_render_theme_settings_page() {
         </form>
 
         <hr>
-        <h2 class="title"><?php esc_html_e('ارسال پیامک آزمایشی', 'nasim-fitness'); ?></h2>
-        <p><?php echo esc_html(sprintf(__('با سامانه ذخیره‌شده (%s) ارسال می‌شود. کد ورود نمونه 12345 است؛ پیامک اشتراک با نام شما و اعتبار ۳۰ روزه ساخته می‌شود.', 'nasim-fitness'), nasim_sms_providers()[$provider])); ?></p>
+        <h2 class="title"><?php esc_html_e('ارسال پیامک آزمایشی', 'niloo-web'); ?></h2>
+        <p><?php echo esc_html(sprintf(__('با سامانه ذخیره‌شده (%s) ارسال می‌شود. کد ورود نمونه 12345 است؛ پیامک اشتراک با نام شما و اعتبار ۳۰ روزه ساخته می‌شود.', 'niloo-web'), nasim_sms_providers()[$provider])); ?></p>
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <input type="hidden" name="action" value="nasim_sms_test">
             <?php wp_nonce_field('nasim_sms_test'); ?>
             <input type="tel" name="mobile" class="regular-text" dir="ltr" placeholder="09123456789" required>
             <select name="type">
-                <option value="code"><?php esc_html_e('کد ورود', 'nasim-fitness'); ?></option>
-                <option value="subscription"><?php esc_html_e('فعال‌سازی اشتراک', 'nasim-fitness'); ?></option>
+                <option value="code"><?php esc_html_e('کد ورود', 'niloo-web'); ?></option>
+                <option value="subscription"><?php esc_html_e('فعال‌سازی اشتراک', 'niloo-web'); ?></option>
             </select>
-            <?php submit_button(__('ارسال آزمایشی', 'nasim-fitness'), 'secondary', 'submit', false); ?>
+            <?php submit_button(__('ارسال آزمایشی', 'niloo-web'), 'secondary', 'submit', false); ?>
         </form>
     </div>
 
@@ -353,7 +353,7 @@ function nasim_render_theme_settings_page() {
 function nasim_handle_sms_test() {
 
     if (!current_user_can('manage_options')) {
-        wp_die(esc_html__('دسترسی غیرمجاز.', 'nasim-fitness'), 403);
+        wp_die(esc_html__('دسترسی غیرمجاز.', 'niloo-web'), 403);
     }
 
     check_admin_referer('nasim_sms_test');
@@ -362,7 +362,7 @@ function nasim_handle_sms_test() {
     $type   = 'subscription' === ($_POST['type'] ?? '') ? 'subscription' : 'code';
 
     if (!$mobile) {
-        $result = new WP_Error('mobile', __('شماره موبایل معتبر نیست.', 'nasim-fitness'));
+        $result = new WP_Error('mobile', __('شماره موبایل معتبر نیست.', 'niloo-web'));
     } elseif ('subscription' === $type) {
         $values = nasim_subscription_sms_values(get_current_user_id(), time() + 30 * DAY_IN_SECONDS);
         $result = nasim_sms_send_values($mobile, nasim_sms_template('subscription'), $values);
@@ -372,7 +372,7 @@ function nasim_handle_sms_test() {
 
     set_transient('nasim_sms_test_' . get_current_user_id(), [
         'status'  => is_wp_error($result) ? 'error' : 'ok',
-        'message' => is_wp_error($result) ? sprintf(__('ارسال ناموفق: %s', 'nasim-fitness'), $result->get_error_message()) : sprintf(__('پیامک آزمایشی به %s ارسال شد.', 'nasim-fitness'), $mobile),
+        'message' => is_wp_error($result) ? sprintf(__('ارسال ناموفق: %s', 'niloo-web'), $result->get_error_message()) : sprintf(__('پیامک آزمایشی به %s ارسال شد.', 'niloo-web'), $mobile),
     ], MINUTE_IN_SECONDS);
 
     nasim_flush_smsir_credit();

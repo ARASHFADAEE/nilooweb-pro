@@ -9,7 +9,7 @@ if(!defined('ABSPATH')) exit;
  */
 function nasim_theme_setup() {
 
-    load_theme_textdomain('nasim-fitness', THEME_DIR . '/languages');
+    load_theme_textdomain('niloo-web', THEME_DIR . '/languages');
 
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
@@ -24,8 +24,8 @@ function nasim_theme_setup() {
     add_theme_support('responsive-embeds');
 
     register_nav_menus([
-        'primary' => __('منوی اصلی', 'nasim-fitness'),
-        'footer'  => __('منوی فوتر', 'nasim-fitness'),
+        'primary' => __('منوی اصلی', 'niloo-web'),
+        'footer'  => __('منوی فوتر', 'niloo-web'),
     ]);
 }
 add_action('after_setup_theme', 'nasim_theme_setup');

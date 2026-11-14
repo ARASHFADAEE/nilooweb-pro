@@ -62,11 +62,11 @@ function nasim_get_user_by_mobile($mobile) {
 
 
 /**
- * SMS delivery is possible (or simulated through NASIM_OTP_DEBUG on local installs)
+ * SMS delivery is possible (or simulated through NILOO_OTP_DEBUG on local installs)
  */
 function nasim_otp_available() {
 
-    if (defined('NASIM_OTP_DEBUG') && NASIM_OTP_DEBUG) {
+    if ((defined('NILOO_OTP_DEBUG') && NILOO_OTP_DEBUG) || (defined('NASIM_OTP_DEBUG') && NASIM_OTP_DEBUG)) {
         return true;
     }
 
@@ -153,7 +153,7 @@ function nasim_otp_send($mobile, $purpose) {
 
     $code = str_pad((string) random_int(0, (10 ** $length) - 1), $length, '0', STR_PAD_LEFT);
 
-    if (defined('NASIM_OTP_DEBUG') && NASIM_OTP_DEBUG) {
+    if ((defined('NILOO_OTP_DEBUG') && NILOO_OTP_DEBUG) || (defined('NASIM_OTP_DEBUG') && NASIM_OTP_DEBUG)) {
         error_log(sprintf('[nasim-otp] %s code for %s: %s', $purpose, $mobile, $code)); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
     } else {
         $sent = nasim_sms_send_code($mobile, $purpose, $code);

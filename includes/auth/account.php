@@ -227,14 +227,14 @@ function nasim_user_mobile_field($user) {
 
     $mobile = nasim_get_user_mobile($user->ID);
     ?>
-    <h2><?php esc_html_e('ورود با موبایل', 'nasim-fitness'); ?></h2>
+    <h2><?php esc_html_e('ورود با موبایل', 'niloo-web'); ?></h2>
     <table class="form-table" role="presentation">
         <tr>
-            <th><label for="nasim_mobile"><?php esc_html_e('شماره موبایل', 'nasim-fitness'); ?></label></th>
+            <th><label for="nasim_mobile"><?php esc_html_e('شماره موبایل', 'niloo-web'); ?></label></th>
             <td>
                 <?php if (current_user_can('edit_users')) : ?>
                 <input type="tel" id="nasim_mobile" name="nasim_mobile" value="<?php echo esc_attr($mobile); ?>" class="regular-text" dir="ltr" placeholder="09123456789">
-                <p class="description"><?php esc_html_e('برای ورود با کد پیامکی استفاده می‌شود و باید یکتا باشد.', 'nasim-fitness'); ?></p>
+                <p class="description"><?php esc_html_e('برای ورود با کد پیامکی استفاده می‌شود و باید یکتا باشد.', 'niloo-web'); ?></p>
                 <?php else : ?>
                 <code dir="ltr"><?php echo esc_html($mobile ?: '—'); ?></code>
                 <?php endif; ?>
@@ -261,14 +261,14 @@ function nasim_validate_user_mobile($errors, $update, $user) {
     }
 
     if (!$mobile) {
-        $errors->add('nasim_mobile', __('شماره موبایل معتبر نیست.', 'nasim-fitness'));
+        $errors->add('nasim_mobile', __('شماره موبایل معتبر نیست.', 'niloo-web'));
         return;
     }
 
     $owner = nasim_get_user_by_mobile($mobile);
 
     if ($owner && (empty($user->ID) || (int) $owner->ID !== (int) $user->ID)) {
-        $errors->add('nasim_mobile', __('این شماره موبایل برای کاربر دیگری ثبت شده است.', 'nasim-fitness'));
+        $errors->add('nasim_mobile', __('این شماره موبایل برای کاربر دیگری ثبت شده است.', 'niloo-web'));
     }
 }
 add_action('user_profile_update_errors', 'nasim_validate_user_mobile', 10, 3);
@@ -299,7 +299,7 @@ add_action('edit_user_profile_update', 'nasim_save_user_mobile');
 
 function nasim_users_mobile_column($columns) {
 
-    $columns['nasim_mobile'] = __('موبایل', 'nasim-fitness');
+    $columns['nasim_mobile'] = __('موبایل', 'niloo-web');
 
     return $columns;
 }
