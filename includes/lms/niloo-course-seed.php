@@ -174,6 +174,17 @@ function nasim_niloo_upsert_course(array $row): int
         $existing = $by_wc;
     }
 
+    $featured_order = [
+        'capsule-ultra'        => 1,
+        'ultra-web'            => 2,
+        'ultra-plus-webdesign' => 3,
+        'ultra-business'       => 4,
+        'ultra-dev'            => 5,
+        'basic-webdesign'      => 6,
+        'learning-discord'     => 7,
+        'photoshop-intro'      => 8,
+    ];
+
     $postarr = [
         'post_type'    => 'nasim_course',
         'post_status'  => 'publish',
@@ -181,6 +192,7 @@ function nasim_niloo_upsert_course(array $row): int
         'post_name'    => $slug,
         'post_excerpt' => wp_strip_all_tags((string) ($row['excerpt'] ?? '')),
         'post_content' => wp_kses_post((string) ($row['content'] ?? '')),
+        'menu_order'   => (int) ($featured_order[$slug] ?? (100 + (int) ($row['wc_id'] ?? 0))),
     ];
 
     if ($existing) {
