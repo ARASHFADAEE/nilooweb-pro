@@ -117,8 +117,11 @@ function nasim_handle_zibal_callback() {
             } else {
                 nasim_add_license_activation_slot((int) $payment->user_id, 1);
             }
-        } elseif ((int) $payment->duration_days > 0) {
-            nasim_extend_subscription((int) $payment->user_id, (int) $payment->duration_days, (int) $payment->plan_id);
+        } else {
+            $plan_type = (string) get_post_meta((int) $payment->plan_id, '_nasim_plan_type', true);
+            if ('spot_course' !== $plan_type && (int) $payment->duration_days > 0) {
+                nasim_extend_subscription((int) $payment->user_id, (int) $payment->duration_days, (int) $payment->plan_id);
+            }
         }
         do_action('nasim_payment_completed', (int) $payment->id);
     }

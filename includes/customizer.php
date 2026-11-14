@@ -184,6 +184,8 @@ function nasim_customizer_sections() {
             ],
         ],
     ];
+
+    return apply_filters('nasim_customizer_sections', $sections);
 }
 
 

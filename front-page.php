@@ -17,18 +17,12 @@ get_header();
             if (nasim_use_theme_front_sections()) {
                 get_template_part('template-parts/front-page/hero');
                 get_template_part('template-parts/front-page/benefits');
-                if (nasim_store_enabled()) {
-                    get_template_part('template-parts/front-page/products');
-                }
+                get_template_part('template-parts/front-page/courses-showcase');
                 get_template_part('template-parts/front-page/about');
                 get_template_part('template-parts/front-page/testimonials');
+                get_template_part('template-parts/front-page/radio-nil');
                 get_template_part('template-parts/front-page/articles');
-                get_template_part('template-parts/front-page/cta');
-                ?>
-    <div class="container-wide home-hubs">
-      <?php nasim_seo_render_hub_links(); ?>
-    </div>
-                <?php
+                get_template_part('template-parts/front-page/newsletter');
             } else {
                 ?>
     <article <?php post_class('page-layout page-layout--builder'); ?>>

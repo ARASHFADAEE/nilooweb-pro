@@ -28,6 +28,8 @@ include_once THEME_DIR . '/includes/lms/class-nasim-zibal-gateway.php';
 include_once THEME_DIR . '/includes/lms/checkout.php';
 include_once THEME_DIR . '/includes/lms/ajax.php';
 include_once THEME_DIR . '/includes/lms/admin.php';
+include_once THEME_DIR . '/includes/lms/woo-import.php';
+include_once THEME_DIR . '/includes/integrations/spotplayer.php';
 
 
 /**

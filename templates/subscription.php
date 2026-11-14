@@ -59,7 +59,7 @@ $product_count = (int) wp_count_posts('nasim_product')->publish;
 $course_count  = (int) wp_count_posts('nasim_course')->publish;
 
 if ($user_id) {
-    $allowed_tabs = ['overview', 'license', 'tickets', 'plans', 'payments'];
+    $allowed_tabs = ['overview', 'license', 'spot', 'tickets', 'plans', 'payments'];
     if (!$tab || !in_array($tab, $allowed_tabs, true)) {
         if ($payment && function_exists('nasim_is_domain_slot_payment') && nasim_is_domain_slot_payment($payment)) {
             $tab = 'license';
@@ -135,6 +135,7 @@ get_header();
       <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'tickets'])); ?>" class="<?php echo 'tickets' === $tab ? 'is-active' : ''; ?>">پشتیبانی<?php if ($ticket_answered) : ?> <b class="account-tab-badge" title="پاسخ جدید"><?php echo esc_html(nasim_fa_digits($ticket_answered)); ?></b><?php endif; ?></a>
       <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'plans'])); ?>" class="<?php echo 'plans' === $tab ? 'is-active' : ''; ?>"><?php echo $is_active ? 'تمدید اشتراک' : 'خرید اشتراک'; ?></a>
       <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'payments'])); ?>" class="<?php echo 'payments' === $tab ? 'is-active' : ''; ?>">تراکنش‌ها</a>
+      <?php do_action('nasim_account_tabs_after'); ?>
     </nav>
     <?php else : ?>
     <section class="account-guest-hero">
@@ -488,6 +489,8 @@ get_header();
       <?php endif; ?>
     </section>
     <?php endif; ?>
+
+    <?php do_action('nasim_account_tab_content'); ?>
 
   </main>
 

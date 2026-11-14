@@ -30,6 +30,26 @@ function nasim_render_course_details_meta_box($post) {
         <textarea class="widefat" id="nasim_course_outcomes" name="nasim_course_outcomes" rows="6"><?php echo esc_textarea($outcomes); ?></textarea>
     </p>
     <?php
+    $delivery = nasim_course_delivery($post->ID);
+    $spot     = get_post_meta($post->ID, '_nasim_spotplayer_course', true);
+    $wc_id    = (int) get_post_meta($post->ID, '_nasim_wc_product_id', true);
+    ?>
+    <p>
+        <label for="nasim_course_delivery"><strong><?php esc_html_e('نوع تحویل', 'nasim-fitness'); ?></strong></label>
+        <select id="nasim_course_delivery" name="nasim_course_delivery" class="widefat">
+            <option value="lms" <?php selected($delivery, 'lms'); ?>><?php esc_html_e('پلیر داخلی قالب (LMS)', 'nasim-fitness'); ?></option>
+            <option value="spot" <?php selected($delivery, 'spot'); ?>><?php esc_html_e('اسپات پلیر (ضدکپی)', 'nasim-fitness'); ?></option>
+            <option value="hybrid" <?php selected($delivery, 'hybrid'); ?>><?php esc_html_e('هر دو', 'nasim-fitness'); ?></option>
+        </select>
+    </p>
+    <p>
+        <label for="nasim_spotplayer_course"><strong><?php esc_html_e('شناسه دوره اسپات (با , جدا)', 'nasim-fitness'); ?></strong></label>
+        <textarea class="widefat ltr" id="nasim_spotplayer_course" name="nasim_spotplayer_course" rows="2" placeholder="24char,24char"><?php echo esc_textarea($spot); ?></textarea>
+    </p>
+    <?php if ($wc_id) : ?>
+    <p class="description"><?php printf(esc_html__('متصل به محصول ووکامرس #%d', 'nasim-fitness'), $wc_id); ?></p>
+    <?php endif; ?>
+    <?php
 }
 
 
@@ -220,6 +240,21 @@ function nasim_save_course_meta($post_id) {
 
     if (isset($_POST['nasim_course_outcomes'])) {
         update_post_meta($post_id, '_nasim_course_outcomes', sanitize_textarea_field(wp_unslash($_POST['nasim_course_outcomes'])));
+    }
+
+    if (isset($_POST['nasim_course_delivery'])) {
+        $mode = sanitize_key(wp_unslash($_POST['nasim_course_delivery']));
+        if (in_array($mode, ['lms', 'spot', 'hybrid'], true)) {
+            update_post_meta($post_id, '_nasim_course_delivery', $mode);
+        }
+    }
+
+    if (isset($_POST['nasim_spotplayer_course'])) {
+        $raw = sanitize_textarea_field(wp_unslash($_POST['nasim_spotplayer_course']));
+        $ids = array_filter(array_map('trim', explode(',', $raw)), function ($id) {
+            return (bool) preg_match('/^[0-9a-f]{24}$/i', $id);
+        });
+        update_post_meta($post_id, '_nasim_spotplayer_course', implode(',', $ids));
     }
 }
 add_action('save_post_nasim_course', 'nasim_save_course_meta');

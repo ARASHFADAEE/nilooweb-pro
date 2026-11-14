@@ -7,7 +7,7 @@ $hero_image = nasim_mod('hero_image');
     <section class="hero container-wide" id="home">
       <div class="hero-copy">
         <span class="eyebrow"><span class="eyebrow-line"></span> <?php echo esc_html(nasim_mod('hero_eyebrow')); ?></span>
-        <h1><?php echo esc_html(nasim_mod('hero_title')); ?><br><span><?php echo esc_html(nasim_mod('hero_title_highlight')); ?></span></h1>
+        <h1><?php echo esc_html(nasim_mod('hero_title')); ?><br><span class="accent"><?php echo esc_html(nasim_mod('hero_title_highlight')); ?></span></h1>
         <p class="hero-description"><?php echo esc_html(nasim_mod('hero_description')); ?></p>
         <div class="hero-actions">
           <?php if (nasim_mod('hero_primary_text')) : ?>
@@ -20,7 +20,7 @@ $hero_image = nasim_mod('hero_image');
         <?php if (nasim_mod('hero_proof_title')) : ?>
         <div class="hero-proof">
           <div class="avatar-stack" aria-hidden="true">
-            <span>ن</span><span>م</span><span>س</span>
+            <span>ن</span><span>و</span><span>ف</span>
           </div>
           <div><strong><?php echo esc_html(nasim_mod('hero_proof_title')); ?></strong><small><?php echo esc_html(nasim_mod('hero_proof_text')); ?></small></div>
           <span class="proof-spark">✳</span>

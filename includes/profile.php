@@ -54,7 +54,7 @@ function nasim_profile() {
         ],
     ];
 
-    return $profile;
+    return apply_filters('nasim_profile', $profile);
 }
 
 

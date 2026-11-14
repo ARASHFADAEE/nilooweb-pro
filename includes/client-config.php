@@ -28,6 +28,12 @@ if (!defined('NASIM_COURSE_SINGLE_SLUG')) {
     define('NASIM_COURSE_SINGLE_SLUG', 'course');
 }
 
+if (!defined('NASIM_FORCE_THEME_HOMEPAGE')) {
+    define('NASIM_FORCE_THEME_HOMEPAGE', true);
+}
+
+include_once THEME_DIR . '/includes/client-niloo-brand.php';
+
 /**
  * Whether the theme product store (nasim_product) is active.
  */
@@ -106,6 +112,10 @@ function nasim_is_built_with_elementor(int $post_id = 0): bool
  */
 function nasim_use_theme_front_sections(): bool
 {
+    if (defined('NASIM_FORCE_THEME_HOMEPAGE') && NASIM_FORCE_THEME_HOMEPAGE) {
+        return (bool) apply_filters('nasim_use_theme_front_sections', true);
+    }
+
     $page_id = (int) get_option('page_on_front');
 
     if (!$page_id) {

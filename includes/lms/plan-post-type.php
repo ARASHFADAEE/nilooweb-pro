@@ -58,6 +58,22 @@ function nasim_render_plan_meta_box($post) {
             <th><?php esc_html_e('پلن پیشنهادی', 'nasim-fitness'); ?></th>
             <td><label><input type="checkbox" name="nasim_plan_featured" value="1" <?php checked($plan['featured']); ?>> <?php esc_html_e('با برچسب «پیشنهاد ویژه» نمایش داده شود', 'nasim-fitness'); ?></label></td>
         </tr>
+        <tr>
+            <th><label for="nasim_plan_type"><?php esc_html_e('نوع پلن', 'nasim-fitness'); ?></label></th>
+            <td>
+                <select name="nasim_plan_type" id="nasim_plan_type">
+                    <option value="subscription" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'subscription'); ?>><?php esc_html_e('اشتراک (روز)', 'nasim-fitness'); ?></option>
+                    <option value="spot_course" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'spot_course'); ?>><?php esc_html_e('خرید دوره اسپات (یک‌بار)', 'nasim-fitness'); ?></option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="nasim_plan_course_id"><?php esc_html_e('دوره مرتبط', 'nasim-fitness'); ?></label></th>
+            <td>
+                <input type="number" min="0" id="nasim_plan_course_id" name="nasim_plan_course_id" value="<?php echo esc_attr((string) get_post_meta($post->ID, '_nasim_plan_course_id', true)); ?>" class="small-text" dir="ltr">
+                <p class="description"><?php esc_html_e('برای پلن اسپات، شناسه پست nasim_course را وارد کنید.', 'nasim-fitness'); ?></p>
+            </td>
+        </tr>
     </table>
     <?php
 }
@@ -77,6 +93,13 @@ function nasim_save_plan_meta($post_id) {
     update_post_meta($post_id, '_nasim_plan_days', max(1, absint(nasim_latin_digits(wp_unslash($_POST['nasim_plan_days'] ?? 30)))));
     update_post_meta($post_id, '_nasim_plan_features', sanitize_textarea_field(wp_unslash($_POST['nasim_plan_features'] ?? '')));
     update_post_meta($post_id, '_nasim_plan_featured', !empty($_POST['nasim_plan_featured']) ? 1 : 0);
+
+    $type = sanitize_key(wp_unslash($_POST['nasim_plan_type'] ?? 'subscription'));
+    if (!in_array($type, ['subscription', 'spot_course'], true)) {
+        $type = 'subscription';
+    }
+    update_post_meta($post_id, '_nasim_plan_type', $type);
+    update_post_meta($post_id, '_nasim_plan_course_id', absint($_POST['nasim_plan_course_id'] ?? 0));
 }
 add_action('save_post_nasim_plan', 'nasim_save_plan_meta');
 
