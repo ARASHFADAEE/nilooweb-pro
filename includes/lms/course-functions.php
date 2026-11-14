@@ -191,7 +191,7 @@ function nasim_save_lesson_note($course_id, $lesson_id, $note, $user_id = null) 
 
 
 /**
- * Allowed markup for lesson video embeds: a single iframe
+ * Allowed markup for lesson video embeds: iframe or self-hosted video
  */
 function nasim_embed_allowed_html() {
 
@@ -209,24 +209,75 @@ function nasim_embed_allowed_html() {
             'referrerpolicy'        => true,
             'loading'               => true,
         ],
+        'video'  => [
+            'src'      => true,
+            'controls' => true,
+            'width'    => true,
+            'height'   => true,
+            'poster'   => true,
+            'preload'  => true,
+            'playsinline' => true,
+            'style'    => true,
+        ],
+        'source' => [
+            'src'  => true,
+            'type' => true,
+        ],
     ];
 }
 
 
 /**
- * Keep only the first HTTPS iframe of an embed code (drops scripts, wrappers and inline styles)
+ * Convert a bare Aparat / YouTube / direct MP4 URL into player markup.
+ */
+function nasim_normalize_lesson_embed($code) {
+
+    $code = trim((string) $code);
+
+    if ('' === $code) {
+        return '';
+    }
+
+    if (preg_match('/^https?:\/\//i', $code) && !preg_match('/<[^>]+>/', $code)) {
+        $url = esc_url_raw($code);
+        if (preg_match('/aparat\.com\/(?:v\/|video\/video\/embed\/videohash\/)([A-Za-z0-9]+)/i', $url, $m)
+            || preg_match('/aparat\.com\/v\/([A-Za-z0-9]+)/i', $url, $m)) {
+            $code = '<iframe src="https://www.aparat.com/video/video/embed/videohash/' . rawurlencode($m[1]) . '/vt/frame" allowfullscreen="true"></iframe>';
+        } elseif (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]+)/i', $url, $m)) {
+            $code = '<iframe src="https://www.youtube.com/embed/' . rawurlencode($m[1]) . '" allowfullscreen="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>';
+        } elseif (preg_match('/\.(mp4|webm|ogg)(\?|$)/i', $url)) {
+            $type = 'video/mp4';
+            if (preg_match('/\.webm(\?|$)/i', $url)) {
+                $type = 'video/webm';
+            } elseif (preg_match('/\.ogg(\?|$)/i', $url)) {
+                $type = 'video/ogg';
+            }
+            $code = '<video controls playsinline preload="metadata" style="width:100%;max-height:70vh"><source src="' . esc_url($url) . '" type="' . esc_attr($type) . '"></video>';
+        } else {
+            return '';
+        }
+    }
+
+    return nasim_sanitize_embed($code);
+}
+
+
+/**
+ * Keep the first HTTPS iframe or self-hosted video (drops scripts and wrappers)
  */
 function nasim_sanitize_embed($code) {
 
     $clean = wp_kses((string) $code, nasim_embed_allowed_html());
 
-    if (!preg_match('/<iframe\b[^>]*>.*?<\/iframe>/is', $clean, $iframe)) {
-        return '';
+    if (preg_match('/<iframe\b[^>]*>.*?<\/iframe>/is', $clean, $iframe)
+        && preg_match('/\ssrc=["\']https:\/\//i', $iframe[0])) {
+        return $iframe[0];
     }
 
-    if (!preg_match('/\ssrc=["\']https:\/\//i', $iframe[0])) {
-        return '';
+    if (preg_match('/<video\b[^>]*>.*?<\/video>/is', $clean, $video)
+        && preg_match('/\ssrc=["\']https:\/\//i', $video[0])) {
+        return $video[0];
     }
 
-    return $iframe[0];
+    return '';
 }

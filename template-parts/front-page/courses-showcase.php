@@ -40,8 +40,13 @@ $archive = nasim_courses_listing_url();
                 ?>
         <article class="home-course-card">
           <a class="home-course-media" href="<?php the_permalink(); ?>">
-            <?php if (has_post_thumbnail()) : ?>
-              <?php the_post_thumbnail('large', ['loading' => 'lazy', 'decoding' => 'async']); ?>
+            <?php
+            $thumb = function_exists('nasim_niloo_course_image_url')
+                ? nasim_niloo_course_image_url((int) get_the_ID(), 'large')
+                : (string) get_the_post_thumbnail_url(get_the_ID(), 'large');
+            if ($thumb) :
+                ?>
+              <img src="<?php echo esc_url($thumb); ?>" alt="<?php the_title_attribute(); ?>" loading="lazy" decoding="async">
             <?php else : ?>
               <span class="home-course-placeholder" aria-hidden="true">◆</span>
             <?php endif; ?>
