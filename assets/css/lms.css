@@ -116,7 +116,7 @@ a.resource-row:hover{border-color:var(--purple)}
 .course-archive .page-numbers.current{background:var(--purple);border-color:var(--purple);color:#fff}
 
 /* —— Course catalog (filterable) —— */
-.course-catalog{padding-bottom:72px;background:
+.course-catalog{padding-top:20px;padding-bottom:72px;background:
   radial-gradient(900px 420px at 100% -10%,#ece6ff 0%,transparent 55%),
   radial-gradient(700px 380px at 0% 30%,#fff4ec 0%,transparent 50%),
   #f7f6fb}
