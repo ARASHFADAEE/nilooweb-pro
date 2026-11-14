@@ -503,3 +503,40 @@ a.resource-row:hover{border-color:var(--purple)}
  .curriculum-lesson{gap:8px;padding:10px 6px}
  .curriculum-lesson-copy strong{font-size:11px}
 }
+
+/* —— Express sticky buy bar + OTP modal —— */
+.express-buybar{position:fixed;inset-inline:0;bottom:0;z-index:80;background:#17182bf2;backdrop-filter:blur(14px);border-top:1px solid #ffffff18;box-shadow:0 -12px 40px #0b0a1880;padding-bottom:env(safe-area-inset-bottom,0)}
+.express-buybar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+.express-buybar-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
+.express-buybar-copy strong{color:#fff;font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(52vw,420px)}
+.express-buybar-price{color:#c7ffb5;font-size:15px;font-weight:900}
+.express-buybar-price small{font-size:10px;font-weight:700;opacity:.85}
+.express-buybar-price.is-free{color:#9dffb0}
+body.single-nasim_course{padding-bottom:88px}
+body.single-nasim_course .mobile-bottom-nav{bottom:68px}
+@media(min-width:901px){body.single-nasim_course .mobile-bottom-nav{display:none}}
+
+.express-modal[hidden]{display:none!important}
+.express-modal{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:18px}
+.express-modal-backdrop{position:absolute;inset:0;background:#0f1028cc;backdrop-filter:blur(4px)}
+.express-modal-dialog{position:relative;z-index:1;width:min(100%,420px);background:#fff;border-radius:24px;padding:22px 22px 20px;box-shadow:0 30px 80px #0b0a2866;max-height:min(92vh,640px);overflow:auto}
+.express-modal-x{position:absolute;top:12px;left:12px;width:34px;height:34px;border:0;border-radius:50%;background:#f3f3f8;color:#555;font-size:22px;line-height:1;cursor:pointer}
+.express-modal-head{margin-bottom:16px;padding-left:28px}
+.express-modal-head h2{margin:6px 0 6px;font-size:20px;font-weight:900}
+.express-modal-head p{margin:0;font-size:12px;color:var(--muted);line-height:1.9}
+.express-form label{display:grid;gap:6px;margin-bottom:12px;font-size:12px;font-weight:800;color:var(--ink)}
+.express-form input{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600;background:#faf9ff}
+.express-form input:focus{outline:2px solid #cbbfff;border-color:var(--purple)}
+.express-hint{margin:0 0 14px;font-size:11px;color:var(--muted);line-height:1.9}
+.express-otp-msg{margin:0 0 12px;font-size:12px;color:#17663a;background:#ecf9f0;border:1px solid #c4ebd0;border-radius:12px;padding:10px 12px}
+.express-otp-actions{display:flex;gap:8px;margin-bottom:10px}
+.express-otp-actions .button{flex:1}
+.express-resend{display:inline-block;margin-top:4px;font-size:11px}
+.express-error{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#fff2f2;border:1px solid #ffd4d4;color:#b42318;font-size:12px}
+.express-status{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#f0ebff;color:var(--purple);font-size:12px;font-weight:800}
+body.express-modal-open{overflow:hidden}
+@media(max-width:560px){
+ .express-buybar-inner{padding:10px 0}
+ .express-buybar-copy strong{font-size:11px}
+ .express-buybar .button{padding:10px 14px;font-size:12px}
+}

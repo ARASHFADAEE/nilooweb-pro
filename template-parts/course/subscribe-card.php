@@ -62,7 +62,7 @@ if ('purchase' === $mode) {
     <?php endforeach; ?>
   </ul>
 
-  <a class="button button-primary" href="<?php echo esc_url($cta_url); ?>"><?php echo esc_html($cta_label); ?> <span>←</span></a>
+  <button type="button" class="button button-primary" data-express-open><?php echo esc_html($cta_label); ?> <span>←</span></button>
 
   <?php if (!is_user_logged_in()) : ?>
   <small class="subscribe-card-login">قبلاً خریده‌ای؟ <a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>">وارد شو</a></small>

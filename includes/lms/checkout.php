@@ -153,9 +153,27 @@ function nasim_handle_zibal_callback() {
         do_action('nasim_payment_completed', (int) $payment->id);
     }
 
+    // Refresh payment row after status update.
+    $payment = nasim_get_payment((int) $payment->id) ?: $payment;
+
+    // Auto-login buyer (campaign guest checkout) and prefer course return URL.
+    if (!is_user_logged_in() && !empty($payment->user_id) && function_exists('nasim_login_user')) {
+        $buyer = get_userdata((int) $payment->user_id);
+        if ($buyer) {
+            nasim_login_user($buyer);
+        }
+    }
+
     $result_url = nasim_is_domain_slot_payment($payment)
         ? nasim_subscription_url(['payment' => $payment->id, 'domain_slot' => 1, 'tab' => 'license'])
         : nasim_subscription_url(['payment' => $payment->id]);
+
+    if (function_exists('nasim_express_payment_return_url') && 'paid' === $payment->status) {
+        $custom = nasim_express_payment_return_url($payment);
+        if ($custom) {
+            $result_url = add_query_arg('payment', (int) $payment->id, $custom);
+        }
+    }
 
     wp_safe_redirect($result_url);
     exit;

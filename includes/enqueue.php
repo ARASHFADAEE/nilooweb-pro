@@ -47,6 +47,24 @@ function nasim_enqueue_assets() {
         wp_enqueue_style('nasim-lms', THEME_URL . '/assets/css/lms.css', ['nasim-main'], nasim_asset_version('/assets/css/lms.css'));
     }
 
+    if (is_singular('nasim_course') && !nasim_is_course_player()) {
+        wp_enqueue_script(
+            'nasim-express-checkout',
+            THEME_URL . '/assets/js/express-checkout.js',
+            [],
+            nasim_asset_version('/assets/js/express-checkout.js'),
+            true
+        );
+        wp_localize_script('nasim-express-checkout', 'nasimExpress', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('nasim_express_checkout'),
+            'i18n'    => [
+                'error'  => 'خطایی رخ داد؛ دوباره تلاش کن.',
+                'paying' => 'در حال انتقال به درگاه پرداخت…',
+            ],
+        ]);
+    }
+
     if ($is_courses_catalog) {
         wp_enqueue_script(
             'nasim-course-catalog',

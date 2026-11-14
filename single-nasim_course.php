@@ -24,6 +24,21 @@ while (have_posts()) :
     ?>
 
   <main class="container-wide course-page">
+    <?php
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only success banner after payment return.
+    $paid_id = absint($_GET['payment'] ?? 0);
+    if ($paid_id && is_user_logged_in()) :
+        $paid = function_exists('nasim_get_payment') ? nasim_get_payment($paid_id) : null;
+        if ($paid && 'paid' === $paid->status && (int) $paid->user_id === get_current_user_id()) :
+            ?>
+    <div class="lms-notice is-success" role="status">
+      <strong>پرداخت موفق</strong>
+      <span>حسابت فعال شد و دسترسی به این دوره/اشتراک برایت باز است.</span>
+    </div>
+            <?php
+        endif;
+    endif;
+    ?>
     <div class="lms-breadcrumb">
       <a href="<?php echo esc_url(home_url('/')); ?>">خانه</a><span>／</span>
       <a href="<?php echo esc_url($courses_list ?: home_url('/courses/')); ?>">دوره‌ها</a><span>／</span>
@@ -50,7 +65,7 @@ while (have_posts()) :
           <?php if ($has_access && $next_lesson) : ?>
             <a class="button button-primary button-large" href="<?php echo esc_url(nasim_lesson_url($course_id, $next_lesson['id'])); ?>"><?php echo $progress['completed'] ? 'ادامه دوره' : 'شروع دوره'; ?> <span>←</span></a>
           <?php elseif (!$has_access) : ?>
-            <a class="button button-primary button-large" href="<?php echo esc_url(nasim_course_checkout_url($course_id)); ?>"><?php echo esc_html(nasim_course_cta_label($course_id)); ?> <span>←</span></a>
+            <button type="button" class="button button-primary button-large" data-express-open><?php echo esc_html(nasim_course_cta_label($course_id)); ?> <span>←</span></button>
           <?php endif; ?>
           <?php if (!$has_access && $free_lessons) : ?>
             <a class="button button-outline button-large" href="<?php echo esc_url(nasim_lesson_url($course_id, $free_lessons[0]['id'])); ?>">مشاهده درس رایگان <span class="play-icon">▶</span></a>
@@ -126,6 +141,12 @@ while (have_posts()) :
       </aside>
     </div>
   </main>
+
+  <?php
+    if (!$has_access) {
+        get_template_part('template-parts/course/express-checkout', null, ['course_id' => $course_id]);
+    }
+    ?>
 
 <?php
 endwhile;
