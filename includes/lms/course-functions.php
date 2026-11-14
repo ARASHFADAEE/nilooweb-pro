@@ -109,7 +109,13 @@ function nasim_course_access_mode($course_id) {
  */
 function nasim_course_access_label($course_id) {
 
-    return 'free' === nasim_course_access_mode($course_id) ? 'رایگان' : '';
+    $mode = nasim_course_access_mode($course_id);
+
+    if ('free' === $mode) {
+        return 'رایگان';
+    }
+
+    return 'خرید یک‌باره';
 }
 
 

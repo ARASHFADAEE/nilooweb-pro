@@ -90,7 +90,21 @@ function nasim_mod($key) {
         return $defaults[$key] ?? '';
     }
 
-    return get_theme_mod($key, $defaults[$key] ?? '');
+    $from_customizer = get_theme_mod($key, null);
+
+    // Prefer explicitly saved Mino Option values for social / footer / home count.
+    if (defined('NILOO_SETTINGS_PAGE') && (0 === strpos($key, 'social_') || in_array($key, ['footer_copyright', 'footer_tagline', 'courses_home_count'], true))) {
+        $mino_raw = get_option(NILOO_SETTINGS_PAGE, []);
+        if (is_array($mino_raw) && array_key_exists($key, $mino_raw) && '' !== $mino_raw[$key] && null !== $mino_raw[$key]) {
+            return $mino_raw[$key];
+        }
+    }
+
+    if (null !== $from_customizer && '' !== $from_customizer) {
+        return $from_customizer;
+    }
+
+    return $defaults[$key] ?? '';
 }
 
 

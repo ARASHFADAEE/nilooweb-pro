@@ -29,9 +29,16 @@ class Nasim_Zibal_Gateway {
 
     public static function from_settings() {
 
-        $merchant = get_option('nasim_zibal_sandbox') ? 'zibal' : get_option('nasim_zibal_merchant', '');
+        $sandbox = (bool) nasim_opt('zibal_sandbox', (bool) get_option('nasim_zibal_sandbox'));
+        $saved   = (string) nasim_opt('zibal_merchant', (string) get_option('nasim_zibal_merchant', ''));
+        $merchant = $sandbox ? 'zibal' : $saved;
 
         return new self($merchant);
+    }
+
+
+    public function id() {
+        return 'zibal';
     }
 
 

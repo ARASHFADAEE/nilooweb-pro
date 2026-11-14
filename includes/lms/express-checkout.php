@@ -94,52 +94,14 @@ function nasim_ensure_checkout_user(string $name, string $mobile)
 }
 
 /**
- * Start Zibal for a plan; returns payment URL or WP_Error.
+ * Start active gateway for a plan; returns payment URL or WP_Error.
  *
  * @param array<string,mixed> $plan
  * @return string|WP_Error
  */
 function nasim_express_start_payment(int $user_id, array $plan, string $return_url = '')
 {
-    $gateway = Nasim_Zibal_Gateway::from_settings();
-
-    if (!$gateway->is_configured()) {
-        return new WP_Error('gateway', 'درگاه پرداخت هنوز تنظیم نشده است.');
-    }
-
-    $payment_id = nasim_create_payment($user_id, $plan);
-    if (!$payment_id) {
-        return new WP_Error('payment', 'ساخت تراکنش ناموفق بود.');
-    }
-
-    if ($return_url) {
-        set_transient('nasim_pay_return_' . $payment_id, esc_url_raw($return_url), DAY_IN_SECONDS);
-    }
-
-    $user = get_userdata($user_id);
-    $desc = sprintf(
-        '%s %s - %s',
-        in_array($plan['type'] ?? '', ['course', 'spot_course'], true) ? 'خرید دوره' : 'اشتراک',
-        $plan['title'],
-        $user ? $user->user_login : ('user-' . $user_id)
-    );
-
-    $track_id = $gateway->request(
-        $plan['price'] * 10,
-        admin_url('admin-post.php?action=nasim_zibal_callback'),
-        $payment_id,
-        $desc
-    );
-
-    if (is_wp_error($track_id)) {
-        nasim_mark_payment_failed($payment_id, $track_id->get_error_message());
-
-        return $track_id;
-    }
-
-    nasim_set_payment_track_id($payment_id, $track_id);
-
-    return $gateway->start_url($track_id);
+    return nasim_start_plan_payment($user_id, $plan, $return_url);
 }
 
 /**

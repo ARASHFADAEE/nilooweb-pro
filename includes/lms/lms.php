@@ -13,7 +13,7 @@ define('NASIM_LMS_REWRITE_VERSION', '2');
 /**
  * Bump when the payments table schema changes
  */
-define('NASIM_LMS_DB_VERSION', '1');
+define('NASIM_LMS_DB_VERSION', '2');
 
 
 include_once THEME_DIR . '/includes/lms/helpers.php';
@@ -27,6 +27,8 @@ include_once THEME_DIR . '/includes/lms/subscription.php';
 include_once THEME_DIR . '/includes/lms/access.php';
 include_once THEME_DIR . '/includes/lms/payments.php';
 include_once THEME_DIR . '/includes/lms/class-nasim-zibal-gateway.php';
+include_once THEME_DIR . '/includes/lms/class-nasim-zarinpal-gateway.php';
+include_once THEME_DIR . '/includes/lms/gateway.php';
 include_once THEME_DIR . '/includes/lms/checkout.php';
 include_once THEME_DIR . '/includes/lms/express-checkout.php';
 include_once THEME_DIR . '/includes/lms/ajax.php';

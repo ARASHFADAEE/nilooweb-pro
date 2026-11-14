@@ -15,12 +15,24 @@ if (!defined('ABSPATH')) {
 function nasim_spot_option(): array
 {
     if (function_exists('spot_option')) {
-        return spot_option();
+        $opt = spot_option();
+    } else {
+        $opt = get_option('spotplayer', []);
     }
 
-    $opt = get_option('spotplayer', []);
+    $opt = is_array($opt) ? $opt : [];
 
-    return is_array($opt) ? $opt : [];
+    if (function_exists('nasim_opt')) {
+        $api = (string) nasim_opt('spot_api', '');
+        if ('' !== $api) {
+            $opt['api'] = $api;
+        }
+        if (null !== nasim_opt('spot_test', null)) {
+            $opt['test'] = nasim_opt('spot_test') ? 1 : 0;
+        }
+    }
+
+    return $opt;
 }
 
 function nasim_course_spot_ids(int $course_id): array
@@ -251,7 +263,9 @@ add_action('wp_enqueue_scripts', 'nasim_spot_enqueue_assets', 25);
  */
 function nasim_spot_app_download_url(): string
 {
-    return (string) apply_filters('nasim_spot_app_download_url', 'https://spotplayer.ir/');
+    $default = function_exists('nasim_opt') ? (string) nasim_opt('spot_app_url', 'https://spotplayer.ir/') : 'https://spotplayer.ir/';
+
+    return (string) apply_filters('nasim_spot_app_download_url', $default ?: 'https://spotplayer.ir/');
 }
 
 function nasim_spot_render_player(array $license_data, string $title = '', ?string $course = null): void

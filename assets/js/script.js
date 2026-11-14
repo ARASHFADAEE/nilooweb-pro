@@ -181,3 +181,33 @@ document.querySelectorAll('[data-ticket-form]').forEach(form => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 })();
+
+// Course sale page: sticky section nav active state
+(() => {
+  const nav = document.querySelector('[data-course-nav]');
+  if (!nav || !('IntersectionObserver' in window)) return;
+
+  const links = [...nav.querySelectorAll('a[href^="#"]')];
+  const sections = links
+    .map((link) => document.querySelector(link.getAttribute('href')))
+    .filter(Boolean);
+
+  if (!sections.length) return;
+
+  const setActive = (id) => {
+    links.forEach((link) => {
+      link.classList.toggle('is-active', link.getAttribute('href') === `#${id}`);
+    });
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    },
+    { rootMargin: '-30% 0px -55% 0px', threshold: 0.01 }
+  );
+
+  sections.forEach((section) => observer.observe(section));
+})();

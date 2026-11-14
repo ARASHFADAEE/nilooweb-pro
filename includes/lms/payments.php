@@ -32,6 +32,7 @@ function nasim_install_payments_table() {
         duration_days smallint(5) unsigned NOT NULL,
         amount bigint(20) unsigned NOT NULL,
         status varchar(20) NOT NULL DEFAULT 'pending',
+        gateway varchar(20) NOT NULL DEFAULT 'zibal',
         track_id varchar(64) DEFAULT NULL,
         ref_number varchar(64) DEFAULT NULL,
         card_number varchar(32) DEFAULT NULL,
@@ -95,10 +96,14 @@ function nasim_log_manual_access($user_id, $title, $days = 0, $note = '', $plan_
 
 /**
  * Create a pending payment for a plan and return its id
+ *
+ * @param array<string,mixed> $plan
  */
-function nasim_create_payment($user_id, $plan) {
+function nasim_create_payment($user_id, $plan, $gateway = '') {
 
     global $wpdb;
+
+    $gateway = $gateway ?: (function_exists('nasim_payment_gateway_id') ? nasim_payment_gateway_id() : 'zibal');
 
     $wpdb->insert(nasim_payments_table(), [
         'user_id'       => (int) $user_id,
@@ -107,8 +112,9 @@ function nasim_create_payment($user_id, $plan) {
         'duration_days' => (int) $plan['days'],
         'amount'        => (int) $plan['price'] * 10,
         'status'        => 'pending',
+        'gateway'       => sanitize_key($gateway),
         'created_at'    => current_time('mysql', true),
-    ], ['%d', '%d', '%s', '%d', '%d', '%s', '%s']);
+    ], ['%d', '%d', '%s', '%d', '%d', '%s', '%s', '%s']);
 
     return (int) $wpdb->insert_id;
 }
@@ -139,6 +145,20 @@ function nasim_set_payment_track_id($payment_id, $track_id) {
     global $wpdb;
 
     $wpdb->update(nasim_payments_table(), ['track_id' => $track_id], ['id' => (int) $payment_id], ['%s'], ['%d']);
+}
+
+
+function nasim_set_payment_gateway($payment_id, $gateway) {
+
+    global $wpdb;
+
+    $wpdb->update(
+        nasim_payments_table(),
+        ['gateway' => sanitize_key($gateway)],
+        ['id' => (int) $payment_id],
+        ['%s'],
+        ['%d']
+    );
 }
 
 

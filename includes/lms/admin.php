@@ -10,57 +10,19 @@ if(!defined('ABSPATH')) exit;
 function nasim_lms_admin_menu() {
 
     add_submenu_page('edit.php?post_type=nasim_course', __('تراکنش‌ها', 'niloo-web'), __('تراکنش‌ها', 'niloo-web'), 'manage_options', 'nasim-payments', 'nasim_render_payments_page');
-    add_submenu_page('edit.php?post_type=nasim_course', __('تنظیمات پرداخت', 'niloo-web'), __('تنظیمات پرداخت', 'niloo-web'), 'manage_options', 'nasim-payment-settings', 'nasim_render_payment_settings_page');
+    add_submenu_page(
+        'edit.php?post_type=nasim_course',
+        __('تنظیمات پرداخت', 'niloo-web'),
+        __('تنظیمات پرداخت', 'niloo-web'),
+        'manage_options',
+        'nasim-payment-settings',
+        static function () {
+            wp_safe_redirect(admin_url('admin.php?page=niloo_theme_settings&tab=payment'));
+            exit;
+        }
+    );
 }
 add_action('admin_menu', 'nasim_lms_admin_menu');
-
-
-function nasim_register_payment_settings() {
-
-    register_setting('nasim_payment_settings', 'nasim_zibal_merchant', [
-        'type'              => 'string',
-        'sanitize_callback' => 'sanitize_text_field',
-        'default'           => '',
-    ]);
-
-    register_setting('nasim_payment_settings', 'nasim_zibal_sandbox', [
-        'type'              => 'boolean',
-        'sanitize_callback' => function ($value) {
-            return $value ? 1 : 0;
-        },
-        'default'           => 0,
-    ]);
-}
-add_action('admin_init', 'nasim_register_payment_settings');
-
-
-function nasim_render_payment_settings_page() {
-    ?>
-    <div class="wrap">
-        <h1><?php esc_html_e('تنظیمات درگاه زیبال', 'niloo-web'); ?></h1>
-        <form method="post" action="options.php">
-            <?php settings_fields('nasim_payment_settings'); ?>
-            <table class="form-table" role="presentation">
-                <tr>
-                    <th><label for="nasim_zibal_merchant"><?php esc_html_e('کد مرچنت زیبال', 'niloo-web'); ?></label></th>
-                    <td><input type="text" id="nasim_zibal_merchant" name="nasim_zibal_merchant" value="<?php echo esc_attr(get_option('nasim_zibal_merchant')); ?>" class="regular-text" dir="ltr"></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('حالت آزمایشی', 'niloo-web'); ?></th>
-                    <td><label><input type="checkbox" name="nasim_zibal_sandbox" value="1" <?php checked(get_option('nasim_zibal_sandbox')); ?>> <?php esc_html_e('استفاده از مرچنت تست زیبال (پرداخت واقعی انجام نمی‌شود)', 'niloo-web'); ?></label></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('آدرس بازگشت', 'niloo-web'); ?></th>
-                    <td><code dir="ltr"><?php echo esc_html(admin_url('admin-post.php?action=nasim_zibal_callback')); ?></code>
-                        <p class="description"><?php esc_html_e('دامنه این آدرس باید با دامنه ثبت‌شده در پنل زیبال یکی باشد.', 'niloo-web'); ?></p></td>
-                </tr>
-                <?php do_action('nasim_payment_settings_after_gateway'); ?>
-            </table>
-            <?php submit_button(); ?>
-        </form>
-    </div>
-    <?php
-}
 
 
 function nasim_render_payments_page() {
@@ -92,6 +54,7 @@ function nasim_render_payments_page() {
                     <th><?php esc_html_e('پلن', 'niloo-web'); ?></th>
                     <th><?php esc_html_e('مبلغ', 'niloo-web'); ?></th>
                     <th><?php esc_html_e('وضعیت', 'niloo-web'); ?></th>
+                    <th><?php esc_html_e('درگاه', 'niloo-web'); ?></th>
                     <th><?php esc_html_e('کد پیگیری', 'niloo-web'); ?></th>
                     <th><?php esc_html_e('تاریخ', 'niloo-web'); ?></th>
                     <th><?php esc_html_e('توضیح', 'niloo-web'); ?></th>
@@ -99,10 +62,13 @@ function nasim_render_payments_page() {
             </thead>
             <tbody>
             <?php if (!$result['items']) : ?>
-                <tr><td colspan="8"><?php esc_html_e('تراکنشی ثبت نشده است.', 'niloo-web'); ?></td></tr>
+                <tr><td colspan="9"><?php esc_html_e('تراکنشی ثبت نشده است.', 'niloo-web'); ?></td></tr>
             <?php endif; ?>
-            <?php foreach ($result['items'] as $payment) :
+            <?php
+            $gw_labels = function_exists('nasim_payment_gateway_labels') ? nasim_payment_gateway_labels() : [];
+            foreach ($result['items'] as $payment) :
                 $user = get_userdata($payment->user_id);
+                $gw   = !empty($payment->gateway) ? (string) $payment->gateway : 'zibal';
                 ?>
                 <tr>
                     <td><?php echo esc_html($payment->id); ?></td>
@@ -110,6 +76,7 @@ function nasim_render_payments_page() {
                     <td><?php echo esc_html($payment->plan_title); ?></td>
                     <td><?php echo esc_html(nasim_format_price((int) $payment->amount / 10)); ?></td>
                     <td><?php echo esc_html($statuses[$payment->status] ?? $payment->status); ?></td>
+                    <td><?php echo esc_html($gw_labels[$gw] ?? $gw); ?></td>
                     <td dir="ltr"><?php echo esc_html($payment->ref_number ?: '—'); ?></td>
                     <td><?php echo esc_html(nasim_jdate(nasim_payment_time($payment->created_at), true)); ?></td>
                     <td><?php echo esc_html($payment->note); ?></td>

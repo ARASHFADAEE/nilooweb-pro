@@ -1,0 +1,36 @@
+{
+  "name": "mino/option",
+  "description": "Mino Option \u2014 clean WordPress settings framework for plugins and themes.",
+  "type": "wordpress-plugin",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Arash Fadaee"
+    }
+  ],
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mino\\Option\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Mino\\Option\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "bash bin/run-tests.sh",
+    "lint": "php -l mino-option.php && find src examples tests -name '*.php' -print0 | xargs -0 -n1 php -l"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "config": {
+    "sort-packages": true
+  }
+}

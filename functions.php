@@ -23,9 +23,24 @@ include_once THEME_DIR . '/includes/client-config.php';
 
 
 /**
+ * Mino Option settings framework (bundled)
+ */
+$nasim_mino = THEME_DIR . '/includes/mino-option/mino-option.php';
+if (is_readable($nasim_mino)) {
+    require_once $nasim_mino;
+}
+
+
+/**
 * Include theme setup
 */
 include_once THEME_DIR . '/includes/theme-setup.php';
+
+
+/**
+ * Theme settings panel (Mino Option) — colors, SMS, auth, gateways
+ */
+include_once THEME_DIR . '/includes/theme-settings.php';
 
 
 /**
@@ -95,7 +110,7 @@ include_once THEME_DIR . '/includes/seo.php';
 
 
 /**
-* Include LMS: courses, subscription plans, Zibal payments
+* Include LMS: courses, plans, Zibal/ZarinPal payments
 */
 include_once THEME_DIR . '/includes/lms/lms.php';
 include_once THEME_DIR . '/includes/niloo-posts-seed.php';

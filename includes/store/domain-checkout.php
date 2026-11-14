@@ -28,9 +28,10 @@ function nasim_create_domain_slot_payment($user_id, $slug) {
         'duration_days' => 0,
         'amount'        => $price * 10,
         'status'        => 'pending',
+        'gateway'       => function_exists('nasim_payment_gateway_id') ? nasim_payment_gateway_id() : 'zibal',
         'note'          => 'domain_slot:' . $slug,
         'created_at'    => current_time('mysql', true),
-    ], ['%d', '%d', '%s', '%d', '%d', '%s', '%s', '%s']);
+    ], ['%d', '%d', '%s', '%d', '%d', '%s', '%s', '%s', '%s']);
 
     return (int) $wpdb->insert_id;
 }
@@ -67,7 +68,7 @@ function nasim_handle_buy_domain_slot() {
         exit;
     }
 
-    $gateway = Nasim_Zibal_Gateway::from_settings();
+    $gateway = nasim_payment_gateway();
 
     if (!$gateway->is_configured()) {
         wp_safe_redirect(nasim_subscription_url(['nasim_error' => 'gateway', 'tab' => 'license']));
@@ -83,9 +84,13 @@ function nasim_handle_buy_domain_slot() {
         exit;
     }
 
+    if (function_exists('nasim_set_payment_gateway')) {
+        nasim_set_payment_gateway($payment_id, nasim_payment_gateway_id());
+    }
+
     $track_id = $gateway->request(
         $price * 10,
-        admin_url('admin-post.php?action=nasim_zibal_callback'),
+        nasim_payment_callback_url(),
         $payment_id,
         sprintf('دامنه اضافه %s - %s', $slug, wp_get_current_user()->user_login)
     );

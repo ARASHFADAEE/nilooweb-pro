@@ -1,0 +1,733 @@
+/**
+ * Mino Option — minimal scoped admin UI.
+ * All rules under .mino-settings. Peyda loaded via mino-peyda stylesheet.
+ */
+
+.mino-settings {
+	--mino-surface: #fff;
+	--mino-bg: #f6f7f8;
+	--mino-line: #e6e8eb;
+	--mino-line-strong: #d0d5dd;
+	--mino-text: #111827;
+	--mino-muted: #6b7280;
+	--mino-accent: #0f766e;
+	--mino-accent-hover: #0d5f59;
+	--mino-accent-soft: #ecf8f6;
+	--mino-danger: #b42318;
+	--mino-radius: 12px;
+	--mino-radius-sm: 8px;
+	--mino-space-1: 4px;
+	--mino-space-2: 8px;
+	--mino-space-3: 12px;
+	--mino-space-4: 16px;
+	--mino-space-5: 24px;
+	--mino-space-6: 32px;
+	--mino-font: "PeydaWebVF", Tahoma, "Segoe UI", system-ui, sans-serif;
+	--mino-focus: 0 0 0 3px rgba(15, 118, 110, 0.22);
+	position: relative;
+	margin: var(--mino-space-4) var(--mino-space-4) var(--mino-space-4) 0;
+	font-family: var(--mino-font);
+	font-weight: 400;
+	color: var(--mino-text);
+	max-width: 1080px;
+	line-height: 1.55;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* Glass loading overlay */
+.mino-settings .mino-loading-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 40;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--mino-radius);
+	background: rgba(255, 255, 255, 0.42);
+	backdrop-filter: blur(10px) saturate(1.2);
+	-webkit-backdrop-filter: blur(10px) saturate(1.2);
+	border: 1px solid rgba(255, 255, 255, 0.55);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.mino-settings .mino-loading-overlay[hidden] {
+	display: none !important;
+}
+
+.mino-settings.is-loading {
+	pointer-events: none;
+	user-select: none;
+}
+
+.mino-settings.is-loading > :not(.mino-loading-overlay):not(.mino-toast) {
+	filter: saturate(0.85);
+}
+
+.mino-settings .mino-loader {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	padding: 18px 22px;
+	border-radius: 16px;
+	background: rgba(255, 255, 255, 0.72);
+	border: 1px solid rgba(15, 118, 110, 0.12);
+	box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+}
+
+.mino-settings .mino-loader-spinner {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	border: 2.5px solid rgba(15, 118, 110, 0.18);
+	border-top-color: var(--mino-accent);
+	animation: mino-spin 0.75s linear infinite;
+}
+
+.mino-settings .mino-loader-text {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--mino-accent-hover);
+}
+
+@keyframes mino-spin {
+	to { transform: rotate(360deg); }
+}
+
+.mino-settings .mino-toast {
+	position: absolute;
+	inset-block-start: 12px;
+	inset-inline-end: 12px;
+	z-index: 50;
+	max-width: min(360px, calc(100% - 24px));
+	padding: 10px 14px;
+	border-radius: var(--mino-radius-sm);
+	font-size: 0.875rem;
+	font-weight: 600;
+	background: rgba(255, 255, 255, 0.92);
+	border: 1px solid var(--mino-line);
+	box-shadow: 0 8px 24px rgba(17, 24, 39, 0.1);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+}
+
+.mino-settings .mino-toast[hidden] {
+	display: none !important;
+}
+
+.mino-settings .mino-toast.is-success {
+	border-color: #b7e4c7;
+	color: #146c43;
+	background: rgba(240, 253, 244, 0.95);
+}
+
+.mino-settings .mino-toast.is-error {
+	border-color: #f0c4c0;
+	color: var(--mino-danger);
+	background: rgba(254, 243, 242, 0.95);
+}
+
+.mino-settings *,
+.mino-settings *::before,
+.mino-settings *::after {
+	box-sizing: border-box;
+}
+
+.mino-settings a:focus-visible,
+.mino-settings button:focus-visible,
+.mino-settings input:focus-visible,
+.mino-settings select:focus-visible,
+.mino-settings textarea:focus-visible {
+	outline: none;
+	box-shadow: var(--mino-focus);
+}
+
+/* Header — flat, minimal */
+.mino-settings .mino-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--mino-space-4);
+	padding: var(--mino-space-4) var(--mino-space-5);
+	background: var(--mino-surface);
+	border: 1px solid var(--mino-line);
+	border-radius: var(--mino-radius);
+	margin-block-end: var(--mino-space-4);
+}
+
+.mino-settings .mino-header-brand {
+	display: flex;
+	align-items: center;
+	gap: var(--mino-space-3);
+	min-width: 0;
+}
+
+.mino-settings .mino-logo {
+	width: 40px;
+	height: 40px;
+	object-fit: contain;
+	border-radius: var(--mino-radius-sm);
+}
+
+.mino-settings .mino-logo-mark {
+	width: 40px;
+	height: 40px;
+	border-radius: var(--mino-radius-sm);
+	background: var(--mino-accent);
+	flex-shrink: 0;
+}
+
+.mino-settings .mino-title {
+	margin: 0;
+	font-size: 1.35rem;
+	font-weight: 650;
+	line-height: 1.3;
+	padding: 0;
+	letter-spacing: -0.01em;
+}
+
+.mino-settings .mino-subtitle {
+	margin: 2px 0 0;
+	color: var(--mino-muted);
+	font-size: 0.9rem;
+	font-weight: 400;
+}
+
+.mino-settings .mino-version {
+	color: var(--mino-muted);
+	font-size: 0.75rem;
+	font-weight: 500;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* Layout */
+.mino-settings .mino-layout {
+	display: grid;
+	grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+	gap: var(--mino-space-4);
+	align-items: start;
+}
+
+.mino-settings .mino-tabs {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	background: var(--mino-surface);
+	border: 1px solid var(--mino-line);
+	border-radius: var(--mino-radius);
+	padding: var(--mino-space-2);
+	position: sticky;
+	top: 46px;
+}
+
+.mino-settings .mino-tab {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--mino-space-2);
+	padding: 10px 12px;
+	border-radius: var(--mino-radius-sm);
+	text-decoration: none;
+	color: var(--mino-text);
+	border: 1px solid transparent;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.mino-settings .mino-tab:hover {
+	background: var(--mino-bg);
+	color: var(--mino-text);
+}
+
+.mino-settings .mino-tab.is-active {
+	background: var(--mino-accent-soft);
+	color: var(--mino-accent-hover);
+}
+
+.mino-settings .mino-tab .dashicons {
+	width: 18px;
+	height: 18px;
+	font-size: 18px;
+	margin-top: 2px;
+	opacity: 0.85;
+}
+
+.mino-settings .mino-tab-label {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+
+.mino-settings .mino-tab-title {
+	font-weight: 600;
+	font-size: 0.92rem;
+}
+
+.mino-settings .mino-tab-desc {
+	font-size: 0.75rem;
+	color: var(--mino-muted);
+	line-height: 1.35;
+	font-weight: 400;
+}
+
+.mino-settings .mino-panels {
+	background: var(--mino-surface);
+	border: 1px solid var(--mino-line);
+	border-radius: var(--mino-radius);
+	min-height: 280px;
+}
+
+.mino-settings .mino-panel {
+	padding: var(--mino-space-5);
+}
+
+.mino-settings .mino-panel[hidden] {
+	display: none !important;
+}
+
+/* Fields */
+.mino-settings .mino-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.mino-settings .mino-field {
+	display: grid;
+	grid-template-columns: minmax(120px, 200px) minmax(0, 1fr);
+	gap: var(--mino-space-2) var(--mino-space-5);
+	align-items: start;
+	padding: var(--mino-space-4) 0;
+	border-block-end: 1px solid var(--mino-line);
+}
+
+.mino-settings .mino-field:first-child {
+	padding-block-start: 0;
+}
+
+.mino-settings .mino-field:last-child {
+	border-block-end: 0;
+	padding-block-end: 0;
+}
+
+.mino-settings .mino-field.is-hidden {
+	display: none !important;
+}
+
+.mino-settings .mino-field-label {
+	font-weight: 600;
+	font-size: 0.9rem;
+	padding-top: 9px;
+}
+
+.mino-settings .mino-required {
+	color: var(--mino-danger);
+	margin-inline-start: 2px;
+}
+
+.mino-settings .mino-field-description {
+	grid-column: 2;
+	margin: 0;
+	color: var(--mino-muted);
+	font-size: 0.8rem;
+	line-height: 1.45;
+	font-weight: 400;
+}
+
+.mino-settings .mino-field--heading,
+.mino-settings .mino-field--notice,
+.mino-settings .mino-field--html {
+	grid-template-columns: 1fr;
+}
+
+.mino-settings .mino-heading {
+	margin: 0;
+	font-size: 1.05rem;
+	font-weight: 650;
+}
+
+.mino-settings .mino-heading-desc {
+	margin: var(--mino-space-1) 0 0;
+	color: var(--mino-muted);
+	font-size: 0.85rem;
+}
+
+.mino-settings .mino-notice {
+	padding: 10px 14px;
+	border-radius: var(--mino-radius-sm);
+	border: 1px solid var(--mino-line);
+	background: var(--mino-bg);
+}
+
+.mino-settings .mino-notice--info {
+	border-color: #cce8e4;
+	background: var(--mino-accent-soft);
+}
+
+.mino-settings .mino-notice--warning {
+	border-color: #f5e6b8;
+	background: #fffbeb;
+}
+
+.mino-settings .mino-notice--error {
+	border-color: #f0c4c0;
+	background: #fef3f2;
+}
+
+.mino-settings .mino-notice--success {
+	border-color: #c6e7cf;
+	background: #f0fdf4;
+}
+
+.mino-settings .mino-notice p {
+	margin: 0;
+	font-size: 0.875rem;
+}
+
+.mino-settings .mino-input,
+.mino-settings .mino-textarea,
+.mino-settings .mino-select {
+	width: 100%;
+	max-width: 400px;
+	border: 1px solid var(--mino-line-strong);
+	border-radius: var(--mino-radius-sm);
+	padding: 8px 11px;
+	font-size: 0.9rem;
+	line-height: 1.4;
+	background: #fff;
+	color: var(--mino-text);
+	font-family: inherit;
+	font-weight: 400;
+	transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.mino-settings .mino-input:hover,
+.mino-settings .mino-textarea:hover,
+.mino-settings .mino-select:hover {
+	border-color: #9aa3af;
+}
+
+.mino-settings .mino-input:focus,
+.mino-settings .mino-textarea:focus,
+.mino-settings .mino-select:focus {
+	border-color: var(--mino-accent);
+}
+
+.mino-settings .mino-textarea {
+	max-width: 520px;
+	min-height: 88px;
+	resize: vertical;
+}
+
+.mino-settings .mino-multiselect {
+	min-height: 100px;
+}
+
+/* Switch */
+.mino-settings .mino-switch {
+	display: inline-flex;
+	align-items: center;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.mino-settings .mino-switch-track {
+	width: 42px;
+	height: 24px;
+	border-radius: 999px;
+	background: #d1d5db;
+	position: relative;
+	transition: background 0.15s ease;
+}
+
+.mino-settings .mino-switch-thumb {
+	position: absolute;
+	inset-block-start: 3px;
+	inset-inline-start: 3px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+	transition: inset-inline-start 0.15s ease;
+}
+
+.mino-settings .mino-switch.is-on .mino-switch-track {
+	background: var(--mino-accent);
+}
+
+.mino-settings .mino-switch.is-on .mino-switch-thumb {
+	inset-inline-start: 21px;
+}
+
+/* Radio / buttonset / checkbox */
+.mino-settings .mino-radio-group,
+.mino-settings .mino-buttonset {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.mino-settings .mino-radio {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-inline-end: var(--mino-space-3);
+	font-size: 0.9rem;
+}
+
+.mino-settings .mino-buttonset-item {
+	display: inline-flex;
+	align-items: center;
+	padding: 6px 14px;
+	border: 1px solid var(--mino-line-strong);
+	border-radius: 999px;
+	background: #fff;
+	cursor: pointer;
+	font-weight: 500;
+	font-size: 0.85rem;
+	transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.mino-settings .mino-buttonset-item.is-active {
+	background: var(--mino-accent-soft);
+	border-color: var(--mino-accent);
+	color: var(--mino-accent-hover);
+}
+
+.mino-settings .mino-buttonset-input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.mino-settings .mino-checkbox {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 500;
+	font-size: 0.9rem;
+}
+
+/* Media / gallery */
+.mino-settings .mino-media,
+.mino-settings .mino-gallery {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mino-space-2);
+}
+
+.mino-settings .mino-media-preview,
+.mino-settings .mino-gallery-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mino-space-2);
+	min-height: 56px;
+	padding: var(--mino-space-3);
+	border: 1px dashed var(--mino-line-strong);
+	border-radius: var(--mino-radius-sm);
+	background: var(--mino-bg);
+}
+
+.mino-settings .mino-media-preview img,
+.mino-settings .mino-gallery-list img {
+	width: 64px;
+	height: 64px;
+	object-fit: cover;
+	border-radius: 6px;
+	border: 1px solid var(--mino-line);
+}
+
+.mino-settings .mino-media-actions {
+	display: flex;
+	gap: var(--mino-space-2);
+}
+
+.mino-settings .mino-media-empty,
+.mino-settings .mino-media-filename {
+	color: var(--mino-muted);
+	font-size: 0.82rem;
+	align-self: center;
+}
+
+.mino-settings .mino-gallery-list {
+	list-style: none;
+	margin: 0;
+}
+
+/* Repeater */
+.mino-settings .mino-repeater-rows {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mino-space-3);
+}
+
+.mino-settings .mino-repeater-row {
+	border: 1px solid var(--mino-line);
+	border-radius: var(--mino-radius-sm);
+	background: #fff;
+	overflow: hidden;
+}
+
+.mino-settings .mino-repeater-row-header {
+	display: flex;
+	align-items: center;
+	gap: var(--mino-space-2);
+	padding: 8px 12px;
+	background: var(--mino-bg);
+	border-block-end: 1px solid var(--mino-line);
+}
+
+.mino-settings .mino-repeater-handle {
+	cursor: grab;
+	color: var(--mino-muted);
+	padding: 0;
+	line-height: 1;
+}
+
+.mino-settings .mino-repeater-row-label {
+	font-weight: 600;
+	font-size: 0.85rem;
+	flex: 1;
+}
+
+.mino-settings .mino-repeater-row-actions {
+	display: flex;
+	gap: var(--mino-space-3);
+}
+
+.mino-settings .mino-repeater-row-actions .button-link {
+	font-size: 0.8rem;
+	text-decoration: none;
+	color: var(--mino-muted);
+}
+
+.mino-settings .mino-repeater-row-actions .mino-repeater-remove:hover {
+	color: var(--mino-danger);
+}
+
+.mino-settings .mino-repeater-row-actions .mino-repeater-duplicate:hover {
+	color: var(--mino-accent);
+}
+
+.mino-settings .mino-repeater-row-body {
+	padding: var(--mino-space-4);
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.mino-settings .mino-repeater-row-body .mino-field {
+	grid-template-columns: minmax(90px, 140px) minmax(0, 1fr);
+	padding: 10px 0;
+}
+
+.mino-settings .mino-repeater-empty {
+	margin: 0;
+	padding: var(--mino-space-4);
+	color: var(--mino-muted);
+	border: 1px dashed var(--mino-line-strong);
+	border-radius: var(--mino-radius-sm);
+	text-align: center;
+	font-size: 0.875rem;
+	background: var(--mino-bg);
+}
+
+.mino-settings .mino-repeater-toolbar {
+	margin-block-start: var(--mino-space-3);
+}
+
+/* Actions */
+.mino-settings .mino-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--mino-space-2);
+	margin-block-start: var(--mino-space-5);
+	padding-block-start: var(--mino-space-4);
+	border-block-start: 1px solid var(--mino-line);
+}
+
+.mino-settings .mino-save.button-primary {
+	background: var(--mino-accent);
+	border-color: var(--mino-accent-hover);
+	text-shadow: none;
+	box-shadow: none;
+	font-family: inherit;
+	font-weight: 600;
+	border-radius: var(--mino-radius-sm);
+	padding: 6px 16px;
+}
+
+.mino-settings .mino-save.button-primary:hover,
+.mino-settings .mino-save.button-primary:focus {
+	background: var(--mino-accent-hover);
+	border-color: var(--mino-accent-hover);
+}
+
+.mino-settings .mino-reset.button,
+.mino-settings .mino-repeater-add.button,
+.mino-settings .mino-media-actions .button {
+	font-family: inherit;
+	border-radius: var(--mino-radius-sm);
+}
+
+.mino-settings .mino-empty {
+	padding: var(--mino-space-6);
+	text-align: center;
+	background: var(--mino-surface);
+	border: 1px dashed var(--mino-line-strong);
+	border-radius: var(--mino-radius);
+}
+
+.mino-settings .mino-empty h2 {
+	margin-top: 0;
+	font-weight: 650;
+}
+
+.mino-settings .mino-flash.notice {
+	border-radius: var(--mino-radius-sm);
+	font-family: inherit;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+	.mino-settings .mino-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.mino-settings .mino-tabs {
+		position: static;
+		flex-direction: row;
+		overflow-x: auto;
+	}
+
+	.mino-settings .mino-tab {
+		min-width: 148px;
+	}
+
+	.mino-settings .mino-field {
+		grid-template-columns: 1fr;
+	}
+
+	.mino-settings .mino-field-description {
+		grid-column: 1;
+	}
+
+	.mino-settings .mino-field-label {
+		padding-top: 0;
+	}
+}
+
+@media (max-width: 600px) {
+	.mino-settings {
+		margin-inline-end: 0;
+	}
+
+	.mino-settings .mino-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
