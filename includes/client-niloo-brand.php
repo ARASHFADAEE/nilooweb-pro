@@ -33,7 +33,7 @@ function nasim_niloo_customizer_sections(array $sections): array
     $sections['nasim_hero']['fields']['hero_primary_url']['default']       = $courses_url;
     $sections['nasim_hero']['fields']['hero_secondary_text']['default']    = 'شروع رایگان';
     $sections['nasim_hero']['fields']['hero_secondary_url']['default']     = home_url('/connect/');
-    $sections['nasim_hero']['fields']['hero_image']['default']             = 'https://niloofarvafaei.ir/wp-content/uploads/2026/03/niloo-hero.webp';
+    $sections['nasim_hero']['fields']['hero_image']['default']             = 'https://niloofarvafaei.ir/wp-content/uploads/2026/11/herosss.png';
     $sections['nasim_hero']['fields']['hero_proof_title']['default']     = '';
     $sections['nasim_hero']['fields']['hero_note_top_title']['default']    = 'پروژه محور';
     $sections['nasim_hero']['fields']['hero_note_top_text']['default']     = 'یادگیری با کار واقعی';
