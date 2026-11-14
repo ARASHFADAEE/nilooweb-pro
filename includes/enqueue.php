@@ -31,15 +31,30 @@ function nasim_enqueue_assets() {
         wp_enqueue_script('comment-reply');
     }
 
+    $is_courses_catalog = is_page('courses')
+        || is_page_template('page-courses.php')
+        || is_post_type_archive('nasim_course')
+        || is_tax('nasim_course_cat');
+
     if (
         is_singular('nasim_course')
-        || is_post_type_archive('nasim_course')
+        || $is_courses_catalog
         || (nasim_store_enabled() && is_singular('nasim_product'))
         || (nasim_store_enabled() && is_post_type_archive('nasim_product'))
         || (nasim_store_enabled() && is_tax('nasim_product_cat'))
         || nasim_is_subscription_page()
     ) {
         wp_enqueue_style('nasim-lms', THEME_URL . '/assets/css/lms.css', ['nasim-main'], nasim_asset_version('/assets/css/lms.css'));
+    }
+
+    if ($is_courses_catalog) {
+        wp_enqueue_script(
+            'nasim-course-catalog',
+            THEME_URL . '/assets/js/course-catalog.js',
+            [],
+            nasim_asset_version('/assets/js/course-catalog.js'),
+            true
+        );
     }
 
     if (nasim_is_auth_page()) {

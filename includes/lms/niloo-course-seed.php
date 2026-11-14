@@ -232,6 +232,10 @@ function nasim_niloo_upsert_course(array $row): int
         update_post_meta($course_id, '_nasim_course_level', sanitize_text_field((string) $row['level']));
     }
 
+    if (function_exists('nasim_assign_course_categories')) {
+        nasim_assign_course_categories($course_id, $row);
+    }
+
     if (!empty($row['outcomes'])) {
         update_post_meta($course_id, '_nasim_course_outcomes', sanitize_textarea_field((string) $row['outcomes']));
     }

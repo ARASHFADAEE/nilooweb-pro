@@ -7,7 +7,7 @@ if(!defined('ABSPATH')) exit;
 /**
  * Bump when rewrite rules (courses, learn endpoint, subscription page) change
  */
-define('NASIM_LMS_REWRITE_VERSION', '1');
+define('NASIM_LMS_REWRITE_VERSION', '2');
 
 
 /**
@@ -18,6 +18,8 @@ define('NASIM_LMS_DB_VERSION', '1');
 
 include_once THEME_DIR . '/includes/lms/helpers.php';
 include_once THEME_DIR . '/includes/lms/course-post-type.php';
+include_once THEME_DIR . '/includes/lms/course-taxonomy.php';
+include_once THEME_DIR . '/includes/lms/course-catalog.php';
 include_once THEME_DIR . '/includes/lms/course-functions.php';
 include_once THEME_DIR . '/includes/lms/course-meta-boxes.php';
 include_once THEME_DIR . '/includes/lms/plan-post-type.php';
