@@ -332,10 +332,31 @@ function nasim_icon($name) {
         'user'      => '<circle cx="12" cy="8.3" r="3.6"/><path d="M5 19.6c1.1-3.2 3.8-5 7-5s5.9 1.8 7 5"/>',
         'articles'  => '<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/>',
         'eye'       => '<path d="M2.8 12S6.2 5.8 12 5.8 21.2 12 21.2 12 17.8 18.2 12 18.2 2.8 12 2.8 12Z"/><circle cx="12" cy="12" r="2.8"/>',
+        // Hero / benefits: پروژه محور
+        'spark'     => '<path d="M12 3.2v3.2M12 17.6v3.2M3.2 12h3.2M17.6 12h3.2M6.2 6.2l2.2 2.2M15.6 15.6l2.2 2.2M17.8 6.2l-2.2 2.2M8.4 15.6l-2.2 2.2"/><circle cx="12" cy="12" r="2.6"/>',
+        // Hero / benefits: پشتیبانی
+        'check'     => '<path d="M5.2 12.4 9.6 16.8 18.8 7.2"/>',
+        // Benefits: آپدیت دائم
+        'refresh'   => '<path d="M19.2 12a7.2 7.2 0 1 1-2.1-5.1"/><path d="M19.2 4.8v4.4h-4.4"/>',
+        // Benefits: جامعه دانشجویان
+        'users'     => '<circle cx="9" cy="8.2" r="2.8"/><circle cx="16.2" cy="9" r="2.2"/><path d="M3.8 18.6c.9-3 3-4.6 5.2-4.6s4.3 1.6 5.2 4.6"/><path d="M14.4 14.4c1.5.2 2.9 1.2 3.8 3.2"/>',
+        // Benefits / about: پروژه
+        'layers'    => '<path d="M12 4.2 3.8 8.8 12 13.4l8.2-4.6z"/><path d="M3.8 12.2 12 16.8l8.2-4.6"/><path d="M3.8 15.6 12 20.2l8.2-4.6"/>',
         'dot'       => '<circle cx="12" cy="12" r="3"/>',
     ];
 
     return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' . ($paths[$name] ?? $paths['dot']) . '</svg>';
+}
+
+
+/**
+ * Icons for the 4 homepage benefit cards (aligned with hero floating notes).
+ *
+ * @return string[]
+ */
+function nasim_benefit_icons() {
+
+    return ['spark', 'check', 'refresh', 'users'];
 }
 
 

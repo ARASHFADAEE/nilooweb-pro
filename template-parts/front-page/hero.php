@@ -34,8 +34,14 @@ $hero_image = nasim_mod('hero_image');
         <?php if ($hero_image) : ?>
         <img class="coach-image" src="<?php echo esc_url($hero_image); ?>" alt="<?php echo esc_attr(nasim_image_alt($hero_image, get_bloginfo('name') ?: 'نیلوفر وفایی — آموزش طراحی سایت')); ?>" fetchpriority="high" decoding="async" width="560" height="700">
         <?php endif; ?>
-        <div class="floating-note note-top"><span class="note-icon">✦</span><span><strong><?php echo esc_html(nasim_mod('hero_note_top_title')); ?></strong><small><?php echo esc_html(nasim_mod('hero_note_top_text')); ?></small></span></div>
-        <div class="floating-note note-bottom"><span class="note-check">✓</span><span><strong><?php echo esc_html(nasim_mod('hero_note_bottom_title')); ?></strong><small><?php echo esc_html(nasim_mod('hero_note_bottom_text')); ?></small></span></div>
+        <div class="floating-note note-top">
+          <span class="note-icon" aria-hidden="true"><?php echo nasim_icon('spark'); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?></span>
+          <span><strong><?php echo esc_html(nasim_mod('hero_note_top_title')); ?></strong><small><?php echo esc_html(nasim_mod('hero_note_top_text')); ?></small></span>
+        </div>
+        <div class="floating-note note-bottom">
+          <span class="note-check" aria-hidden="true"><?php echo nasim_icon('check'); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?></span>
+          <span><strong><?php echo esc_html(nasim_mod('hero_note_bottom_title')); ?></strong><small><?php echo esc_html(nasim_mod('hero_note_bottom_text')); ?></small></span>
+        </div>
         <div class="vertical-caption"><?php echo esc_html(nasim_mod('hero_caption')); ?></div>
       </div>
     </section>
