@@ -58,6 +58,11 @@ function nasim_mod_always_custom_keys() {
         'testimonials_count',
         'social_instagram',
         'social_telegram',
+        'social_twitter',
+        'social_linkedin',
+        'social_youtube',
+        'social_github',
+        'social_discord',
     ];
 }
 
@@ -228,21 +233,28 @@ function nasim_fallback_menu_items($location) {
     $request_url = home_url('/request/');
     $courses_url = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : $courses_url;
 
+    $home_url  = is_front_page() ? '#home' : home_url('/');
+    $radio_url = function_exists('nasim_mod') && nasim_mod('radio_more_url')
+        ? (string) nasim_mod('radio_more_url')
+        : home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/');
+
     $items = [
         'primary' => [
-            ['title' => 'خانه', 'url' => '#home'],
-            ['title' => 'درباره من', 'url' => $connect_url],
+            ['title' => 'خانه', 'url' => $home_url],
             ['title' => 'دوره‌ها', 'url' => $courses_url],
             ['title' => 'مقالات', 'url' => $articles_url],
+            ['title' => 'رادیو نیل', 'url' => $radio_url],
+            ['title' => 'سفارش سایت', 'url' => 'https://weblabs.ir/web-design/'],
+            ['title' => 'معرفی من', 'url' => $connect_url],
             ['title' => 'مشاوره', 'url' => $request_url],
-            ['title' => 'تماس', 'url' => $contact_url],
         ],
         'footer' => [
-            ['title' => 'درباره من', 'url' => $connect_url],
             ['title' => 'دوره‌ها', 'url' => $courses_url],
-            ['title' => 'مشاوره', 'url' => $request_url],
-            ['title' => 'اشتراک', 'url' => nasim_subscription_url()],
             ['title' => 'مقالات', 'url' => $articles_url],
+            ['title' => 'رادیو نیل', 'url' => $radio_url],
+            ['title' => 'سفارش سایت', 'url' => 'https://weblabs.ir/web-design/'],
+            ['title' => 'معرفی من', 'url' => $connect_url],
+            ['title' => 'مشاوره', 'url' => $request_url],
             ['title' => 'قوانین', 'url' => nasim_default_page_url('terms', home_url('/terms/'))],
             ['title' => 'حریم خصوصی', 'url' => nasim_default_page_url('privacy', home_url('/privacy/'))],
         ],
@@ -291,7 +303,11 @@ function nasim_mobile_bottom_nav_items() {
         'title'  => 'دوره‌ها',
         'url'    => $courses_url,
         'icon'   => 'courses',
-        'active' => is_singular('nasim_course') || is_post_type_archive('nasim_course') || nasim_is_course_player(),
+        'active' => is_singular('nasim_course')
+            || is_post_type_archive('nasim_course')
+            || nasim_is_course_player()
+            || is_page('courses')
+            || is_page_template('page-courses.php'),
     ];
 
     $items[] = [

@@ -79,9 +79,14 @@ function nasim_niloo_customizer_sections(array $sections): array
     $sections['nasim_cta']['fields']['cta_button_text']['default'] = 'رزرو مشاوره رایگان';
     $sections['nasim_cta']['fields']['cta_button_url']['default']  = home_url('/request/');
 
-    $sections['nasim_footer']['fields']['footer_tagline']['default']   = 'آموزش طراحی سایت و کسب درآمد به زبان ساده و کاربردی، همراه با پروژه‌های واقعی و پشتیبانی تا ورود شما به بازار کار.';
-    $sections['nasim_footer']['fields']['footer_copyright']['default'] = '© تمامی حقوق برای نیلوفر وفایی محفوظ می‌باشد.';
-    $sections['nasim_footer']['fields']['social_instagram']['default'] = 'https://www.instagram.com/niloofarvafaei';
+    $sections['nasim_footer']['fields']['footer_tagline']['default']   = 'آموزش طراحی سایت و کسب درآمد به زبان ساده و کاربردی همراه با پروژه‌های واقعی و پشتیبانی تا ورود شما به بازار کار';
+    $sections['nasim_footer']['fields']['footer_copyright']['default'] = 'تمامی حقوق برای ©نیلوفر وفایی محفوظ می‌باشد.';
+    $sections['nasim_footer']['fields']['social_instagram']['default'] = 'https://instagram.com/niloofarvafaei.ir';
+    $sections['nasim_footer']['fields']['social_twitter']             = ['label' => __('توییتر / X', 'niloo-web'), 'type' => 'url', 'default' => 'https://twitter.com/NiIfar77'];
+    $sections['nasim_footer']['fields']['social_linkedin']            = ['label' => __('لینکدین', 'niloo-web'), 'type' => 'url', 'default' => 'https://www.linkedin.com/in/niloofar-vafaei-55b840242/'];
+    $sections['nasim_footer']['fields']['social_youtube']             = ['label' => __('یوتیوب', 'niloo-web'), 'type' => 'url', 'default' => 'https://www.youtube.com/channel/UColubQELWRLE3miuKRr_Kzw'];
+    $sections['nasim_footer']['fields']['social_github']              = ['label' => __('گیت‌هاب', 'niloo-web'), 'type' => 'url', 'default' => 'https://github.com/NiIfr'];
+    $sections['nasim_footer']['fields']['social_discord']             = ['label' => __('دیسکورد', 'niloo-web'), 'type' => 'url', 'default' => 'https://discord.gg/nGe6Rv7Cu7'];
 
     if (!isset($sections['nasim_courses_home'])) {
         $sections['nasim_courses_home'] = [
