@@ -2,6 +2,10 @@
 
 if(!defined('ABSPATH')) exit;
 
+if (!nasim_store_enabled()) {
+    return;
+}
+
 $products = new WP_Query([
     'post_type'      => 'nasim_product',
     'posts_per_page' => max(1, (int) nasim_mod('products_count')),

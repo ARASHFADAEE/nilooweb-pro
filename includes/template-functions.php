@@ -225,35 +225,42 @@ function nasim_fallback_menu_items($location) {
 function nasim_mobile_bottom_nav_items() {
 
     $home_url     = is_front_page() ? '#home' : home_url('/');
-    $products_url = get_post_type_archive_link('nasim_product') ?: '';
-    $courses_url  = get_post_type_archive_link('nasim_course') ?: '';
+    $products_url = nasim_store_enabled() ? (get_post_type_archive_link('nasim_product') ?: '') : '';
+    $courses_url  = nasim_courses_listing_url();
 
-    return array_values(array_filter([
+    $items = [
         [
             'title'  => 'خانه',
             'url'    => $home_url,
             'icon'   => 'home',
             'active' => is_front_page(),
         ],
-        [
+    ];
+
+    if ($products_url) {
+        $items[] = [
             'title'  => 'افزونه‌ها',
             'url'    => $products_url,
             'icon'   => 'products',
             'active' => is_singular('nasim_product') || is_post_type_archive('nasim_product') || is_tax('nasim_product_cat'),
-        ],
-        [
-            'title'  => 'دوره‌ها',
-            'url'    => $courses_url,
-            'icon'   => 'courses',
-            'active' => is_singular('nasim_course') || is_post_type_archive('nasim_course') || nasim_is_course_player(),
-        ],
-        [
-            'title'  => is_user_logged_in() ? 'پنل من' : 'ورود',
-            'url'    => nasim_account_url(),
-            'icon'   => 'user',
-            'active' => nasim_is_subscription_page() || nasim_is_auth_page(),
-        ],
-    ], function ($item) {
+        ];
+    }
+
+    $items[] = [
+        'title'  => 'دوره‌ها',
+        'url'    => $courses_url,
+        'icon'   => 'courses',
+        'active' => is_singular('nasim_course') || is_post_type_archive('nasim_course') || nasim_is_course_player(),
+    ];
+
+    $items[] = [
+        'title'  => is_user_logged_in() ? 'پنل من' : 'ورود',
+        'url'    => nasim_account_url(),
+        'icon'   => 'user',
+        'active' => nasim_is_subscription_page() || nasim_is_auth_page(),
+    ];
+
+    return array_values(array_filter($items, function ($item) {
         return '' !== (string) $item['url'];
     }));
 }

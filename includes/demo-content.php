@@ -25,6 +25,10 @@ function nasim_demo_testimonials() {
  */
 function nasim_install_demo_testimonials() {
 
+    if (!nasim_should_install_seed_content()) {
+        return;
+    }
+
     if (get_option('nasim_demo_testimonials_installed')) {
         return;
     }
@@ -82,6 +86,10 @@ function nasim_default_plans() {
  * Create the default plans once, on first activation of a site that has none
  */
 function nasim_install_default_plans() {
+
+    if (!nasim_should_install_seed_content()) {
+        return;
+    }
 
     if (get_option('nasim_default_plans_installed')) {
         return;

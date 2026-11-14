@@ -24,7 +24,7 @@
     </div>
   </footer>
 
-  <nav class="mobile-bottom-nav" aria-label="میانبر موبایل: خانه، افزونه‌ها، دوره‌ها، پنل">
+  <nav class="mobile-bottom-nav" aria-label="میانبر موبایل: خانه، دوره‌ها، پنل">
     <?php nasim_mobile_bottom_nav(); ?>
   </nav>
 

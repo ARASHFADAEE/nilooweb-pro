@@ -9,7 +9,7 @@ if(!defined('ABSPATH')) exit;
  */
 function nasim_register_course_post_type() {
 
-    register_post_type('nasim_course', [
+    $args = [
         'labels' => [
             'name'               => __('دوره‌ها', 'nasim-fitness'),
             'singular_name'      => __('دوره', 'nasim-fitness'),
@@ -30,7 +30,11 @@ function nasim_register_course_post_type() {
         'menu_icon'     => 'dashicons-welcome-learn-more',
         'menu_position' => 5,
         'supports'      => ['title', 'editor', 'excerpt', 'thumbnail', 'author'],
-    ]);
+    ];
+
+    $args = apply_filters('nasim_course_post_type_registration', $args);
+
+    register_post_type('nasim_course', $args);
 
     add_rewrite_endpoint('learn', EP_PERMALINK);
 }

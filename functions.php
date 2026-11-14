@@ -16,11 +16,22 @@ define('THEME_DIR', get_template_directory());
 define('THEME_URL', get_template_directory_uri());
 
 
+/**
+ * Client / deployment profile (niloofarvafaei.ir defaults)
+ */
+include_once THEME_DIR . '/includes/client-config.php';
+
 
 /**
 * Include theme setup
 */
 include_once THEME_DIR . '/includes/theme-setup.php';
+
+
+/**
+ * Elementor: preserve builder pages (homepage + inner pages)
+ */
+include_once THEME_DIR . '/includes/elementor.php';
 
 
 /**
@@ -92,7 +103,9 @@ include_once THEME_DIR . '/includes/lms/lms.php';
 /**
 * Include Store: digital products (plugins/themes), licenses, downloads, update API
 */
-include_once THEME_DIR . '/includes/store/store.php';
+if (nasim_store_enabled()) {
+    include_once THEME_DIR . '/includes/store/store.php';
+}
 
 
 /**

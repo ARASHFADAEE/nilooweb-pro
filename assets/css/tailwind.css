@@ -8,7 +8,7 @@
   font-weight:100 1000;
   font-display:fallback;
 }
-:root{--purple:#5b2be8;--purple-2:#7042f5;--purple-dark:#421bc4;--ink:#17152b;--muted:#5f6278;--line:#e8e9f1;--soft:#f5f6fb;--white:#fff;--meta:#5c5f73}
+:root{--purple:#7466f0;--purple-2:#8b7cf8;--purple-dark:#5c4fd4;--accent:#f2994a;--ink:#17152b;--muted:#5f6278;--line:#e8e9f1;--soft:#f5f6fb;--white:#fff;--meta:#5c5f73}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:100px}
 body{margin:0;font-family:'IRANYekanXVF',sans-serif;line-height:1.8}
@@ -21,6 +21,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .skip-link{position:absolute;inset-inline-start:12px;top:-48px;z-index:100;background:var(--purple);color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700}
 .skip-link:focus{top:12px}
 .container-wide{width:min(1180px,calc(100% - 48px));margin-inline:auto}
+.page-layout--builder{width:100%;max-width:none;margin:0;padding:0}
+.page-builder-content{width:100%;max-width:none}
+.page-layout--builder .page-builder-content>.elementor{width:100%}
 .announcement{background:var(--purple);color:#fff;font-size:12px}
 .announcement-inner{min-height:36px;display:flex;align-items:center;justify-content:center;gap:9px}
 .announcement p{margin:0}

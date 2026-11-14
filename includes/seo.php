@@ -18,13 +18,15 @@ if (!defined('ABSPATH')) {
  */
 function nasim_seo_hubs() {
 
-    $products = get_post_type_archive_link('nasim_product') ?: home_url('/products/');
-    $courses  = get_post_type_archive_link('nasim_course') ?: home_url('/courses/');
+    $products = nasim_store_enabled() ? (get_post_type_archive_link('nasim_product') ?: home_url('/products/')) : '';
+    $courses  = function_exists('nasim_courses_listing_url')
+        ? nasim_courses_listing_url()
+        : (get_post_type_archive_link('nasim_course') ?: home_url('/courses/'));
     $contact  = nasim_seo_contact_url();
     $about    = home_url('/about/');
     $blog     = nasim_blog_url();
 
-    return [
+    $hubs = [
         'support'  => [
             'title' => 'پشتیبانی ماهانه وردپرس',
             'url'   => $contact,
@@ -56,6 +58,8 @@ function nasim_seo_hubs() {
             'desc'  => 'داستان کامل از خانه ریاضیات تا فریلنسری و ساخت محصول',
         ],
     ];
+
+    return apply_filters('nasim_seo_hubs', $hubs);
 }
 
 
@@ -509,7 +513,11 @@ function nasim_seo_json_ld() {
 
     // Service offers for commercial intent.
     if (is_front_page()) {
-        foreach (['support', 'plugins', 'custom'] as $key) {
+        $service_keys = nasim_store_enabled() ? ['support', 'plugins', 'custom'] : ['support', 'courses'];
+        foreach ($service_keys as $key) {
+            if (!isset(nasim_seo_hubs()[$key])) {
+                continue;
+            }
             $hub = nasim_seo_hubs()[$key];
             $graph[] = [
                 '@type'       => 'Service',
@@ -662,7 +670,15 @@ function nasim_seo_article_cta() {
 function nasim_seo_render_hub_links() {
 
     $hubs = nasim_seo_hubs();
-    $keys = ['support', 'plugins', 'custom', 'courses', 'blog'];
+    $keys = array_keys($hubs);
+    if (nasim_store_enabled()) {
+        $keys = array_values(array_unique(array_merge(['support', 'plugins', 'custom', 'courses', 'blog'], $keys)));
+    } else {
+        $keys = array_values(array_intersect(['support', 'courses', 'blog', 'bio', 'about'], $keys));
+        if (!$keys) {
+            $keys = array_keys($hubs);
+        }
+    }
     ?>
     <section class="article-hubs" aria-label="مسیرهای پیشنهادی">
       <div class="section-heading">

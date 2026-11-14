@@ -151,6 +151,10 @@ function nasim_default_pages() {
  */
 function nasim_install_default_pages() {
 
+    if (!nasim_should_install_seed_content()) {
+        return;
+    }
+
     if (get_option('nasim_default_pages_installed')) {
         return;
     }

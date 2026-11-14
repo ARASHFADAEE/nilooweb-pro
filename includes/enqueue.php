@@ -34,9 +34,9 @@ function nasim_enqueue_assets() {
     if (
         is_singular('nasim_course')
         || is_post_type_archive('nasim_course')
-        || is_singular('nasim_product')
-        || is_post_type_archive('nasim_product')
-        || is_tax('nasim_product_cat')
+        || (nasim_store_enabled() && is_singular('nasim_product'))
+        || (nasim_store_enabled() && is_post_type_archive('nasim_product'))
+        || (nasim_store_enabled() && is_tax('nasim_product_cat'))
         || nasim_is_subscription_page()
     ) {
         wp_enqueue_style('nasim-lms', THEME_URL . '/assets/css/lms.css', ['nasim-main'], nasim_asset_version('/assets/css/lms.css'));

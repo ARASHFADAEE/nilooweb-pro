@@ -4,7 +4,7 @@
 <head>
   <meta charset="<?php bloginfo('charset'); ?>">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#5b2be8">
+  <meta name="theme-color" content="#7466f0">
   <?php if (is_front_page() && get_bloginfo('description') && !defined('WPSEO_VERSION') && !defined('RANK_MATH_VERSION')) : ?>
   <meta name="description" content="<?php echo esc_attr(get_bloginfo('description')); ?>">
   <?php endif; ?>
@@ -48,7 +48,7 @@
       </div>
     </div>
     <form class="search-panel container-wide" id="searchPanel" role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>" hidden>
-      <input type="search" name="s" value="<?php echo esc_attr(get_search_query()); ?>" placeholder="دنبال چه افزونه یا دوره‌ای هستی؟" aria-label="جستجو در سایت">
+      <input type="search" name="s" value="<?php echo esc_attr(get_search_query()); ?>" placeholder="جستجو در دوره‌ها و مقالات..." aria-label="جستجو در سایت">
       <button type="button" class="button button-primary" id="searchClose">بستن</button>
     </form>
   </header>
