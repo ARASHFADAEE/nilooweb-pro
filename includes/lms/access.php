@@ -161,7 +161,7 @@ function nasim_render_access_page() {
                     <tr>
                         <th><?php esc_html_e('نوع دسترسی', 'niloo-web'); ?></th>
                         <td>
-                            <label><input type="radio" name="nasim_access_type" value="subscription" checked> <?php esc_html_e('اشتراک (همه دوره‌ها، برای مدت مشخص)', 'niloo-web'); ?></label><br>
+                            <label><input type="radio" name="nasim_access_type" value="subscription" checked> <?php esc_html_e('اشتراک (فقط دوره‌های «رایگان با اشتراک»، برای مدت مشخص)', 'niloo-web'); ?></label><br>
                             <label><input type="radio" name="nasim_access_type" value="courses"> <?php esc_html_e('دوره‌های مشخص (دائمی، بدون نیاز به اشتراک)', 'niloo-web'); ?></label>
                         </td>
                     </tr>

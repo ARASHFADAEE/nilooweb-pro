@@ -4,7 +4,7 @@ if(!defined('ABSPATH')) exit;
 
 $user_id    = get_current_user_id();
 $user       = $user_id ? wp_get_current_user() : null;
-$plans      = nasim_get_plans();
+$plans      = nasim_get_plans('subscription');
 $is_active  = nasim_has_active_subscription();
 $expires_at = nasim_subscription_expires();
 $days_left  = nasim_subscription_days_left();
@@ -12,10 +12,22 @@ $statuses   = nasim_payment_statuses();
 $history    = $user_id ? nasim_get_user_payments($user_id, 20) : [];
 
 // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only notices after redirects.
-$payment = isset($_GET['payment']) ? nasim_get_payment(absint($_GET['payment'])) : null;
-$error   = sanitize_key(wp_unslash($_GET['nasim_error'] ?? ''));
-$tab     = sanitize_key(wp_unslash($_GET['tab'] ?? ''));
+$payment   = isset($_GET['payment']) ? nasim_get_payment(absint($_GET['payment'])) : null;
+$error     = sanitize_key(wp_unslash($_GET['nasim_error'] ?? ''));
+$tab       = sanitize_key(wp_unslash($_GET['tab'] ?? ''));
+$highlight = absint(wp_unslash($_GET['highlight'] ?? 0));
 // phpcs:enable
+
+// Buying a single course: surface that purchase plan even though it is not a subscription plan.
+if ($highlight) {
+    $highlighted = nasim_get_plan($highlight);
+    if ($highlighted && $highlighted['price'] > 0) {
+        $ids = wp_list_pluck($plans, 'id');
+        if (!in_array($highlighted['id'], $ids, true)) {
+            array_unshift($plans, $highlighted);
+        }
+    }
+}
 
 if ($payment && (int) $payment->user_id !== $user_id) {
     $payment = null;
@@ -142,7 +154,7 @@ get_header();
       <div class="account-guest-copy">
         <span class="eyebrow"><span class="eyebrow-line"></span> اشتراک ماهانه</span>
         <h1>یک اشتراک، <span>دوره‌ها و افزونه‌ها</span></h1>
-        <p>با یک پلن به همه دوره‌های آموزشی، دانلود افزونه‌ها و قالب‌ها، لایسنس تک‌دامنه و آپدیت‌ها دسترسی داری.</p>
+        <p>اشتراک، دوره‌های علامت‌خورده «رایگان با اشتراک» را باز می‌کند. دوره‌های پرچمدار را جداگانه می‌خری.</p>
         <div class="account-guest-actions">
           <a class="button button-primary button-large" href="<?php echo esc_url(nasim_auth_url('login', nasim_subscription_url())); ?>">ورود و خرید <span>←</span></a>
           <a class="button button-outline button-large" href="<?php echo esc_url(nasim_auth_url('register', nasim_subscription_url())); ?>">ثبت‌نام رایگان</a>
@@ -150,7 +162,7 @@ get_header();
       </div>
       <ul class="account-benefit-list">
         <li><span>⬡</span><div><strong>افزونه‌ها و قالب‌ها</strong><small>دانلود ZIP با لایسنس و آپدیت</small></div></li>
-        <li><span>▶</span><div><strong>دوره‌های آموزشی</strong><small>دسترسی کامل به همه جلسات</small></div></li>
+        <li><span>▶</span><div><strong>دوره‌های اشتراکی</strong><small>دسترسی به جلسات دوره‌های «رایگان با اشتراک»</small></div></li>
         <li><span>◉</span><div><strong>هر افزونه یک دامنه</strong><small>دامنه رایگان جدا؛ دامنه اضافه فقط برای همان محصول</small></div></li>
         <li><span>↻</span><div><strong>آپدیت در طول اشتراک</strong><small>تا وقتی اشتراکت فعال باشد</small></div></li>
       </ul>
@@ -404,7 +416,7 @@ get_header();
           <span class="eyebrow">پلن‌ها</span>
           <h2><?php echo $is_active ? 'تمدید یا ارتقای اشتراک' : 'انتخاب پلن مناسب'; ?></h2>
         </div>
-        <p><?php echo $is_active ? 'خرید دوباره به انتهای اشتراک فعلی اضافه می‌شود.' : 'یک اشتراک = دوره‌ها + افزونه‌ها + لایسنس + آپدیت.'; ?></p>
+        <p><?php echo $is_active ? 'خرید دوباره به انتهای اشتراک فعلی اضافه می‌شود.' : 'اشتراک فقط دوره‌های «رایگان با اشتراک» را باز می‌کند؛ خرید جداگانه برای دوره‌های پرچمدار جداست.'; ?></p>
       </div>
       <?php endif; ?>
 
@@ -412,14 +424,18 @@ get_header();
       <div class="plan-grid">
         <?php foreach ($plans as $plan) :
             $monthly  = nasim_plan_monthly_price($plan);
-            $features = $plan['features'] ?: [
-                'دسترسی به همه دوره‌های آموزشی',
-                'دانلود افزونه‌ها و قالب‌ها',
-                'لایسنس دامنه + آپدیت در طول اشتراک',
-            ];
+            $is_purchase = in_array($plan['type'] ?? '', ['course', 'spot_course'], true);
+            $features    = $plan['features'] ?: ($is_purchase ? [
+                'دسترسی دائمی به همین دوره',
+                'پشتیبانی آکادمی',
+            ] : [
+                'دسترسی به دوره‌های «رایگان با اشتراک»',
+                'تمدید دستی بدون کسر خودکار',
+            ]);
             ?>
-        <article class="plan-card<?php echo $plan['featured'] ? ' is-featured' : ''; ?>">
+        <article class="plan-card<?php echo $plan['featured'] ? ' is-featured' : ''; ?><?php echo $is_purchase ? ' is-course-purchase' : ''; ?>">
           <?php if ($plan['featured']) : ?><span class="plan-badge">پیشنهاد ویژه</span><?php endif; ?>
+          <?php if ($is_purchase) : ?><span class="plan-badge plan-badge--purchase">خرید جداگانه</span><?php endif; ?>
           <span class="plan-duration"><?php echo esc_html(nasim_plan_duration_label($plan)); ?></span>
           <h3><?php echo esc_html($plan['title']); ?></h3>
           <div class="plan-price">

@@ -11,6 +11,7 @@ while (have_posts()) :
     $curriculum   = nasim_get_curriculum($course_id);
     $lessons      = nasim_get_course_lessons($course_id);
     $has_access   = nasim_user_has_course_access($course_id);
+    $access_label = nasim_course_access_label($course_id);
     $duration     = nasim_format_total_duration(nasim_course_total_seconds($course_id));
     $level        = get_post_meta($course_id, '_nasim_course_level', true);
     $outcomes     = nasim_split_lines(get_post_meta($course_id, '_nasim_course_outcomes', true));
@@ -19,12 +20,13 @@ while (have_posts()) :
     $free_lessons = array_values(array_filter($lessons, function ($lesson) {
         return !empty($lesson['is_free']);
     }));
+    $courses_list = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : get_post_type_archive_link('nasim_course');
     ?>
 
   <main class="container-wide course-page">
     <div class="lms-breadcrumb">
       <a href="<?php echo esc_url(home_url('/')); ?>">خانه</a><span>／</span>
-      <a href="<?php echo esc_url(get_post_type_archive_link('nasim_course')); ?>">دوره‌ها</a><span>／</span>
+      <a href="<?php echo esc_url($courses_list ?: home_url('/courses/')); ?>">دوره‌ها</a><span>／</span>
       <span><?php the_title(); ?></span>
     </div>
 
@@ -37,17 +39,18 @@ while (have_posts()) :
         <?php endif; ?>
 
         <div class="course-meta">
+          <span class="<?php echo esc_attr(nasim_course_access_badge_class($course_id)); ?>"><?php echo esc_html($access_label); ?></span>
           <span>◷ <?php echo esc_html(nasim_fa_digits(count($lessons))); ?> درس</span>
           <?php if ($duration) : ?><span>⧗ <?php echo esc_html($duration); ?></span><?php endif; ?>
           <?php if ($level) : ?><span>▱ سطح <?php echo esc_html($level); ?></span><?php endif; ?>
-          <span>♧ <?php echo $has_access ? 'دسترسی فعال' : 'دسترسی با اشتراک'; ?></span>
+          <span>♧ <?php echo $has_access ? 'دسترسی فعال' : esc_html($access_label); ?></span>
         </div>
 
         <div class="hero-actions">
           <?php if ($has_access && $next_lesson) : ?>
             <a class="button button-primary button-large" href="<?php echo esc_url(nasim_lesson_url($course_id, $next_lesson['id'])); ?>"><?php echo $progress['completed'] ? 'ادامه دوره' : 'شروع دوره'; ?> <span>←</span></a>
           <?php elseif (!$has_access) : ?>
-            <a class="button button-primary button-large" href="<?php echo esc_url(nasim_subscription_url()); ?>">خرید اشتراک و شروع <span>←</span></a>
+            <a class="button button-primary button-large" href="<?php echo esc_url(nasim_course_checkout_url($course_id)); ?>"><?php echo esc_html(nasim_course_cta_label($course_id)); ?> <span>←</span></a>
           <?php endif; ?>
           <?php if (!$has_access && $free_lessons) : ?>
             <a class="button button-outline button-large" href="<?php echo esc_url(nasim_lesson_url($course_id, $free_lessons[0]['id'])); ?>">مشاهده درس رایگان <span class="play-icon">▶</span></a>
@@ -112,7 +115,7 @@ while (have_posts()) :
             <?php endif; ?>
           </div>
         <?php else : ?>
-          <?php get_template_part('template-parts/course/subscribe-card'); ?>
+          <?php get_template_part('template-parts/course/subscribe-card', null, ['course_id' => $course_id]); ?>
         <?php endif; ?>
 
         <div class="instructor-card">

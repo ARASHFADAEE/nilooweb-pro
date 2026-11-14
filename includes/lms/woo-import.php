@@ -96,13 +96,21 @@ function nasim_woo_import_product(int $product_id, bool $create_plan = true)
         update_post_meta($course_id, '_nasim_course_delivery', 'lms');
     }
 
+    $price  = (int) $product->get_price();
+    $access = $price <= 0 ? 'free' : 'purchase';
+    // Keep an explicitly saved access mode if editor already chose subscription/free.
+    $existing_access = sanitize_key((string) get_post_meta($course_id, '_nasim_course_access_mode', true));
+    if (!in_array($existing_access, ['free', 'subscription', 'purchase'], true)) {
+        update_post_meta($course_id, '_nasim_course_access_mode', $access);
+        $existing_access = $access;
+    }
+
     $curriculum = nasim_woo_build_curriculum_from_product($product);
     if ($curriculum) {
         update_post_meta($course_id, '_nasim_curriculum', $curriculum);
     }
 
-    $price = (int) $product->get_price();
-    if ($create_plan && $price > 0) {
+    if ($create_plan && $price > 0 && 'purchase' === $existing_access) {
         $plan_id = (int) get_post_meta($course_id, '_nasim_linked_plan_id', true);
         if (!$plan_id || 'nasim_plan' !== get_post_type($plan_id)) {
             $plan_id = wp_insert_post([
@@ -117,10 +125,10 @@ function nasim_woo_import_product(int $product_id, bool $create_plan = true)
 
         if ($plan_id && !is_wp_error($plan_id)) {
             update_post_meta($plan_id, '_nasim_plan_price', $price);
-            update_post_meta($plan_id, '_nasim_plan_days', $spots ? 0 : 365);
+            update_post_meta($plan_id, '_nasim_plan_days', 0);
             update_post_meta($plan_id, '_nasim_plan_course_id', $course_id);
-            update_post_meta($plan_id, '_nasim_plan_type', $spots ? 'spot_course' : 'subscription');
-            update_post_meta($plan_id, '_nasim_plan_features', "دسترسی کامل به دوره\nپشتیبانی آکادمی");
+            update_post_meta($plan_id, '_nasim_plan_type', $spots ? 'spot_course' : 'course');
+            update_post_meta($plan_id, '_nasim_plan_features', "دسترسی دائمی به این دوره\nپشتیبانی آکادمی");
         }
     }
 

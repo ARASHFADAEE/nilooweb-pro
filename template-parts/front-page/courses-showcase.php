@@ -34,21 +34,26 @@ $archive = nasim_courses_listing_url();
             while ($courses->have_posts()) :
                 $courses->the_post();
                 $outcomes = array_filter(array_map('trim', explode("\n", (string) get_post_meta(get_the_ID(), '_nasim_course_outcomes', true))));
-                $plan_id  = (int) get_post_meta(get_the_ID(), '_nasim_linked_plan_id', true);
-                $plan     = $plan_id ? nasim_get_plan($plan_id, false) : null;
-                $buy_url  = $plan ? nasim_subscription_url(['tab' => 'plans', 'highlight' => $plan_id]) : get_permalink();
+                $cid      = (int) get_the_ID();
+                $buy_url  = function_exists('nasim_course_checkout_url') ? nasim_course_checkout_url($cid) : get_permalink($cid);
+                $cta      = function_exists('nasim_course_cta_label') ? nasim_course_cta_label($cid) : 'شروع کنید';
+                $badge    = function_exists('nasim_course_access_label') ? nasim_course_access_label($cid) : '';
+                $badge_cl = function_exists('nasim_course_access_badge_class') ? nasim_course_access_badge_class($cid) : '';
                 ?>
         <article class="home-course-card">
           <a class="home-course-media" href="<?php the_permalink(); ?>">
             <?php
             $thumb = function_exists('nasim_niloo_course_image_url')
-                ? nasim_niloo_course_image_url((int) get_the_ID(), 'large')
-                : (string) get_the_post_thumbnail_url(get_the_ID(), 'large');
+                ? nasim_niloo_course_image_url($cid, 'large')
+                : (string) get_the_post_thumbnail_url($cid, 'large');
             if ($thumb) :
                 ?>
               <img src="<?php echo esc_url($thumb); ?>" alt="<?php the_title_attribute(); ?>" loading="lazy" decoding="async">
             <?php else : ?>
               <span class="home-course-placeholder" aria-hidden="true">◆</span>
+            <?php endif; ?>
+            <?php if ($badge) : ?>
+            <span class="<?php echo esc_attr($badge_cl); ?> course-access-badge--overlay"><?php echo esc_html($badge); ?></span>
             <?php endif; ?>
           </a>
           <div class="home-course-body">
@@ -64,7 +69,7 @@ $archive = nasim_courses_listing_url();
             </ul>
             <?php endif; ?>
             <div class="home-course-actions">
-              <a class="button button-primary" href="<?php echo esc_url($buy_url); ?>">شروع کنید <span>←</span></a>
+              <a class="button button-primary" href="<?php echo esc_url($buy_url); ?>"><?php echo esc_html($cta); ?> <span>←</span></a>
               <a class="text-link" href="<?php the_permalink(); ?>">جزئیات</a>
             </div>
           </div>

@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
  * روی پرود با ووکامرس، «ایمپورت ووکامرس» شناسه اسپات و فایل‌های آموزشیار را تکمیل می‌کند.
  */
 
-define('NASIM_NILOO_COURSE_SEED_VERSION', '1');
+define('NASIM_NILOO_COURSE_SEED_VERSION', '2');
 
 /**
  * Absolute path to the bundled JSON dump.
@@ -217,6 +217,13 @@ function nasim_niloo_upsert_course(array $row): int
         : 'lms';
     update_post_meta($course_id, '_nasim_course_delivery', $delivery);
 
+    $access = sanitize_key((string) ($row['access'] ?? ''));
+    if (!in_array($access, ['free', 'subscription', 'purchase'], true)) {
+        $price_guess = (int) ($row['price'] ?? 0);
+        $access      = $price_guess <= 0 ? 'free' : 'purchase';
+    }
+    update_post_meta($course_id, '_nasim_course_access_mode', $access);
+
     if (!empty($row['spot_ids'])) {
         update_post_meta($course_id, '_nasim_spotplayer_course', sanitize_text_field((string) $row['spot_ids']));
     }
@@ -243,7 +250,8 @@ function nasim_niloo_upsert_course(array $row): int
     }
 
     $price = (int) ($row['price'] ?? 0);
-    if ($price > 0) {
+    // Only purchase-mode courses get a one-off checkout plan.
+    if ('purchase' === $access && $price > 0) {
         $plan_id = (int) get_post_meta($course_id, '_nasim_linked_plan_id', true);
         if (!$plan_id || 'nasim_plan' !== get_post_type($plan_id)) {
             $plan_id = wp_insert_post([
@@ -257,10 +265,10 @@ function nasim_niloo_upsert_course(array $row): int
         }
         if ($plan_id && !is_wp_error($plan_id)) {
             update_post_meta($plan_id, '_nasim_plan_price', $price);
-            update_post_meta($plan_id, '_nasim_plan_days', 'spot' === $delivery ? 0 : 365);
+            update_post_meta($plan_id, '_nasim_plan_days', 0);
             update_post_meta($plan_id, '_nasim_plan_course_id', $course_id);
             update_post_meta($plan_id, '_nasim_plan_type', 'spot' === $delivery ? 'spot_course' : 'course');
-            update_post_meta($plan_id, '_nasim_plan_features', "دسترسی کامل به دوره\nپشتیبانی آکادمی نیلوفر وفایی");
+            update_post_meta($plan_id, '_nasim_plan_features', "دسترسی دائمی به این دوره\nپشتیبانی آکادمی نیلوفر وفایی");
         }
     }
 

@@ -10,7 +10,7 @@ get_header();
 
     <div class="section-heading course-archive-heading">
       <div><span class="eyebrow">دوره‌های آموزشی</span><h2>قدم‌به‌قدم، <span>با برنامه‌ای روشن</span></h2></div>
-      <p>با یک اشتراک به همه دوره‌ها دسترسی داری؛ از هر کدام که با هدفت هماهنگ است شروع کن.</p>
+      <p>بعضی دوره‌ها رایگان یا داخل اشتراک‌اند؛ دوره‌های پرچمدار را جداگانه تهیه می‌کنی.</p>
     </div>
 
     <?php if (have_posts()) : ?>
@@ -28,7 +28,7 @@ get_header();
     <?php if (!nasim_has_active_subscription()) : ?>
     <section class="cta-section">
       <div class="cta-decoration"></div>
-      <div class="cta-copy"><span class="eyebrow">اشتراک ماهانه</span><h2>یک اشتراک، همه دوره‌ها.</h2><p>هر ماه با دوره‌ها، افزونه‌ها و قالب‌های جدید همراه باش.</p></div>
+      <div class="cta-copy"><span class="eyebrow">اشتراک ماهانه</span><h2>دوره‌های اشتراکی، با یک پلن.</h2><p>دوره‌های علامت‌خورده «رایگان با اشتراک» با خرید اشتراک باز می‌شوند؛ بقیه خرید جدا دارند.</p></div>
       <a class="button button-light button-large" href="<?php echo esc_url(nasim_subscription_url()); ?>">مشاهده پلن‌ها <span>←</span></a>
     </section>
     <?php endif; ?>

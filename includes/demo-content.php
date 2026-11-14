@@ -69,7 +69,7 @@ add_action('after_switch_theme', 'nasim_install_demo_testimonials');
 function nasim_default_plans() {
 
     $base = [
-        'دسترسی کامل به همه دوره‌ها و جلسات',
+        'دسترسی به دوره‌های «رایگان با اشتراک»',
         'تماشا روی موبایل، تبلت و کامپیوتر',
         'دوره‌ها و جلسات جدید بدون هزینه اضافه',
     ];

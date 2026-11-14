@@ -15,7 +15,7 @@ function nasim_customizer_sections() {
     $courses  = get_post_type_archive_link('nasim_course') ?: home_url('/courses/');
     $contact  = home_url('/contact/');
 
-    return [
+    $sections = [
 
         'nasim_content_source' => [
             'title'       => __('منبع محتوای صفحه اصلی', 'niloo-web'),

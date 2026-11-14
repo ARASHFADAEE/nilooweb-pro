@@ -78,25 +78,131 @@ function nasim_lesson_url($course_id, $lesson_id) {
 
 
 /**
- * Full course access: active subscription, a manual grant for this course, or course editor
+ * How a course is sold / unlocked.
+ *
+ * - free: open for everyone (no paywall)
+ * - subscription: unlocked only with an active subscription
+ * - purchase: must buy this course separately (Zibal plan / Spot)
+ *
+ * @return string free|subscription|purchase
+ */
+function nasim_course_access_mode($course_id) {
+
+    $mode = sanitize_key((string) get_post_meta($course_id, '_nasim_course_access_mode', true));
+
+    if (in_array($mode, ['free', 'subscription', 'purchase'], true)) {
+        return $mode;
+    }
+
+    // Legacy inference before meta was set.
+    $delivery = function_exists('nasim_course_delivery') ? nasim_course_delivery($course_id) : 'lms';
+    $plan_id  = (int) get_post_meta($course_id, '_nasim_linked_plan_id', true);
+    $price    = $plan_id ? (int) get_post_meta($plan_id, '_nasim_plan_price', true) : 0;
+
+    if ('spot' === $delivery || $price > 0) {
+        return 'purchase';
+    }
+
+    return 'subscription';
+}
+
+
+/**
+ * Short badge / label for course cards.
+ */
+function nasim_course_access_label($course_id) {
+
+    switch (nasim_course_access_mode($course_id)) {
+        case 'free':
+            return 'رایگان';
+        case 'subscription':
+            return 'رایگان با اشتراک';
+        default:
+            return 'خرید جداگانه';
+    }
+}
+
+
+/**
+ * CSS modifier for access badge.
+ */
+function nasim_course_access_badge_class($course_id) {
+
+    return 'course-access-badge course-access-badge--' . nasim_course_access_mode($course_id);
+}
+
+
+/**
+ * Full course access: mode-aware (subscription only unlocks subscription courses).
  */
 function nasim_user_has_course_access($course_id, $user_id = null) {
 
     $user_id = $user_id ?? get_current_user_id();
+    $mode    = nasim_course_access_mode($course_id);
+
+    if ('free' === $mode) {
+        return true;
+    }
 
     if (!$user_id) {
         return false;
     }
 
-    return user_can($user_id, 'edit_post', $course_id)
-        || nasim_has_active_subscription($user_id)
-        || in_array((int) $course_id, nasim_get_course_grants($user_id), true);
+    if (user_can($user_id, 'edit_post', $course_id)) {
+        return true;
+    }
+
+    if (in_array((int) $course_id, nasim_get_course_grants($user_id), true)) {
+        return true;
+    }
+
+    if ('subscription' === $mode && nasim_has_active_subscription($user_id)) {
+        return true;
+    }
+
+    return false;
 }
 
 
 function nasim_can_watch_lesson($course_id, $lesson, $user_id = null) {
 
     return !empty($lesson['is_free']) || nasim_user_has_course_access($course_id, $user_id);
+}
+
+
+/**
+ * Checkout / CTA URL for a locked course.
+ */
+function nasim_course_checkout_url($course_id) {
+
+    $mode    = nasim_course_access_mode($course_id);
+    $plan_id = (int) get_post_meta($course_id, '_nasim_linked_plan_id', true);
+
+    if ('purchase' === $mode && $plan_id) {
+        return nasim_subscription_url(['tab' => 'plans', 'highlight' => $plan_id, 'course' => $course_id]);
+    }
+
+    if ('subscription' === $mode) {
+        return nasim_subscription_url(['tab' => 'plans']);
+    }
+
+    return get_permalink($course_id);
+}
+
+
+/**
+ * Primary CTA label when the user lacks access.
+ */
+function nasim_course_cta_label($course_id) {
+
+    switch (nasim_course_access_mode($course_id)) {
+        case 'purchase':
+            return 'خرید این دوره';
+        case 'subscription':
+            return 'خرید اشتراک و شروع';
+        default:
+            return 'شروع دوره';
+    }
 }
 
 

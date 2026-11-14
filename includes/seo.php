@@ -172,6 +172,15 @@ function nasim_seo_run_migrations() {
         return;
     }
 
+    // Niloo client: Customizer defaults from client-niloo-brand — skip legacy AWC support copy migration.
+    if (defined('NASIM_FORCE_THEME_HOMEPAGE') && NASIM_FORCE_THEME_HOMEPAGE
+        && function_exists('nasim_store_enabled') && !nasim_store_enabled()) {
+        set_theme_mod('content_source', 'theme');
+        update_option('nasim_seo_migrate_v5', '1');
+
+        return;
+    }
+
     // Prefer SEO-ready theme defaults for the homepage unless the owner opts into custom copy.
     set_theme_mod('content_source', 'theme');
 

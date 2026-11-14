@@ -31,9 +31,19 @@ function nasim_render_course_details_meta_box($post) {
     </p>
     <?php
     $delivery = nasim_course_delivery($post->ID);
+    $access   = function_exists('nasim_course_access_mode') ? nasim_course_access_mode($post->ID) : 'subscription';
     $spot     = get_post_meta($post->ID, '_nasim_spotplayer_course', true);
     $wc_id    = (int) get_post_meta($post->ID, '_nasim_wc_product_id', true);
     ?>
+    <p>
+        <label for="nasim_course_access_mode"><strong><?php esc_html_e('نحوه دسترسی', 'niloo-web'); ?></strong></label>
+        <select id="nasim_course_access_mode" name="nasim_course_access_mode" class="widefat">
+            <option value="free" <?php selected($access, 'free'); ?>><?php esc_html_e('رایگان (برای همه)', 'niloo-web'); ?></option>
+            <option value="subscription" <?php selected($access, 'subscription'); ?>><?php esc_html_e('رایگان با اشتراک', 'niloo-web'); ?></option>
+            <option value="purchase" <?php selected($access, 'purchase'); ?>><?php esc_html_e('خرید جداگانه این دوره', 'niloo-web'); ?></option>
+        </select>
+        <span class="description"><?php esc_html_e('اشتراک فقط دوره‌های «رایگان با اشتراک» را باز می‌کند؛ دوره‌های خرید جداگانه باید جدا پرداخت شوند.', 'niloo-web'); ?></span>
+    </p>
     <p>
         <label for="nasim_course_delivery"><strong><?php esc_html_e('نوع تحویل', 'niloo-web'); ?></strong></label>
         <select id="nasim_course_delivery" name="nasim_course_delivery" class="widefat">
@@ -58,7 +68,7 @@ function nasim_render_curriculum_meta_box($post) {
     wp_nonce_field('nasim_save_course', 'nasim_course_nonce');
     ?>
     <div class="nasim-curriculum" id="nasimCurriculum">
-        <p class="description"><?php esc_html_e('فصل‌ها و درس‌ها را با کشیدن آیکون ⇅ مرتب کنید. کد Embed ویدیو (iframe) را از سرویس ویدیویی (آپارات، آروان، یوتیوب و...) کپی کنید. درس‌های «رایگان» برای همه قابل مشاهده‌اند و بقیه فقط برای مشترکین.', 'niloo-web'); ?></p>
+        <p class="description"><?php esc_html_e('فصل‌ها و درس‌ها را با کشیدن آیکون ⇅ مرتب کنید. کد Embed ویدیو (iframe) را از سرویس ویدیویی کپی کنید. درس‌های «رایگان» پیش‌نمایش عمومی‌اند؛ بقیه بر اساس «نحوه دسترسی» دوره (اشتراک یا خرید جدا) باز می‌شوند.', 'niloo-web'); ?></p>
 
         <div class="nasim-sections">
             <?php foreach (nasim_get_curriculum($post->ID) as $section_index => $section) : ?>
@@ -240,6 +250,13 @@ function nasim_save_course_meta($post_id) {
 
     if (isset($_POST['nasim_course_outcomes'])) {
         update_post_meta($post_id, '_nasim_course_outcomes', sanitize_textarea_field(wp_unslash($_POST['nasim_course_outcomes'])));
+    }
+
+    if (isset($_POST['nasim_course_access_mode'])) {
+        $access = sanitize_key(wp_unslash($_POST['nasim_course_access_mode']));
+        if (in_array($access, ['free', 'subscription', 'purchase'], true)) {
+            update_post_meta($post_id, '_nasim_course_access_mode', $access);
+        }
     }
 
     if (isset($_POST['nasim_course_delivery'])) {

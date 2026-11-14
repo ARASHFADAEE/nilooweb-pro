@@ -36,7 +36,12 @@ function nasim_handle_subscribe() {
         $plan['price'] * 10,
         admin_url('admin-post.php?action=nasim_zibal_callback'),
         $payment_id,
-        sprintf('اشتراک %s - %s', $plan['title'], wp_get_current_user()->user_login)
+        sprintf(
+            '%s %s - %s',
+            in_array($plan['type'] ?? '', ['course', 'spot_course'], true) ? 'خرید دوره' : 'اشتراک',
+            $plan['title'],
+            wp_get_current_user()->user_login
+        )
     );
 
     if (is_wp_error($track_id)) {
@@ -118,9 +123,17 @@ function nasim_handle_zibal_callback() {
                 nasim_add_license_activation_slot((int) $payment->user_id, 1);
             }
         } else {
-            $plan_type = (string) get_post_meta((int) $payment->plan_id, '_nasim_plan_type', true);
-            if ('spot_course' !== $plan_type && (int) $payment->duration_days > 0) {
-                nasim_extend_subscription((int) $payment->user_id, (int) $payment->duration_days, (int) $payment->plan_id);
+            $plan_id   = (int) $payment->plan_id;
+            $plan_type = (string) get_post_meta($plan_id, '_nasim_plan_type', true);
+            $course_id = (int) get_post_meta($plan_id, '_nasim_plan_course_id', true);
+
+            if (in_array($plan_type, ['course', 'spot_course'], true)) {
+                if ($course_id) {
+                    nasim_grant_course_access((int) $payment->user_id, $course_id);
+                    update_post_meta($course_id, '_nasim_course_access_mode', 'purchase');
+                }
+            } elseif ((int) $payment->duration_days > 0) {
+                nasim_extend_subscription((int) $payment->user_id, (int) $payment->duration_days, $plan_id);
             }
         }
         do_action('nasim_payment_completed', (int) $payment->id);
