@@ -185,14 +185,14 @@ function nasim_seo_run_migrations() {
     set_theme_mod('content_source', 'theme');
 
     $force_mods = [
-        'footer_tagline'         => 'پشتیبانی وردپرس، افزونه اختصاصی و رشد فروش آنلاین',
-        'footer_copyright'       => '© تمام حقوق برای آرش فدایی محفوظ است.',
-        'cta_title'              => 'خوشحالم اینجا هستی',
-        'cta_text'               => 'اگر پروژه‌ای داری، برای همکاری یا مشاوره در تلگرام @fadaeedevs پیام بده.',
-        'cta_button_text'        => 'پیام در تلگرام',
-        'cta_button_url'         => 'https://t.me/fadaeedevs',
-        'articles_eyebrow'       => 'مقالات',
-        'announcement_link_text' => 'مشاهده افزونه‌ها',
+        'footer_tagline'         => 'آموزش طراحی سایت و کسب درآمد به زبان ساده و کاربردی',
+        'footer_copyright'       => '© تمامی حقوق برای نیلوفر وفایی محفوظ می‌باشد.',
+        'cta_title'              => 'برای رشد در مسیر طراحی سایت؛ همراه ما باشید',
+        'cta_text'               => 'جدیدترین آموزش‌ها، مقالات و دوره‌ها را با ما دنبال کنید.',
+        'cta_button_text'        => '',
+        'cta_button_url'         => '',
+        'articles_eyebrow'       => 'مقالات ما',
+        'announcement_link_text' => 'عضویت در کانال بله',
     ];
 
     $fitness_markers = ['سالم‌تر', 'نیلو وب', 'تناسب', 'تمرین اصولی', 'تغذیه متعادل', 'قوی‌تر، سالم', 'مجله سلامتی', 'درباره نیلو'];
@@ -236,27 +236,28 @@ function nasim_seo_run_migrations() {
 
     // Profile-driven About section on the homepage.
     $profile = function_exists('nasim_profile') ? nasim_profile() : null;
-    $bio_url = function_exists('nasim_profile_bio_url') ? nasim_profile_bio_url() : home_url('/who-is-arash-fadaee/');
+    $bio_url = function_exists('nasim_profile_bio_url') ? nasim_profile_bio_url() : home_url('/connect/');
 
     if ($profile) {
-        set_theme_mod('about_eyebrow', 'درباره من');
-        set_theme_mod('about_title', 'سلام، من');
-        set_theme_mod('about_title_highlight', 'آرش فدایی هستم');
+        set_theme_mod('about_eyebrow', 'چرا این مسیر؟');
+        set_theme_mod('about_title', 'من');
+        set_theme_mod('about_title_highlight', ($profile['name'] ?? 'نیلوفر وفایی') . ' هستم');
         set_theme_mod('about_text', $profile['about_short']);
-        set_theme_mod('about_sticker', 'تهران · وردپرس · لاراول');
-        set_theme_mod('about_stat_1_value', 'WP');
-        set_theme_mod('about_stat_1_label', 'قالب و افزونه');
-        set_theme_mod('about_stat_2_value', 'Laravel');
-        set_theme_mod('about_stat_2_label', 'Full Stack');
-        set_theme_mod('about_stat_3_value', '۹–۱۷');
-        set_theme_mod('about_stat_3_label', 'شنبه تا چهارشنبه');
-        set_theme_mod('about_button_text', 'صفحه درباره من');
-        set_theme_mod('about_button_url', home_url('/about/'));
-        set_theme_mod('social_telegram', $profile['telegram']);
-        set_theme_mod('cta_title', 'خوشحالم اینجا هستی');
-        set_theme_mod('cta_text', 'اگر پروژه‌ای داری، برای همکاری یا مشاوره در تلگرام ' . $profile['telegram_user'] . ' پیام بده.');
-        set_theme_mod('cta_button_text', 'پیام در تلگرام');
-        set_theme_mod('cta_button_url', $profile['telegram']);
+        set_theme_mod('about_sticker', 'آموزش · طراحی سایت');
+        set_theme_mod('about_stat_1_value', '+۱۰۰۰');
+        set_theme_mod('about_stat_1_label', 'دانشجویان');
+        set_theme_mod('about_stat_2_value', '۱۰۰٪');
+        set_theme_mod('about_stat_2_label', 'پروژه‌محور');
+        set_theme_mod('about_stat_3_value', '۲۴/۷');
+        set_theme_mod('about_stat_3_label', 'پشتیبانی');
+        set_theme_mod('about_button_text', $profile['bio_label'] ?? 'درباره من');
+        set_theme_mod('about_button_url', $bio_url);
+        if (!empty($profile['telegram'])) {
+            set_theme_mod('social_telegram', $profile['telegram']);
+        }
+        if (!empty($profile['instagram'])) {
+            set_theme_mod('social_instagram', $profile['instagram']);
+        }
     }
 
     // Always sanitize customize preview leftovers on the about button.
