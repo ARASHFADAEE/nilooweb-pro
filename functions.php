@@ -98,6 +98,7 @@ include_once THEME_DIR . '/includes/seo.php';
 * Include LMS: courses, subscription plans, Zibal payments
 */
 include_once THEME_DIR . '/includes/lms/lms.php';
+include_once THEME_DIR . '/includes/niloo-posts-seed.php';
 
 
 /**

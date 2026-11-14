@@ -64,7 +64,7 @@ while (have_posts()) :
         <?php if (has_post_thumbnail()) : ?>
           <?php the_post_thumbnail('large', ['alt' => the_title_attribute(['echo' => false]), 'fetchpriority' => 'high']); ?>
         <?php else : ?>
-          <div class="course-hero-placeholder"><span class="brand-mark">N</span></div>
+          <div class="course-hero-placeholder"><span class="brand-mark">ن</span></div>
         <?php endif; ?>
         <?php if ($lessons) : ?>
         <a class="course-hero-play" href="<?php echo esc_url(nasim_lesson_url($course_id, ($next_lesson ?: ($free_lessons[0] ?? $lessons[0]))['id'])); ?>" aria-label="پخش دوره"><span>▶</span></a>

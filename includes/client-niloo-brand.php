@@ -97,13 +97,45 @@ function nasim_niloo_customizer_sections(array $sections): array
         'radio_eyebrow'                => ['label' => __('رادیو نیل: تیتر', 'niloo-web'), 'default' => 'رادیو نیل'],
         'radio_title'                  => ['label' => __('رادیو نیل: عنوان', 'niloo-web'), 'default' => 'پادکست و گفتگو'],
         'radio_title_highlight'        => ['label' => __('رادیو نیل: رنگی', 'niloo-web'), 'default' => 'در مسیر طراحی'],
-        'radio_cat'                    => ['label' => __('اسلاگ دسته مقالات رادیو', 'niloo-web'), 'default' => 'podcast'],
+        'radio_cat'                    => ['label' => __('اسلاگ دسته مقالات رادیو', 'niloo-web'), 'default' => 'radionil'],
         'radio_more_url'               => ['label' => __('لینک همه', 'niloo-web'), 'type' => 'url', 'default' => home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/')],
     ]);
 
     return $sections;
 }
 add_filter('nasim_customizer_sections', 'nasim_niloo_customizer_sections', 20);
+
+/**
+ * SEO copy for Niloo academy (overrides legacy AWC strings).
+ */
+function nasim_niloo_default_description(): string
+{
+    return 'آموزش طراحی سایت و کسب درآمد به زبان ساده و کاربردی، همراه با پروژه‌های واقعی — آکادمی نیلوفر وفایی.';
+}
+
+function nasim_niloo_filter_document_title_parts(array $parts): array
+{
+    if (empty($parts['site']) || false !== strpos((string) $parts['site'], 'آرش') || false !== stripos((string) $parts['site'], 'fadaee')) {
+        $parts['site'] = get_bloginfo('name') ?: 'نیلوفر وفایی';
+    }
+
+    return $parts;
+}
+add_filter('document_title_parts', 'nasim_niloo_filter_document_title_parts', 20);
+
+function nasim_niloo_filter_seo_hubs(array $hubs): array
+{
+    if (isset($hubs['about'])) {
+        $hubs['about'] = [
+            'title' => 'درباره نیلوفر وفایی',
+            'url'   => home_url('/connect/'),
+            'desc'  => 'مسیر آموزش طراحی سایت و ورود به بازار کار',
+        ];
+    }
+
+    return $hubs;
+}
+add_filter('nasim_seo_hubs', 'nasim_niloo_filter_seo_hubs', 30);
 
 /**
  * Public profile for niloo (about block, author).

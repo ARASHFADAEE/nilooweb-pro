@@ -68,7 +68,7 @@ function nasim_default_pages() {
         'about' => ['درباره من', function () {
             return function_exists('nasim_profile_about_page_blocks')
                 ? nasim_profile_about_page_blocks()
-                : [nasim_block_paragraph('سلام، من آرش فدایی هستم؛ فریلنسر توسعه وب و وردپرس.')];
+                : [nasim_block_paragraph('سلام، من نیلوفر وفایی هستم؛ مدرس طراحی سایت.')];
         }],
 
         'faq' => ['سوالات متداول', function () {
@@ -91,7 +91,7 @@ function nasim_default_pages() {
         'contact' => ['ارتباط با من', function () {
             return function_exists('nasim_profile_contact_page_blocks')
                 ? nasim_profile_contact_page_blocks()
-                : [nasim_block_paragraph('از طریق تلگرام @fadaeedevs با من در تماس باش.')];
+                : [nasim_block_paragraph('از صفحه معرفی یا فرم مشاوره پیام بده.')];
         }],
 
         'terms' => ['قوانین و مقررات', function () {

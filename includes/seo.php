@@ -43,19 +43,19 @@ function nasim_seo_hubs() {
             'desc'  => 'ساخت پلاگین سفارشی متناسب با فرآیند کسب‌وکار شما',
         ],
         'courses'  => [
-            'title' => 'دوره‌ها و آموزش‌ها',
+            'title' => 'دوره‌های آموزشی',
             'url'   => $courses,
-            'desc'  => 'یادگیری عملی وردپرس، سرعت و توسعه',
+            'desc'  => 'مسیر یادگیری طراحی سایت از پایه تا پروژه واقعی',
         ],
         'blog'     => [
-            'title' => 'مقالات آموزشی',
+            'title' => 'مقالات و آموزش‌ها',
             'url'   => $blog,
-            'desc'  => 'راهنماهای کاربردی برای مدیران سایت وردپرسی',
+            'desc'  => 'مقالات کاربردی طراحی سایت، وردپرس و رادیو نیل',
         ],
         'about'    => [
-            'title' => 'درباره آرش فدایی',
+            'title' => 'درباره نیلوفر وفایی',
             'url'   => function_exists('nasim_profile_bio_url') ? nasim_profile_bio_url() : $about,
-            'desc'  => 'داستان کامل از خانه ریاضیات تا فریلنسری و ساخت محصول',
+            'desc'  => 'مدرس طراحی سایت و مسیر ورود به بازار کار',
         ],
     ];
 
@@ -387,15 +387,17 @@ function nasim_seo_meta_description() {
     $description = '';
 
     if (is_front_page()) {
-        $description = 'پشتیبانی ماهانه وردپرس، توسعه افزونه اختصاصی و فروش افزونه‌های آماده توسط آرش فدایی — برای رشد پایدار سایت و فروش آنلاین.';
+        $description = function_exists('nasim_niloo_default_description')
+            ? nasim_niloo_default_description()
+            : 'آموزش طراحی سایت و کسب درآمد به زبان ساده — آکادمی نیلوفر وفایی.';
     } elseif (is_singular('post')) {
         $description = has_excerpt() ? get_the_excerpt() : wp_trim_words(wp_strip_all_tags(get_post_field('post_content')), 28, '…');
     } elseif (is_post_type_archive('nasim_product')) {
         $description = 'فروشگاه افزونه‌ها و ابزارهای وردپرس؛ راهکارهای آماده برای فروش، سرعت و اتوماسیون.';
-    } elseif (is_post_type_archive('nasim_course')) {
-        $description = 'دوره‌ها و آموزش‌های عملی وردپرس، بهینه‌سازی سرعت و توسعه.';
+    } elseif (is_post_type_archive('nasim_course') || (function_exists('nasim_courses_listing_url') && is_page())) {
+        $description = 'دوره‌های آموزش طراحی سایت از پایه تا پروژه واقعی — آکادمی نیلوفر وفایی.';
     } elseif (is_home() || nasim_is_blog_route()) {
-        $description = 'مقالات آموزشی وردپرس: سرعت، پشتیبانی، افزونه و رشد کسب‌وکار آنلاین.';
+        $description = 'مقالات آموزش طراحی سایت، وردپرس و رادیو نیل — آکادمی نیلوفر وفایی.';
     }
 
     $description = trim(wp_strip_all_tags((string) $description));
@@ -418,7 +420,9 @@ function nasim_seo_rank_math_description($description) {
     }
 
     if (is_front_page()) {
-        return 'پشتیبانی ماهانه وردپرس، توسعه افزونه اختصاصی و فروش افزونه‌های آماده توسط آرش فدایی — برای رشد پایدار سایت و فروش آنلاین.';
+        return function_exists('nasim_niloo_default_description')
+            ? nasim_niloo_default_description()
+            : 'آموزش طراحی سایت و کسب درآمد به زبان ساده — آکادمی نیلوفر وفایی.';
     }
 
     if (is_post_type_archive('nasim_product')) {
@@ -482,7 +486,7 @@ function nasim_seo_json_ld() {
 
     $graph = [];
     $home  = home_url('/');
-    $name  = get_bloginfo('name') ?: 'آرش فدایی';
+    $name  = get_bloginfo('name') ?: 'نیلوفر وفایی';
     $logo  = '';
 
     if (has_custom_logo()) {
@@ -495,7 +499,9 @@ function nasim_seo_json_ld() {
         '@id'   => $home . '#person',
         'name'  => $name,
         'url'   => $home,
-        'description' => 'توسعه‌دهنده وردپرس؛ پشتیبانی ماهانه، افزونه آماده و توسعه پلاگین اختصاصی.',
+        'description' => function_exists('nasim_niloo_default_description')
+            ? nasim_niloo_default_description()
+            : 'آموزش طراحی سایت و کسب درآمد — آکادمی نیلوفر وفایی.',
     ];
     if ($logo) {
         $person['logo'] = [

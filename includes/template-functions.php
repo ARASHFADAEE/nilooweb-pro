@@ -159,21 +159,52 @@ function nasim_section_title($prefix, $line_break = false) {
 
 
 /**
- * Site brand: custom logo when set, otherwise a text mark from the site name
+ * Theme-bundled Niloo logos (light header / dark footer).
+ */
+function nasim_theme_logo_url($variant = 'main') {
+
+    $file = 'footer' === $variant || 'white' === $variant
+        ? 'assets/images/logo-vafaei-main-w.webp'
+        : 'assets/images/logo-vafaei-main.webp';
+
+    $path = trailingslashit(get_template_directory()) . $file;
+
+    return file_exists($path) ? get_template_directory_uri() . '/' . $file : '';
+}
+
+
+/**
+ * Site brand: Customizer logo, else Niloo theme logo, else text mark.
  */
 function nasim_brand($extra_class = '') {
 
-    if (has_custom_logo()) {
+    $name     = get_bloginfo('name') ?: 'نیلوفر وفایی';
+    $home_url = is_front_page() ? '#home' : home_url('/');
+    $is_footer = false !== strpos($extra_class, 'brand-footer');
+
+    if (has_custom_logo() && !$is_footer) {
         echo get_custom_logo();
         return;
     }
 
-    $name     = get_bloginfo('name') ?: 'آرش فدایی';
-    $parts    = preg_split('/\s+/u', trim($name), 2);
-    $primary  = $parts[0] ?? $name;
+    $logo = nasim_theme_logo_url($is_footer ? 'white' : 'main');
+    if ($logo) {
+        printf(
+            '<a href="%s" class="brand brand-logo %s" aria-label="%s"><img src="%s" alt="%s" width="160" height="72" decoding="async"%s></a>',
+            esc_url($home_url),
+            esc_attr($extra_class),
+            esc_attr($name),
+            esc_url($logo),
+            esc_attr($name),
+            $is_footer ? '' : ' fetchpriority="high"'
+        );
+        return;
+    }
+
+    $parts     = preg_split('/\s+/u', trim($name), 2);
+    $primary   = $parts[0] ?? $name;
     $secondary = $parts[1] ?? '';
-    $mark     = mb_substr($primary, 0, 1);
-    $home_url = is_front_page() ? '#home' : home_url('/');
+    $mark      = mb_substr($primary, 0, 1);
     ?>
     <a href="<?php echo esc_url($home_url); ?>" class="brand <?php echo esc_attr($extra_class); ?>" aria-label="<?php echo esc_attr($name); ?>">
         <span class="brand-mark"><?php echo esc_html($mark); ?></span>

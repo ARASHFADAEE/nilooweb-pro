@@ -32,6 +32,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .site-header{position:sticky;top:0;z-index:50;background:#ffffffed;backdrop-filter:blur(16px);border-bottom:1px solid #ececf3}
 .nav-wrap{height:76px;display:flex;align-items:center;gap:38px}
 .brand{display:inline-flex;align-items:center;gap:10px;flex-shrink:0;direction:ltr}
+.brand-logo{direction:rtl}
+.brand-logo img{display:block;height:42px;width:auto;max-width:min(180px,42vw);object-fit:contain}
+.brand-footer.brand-logo img{height:46px;max-width:200px}
+.custom-logo-link{display:inline-flex;align-items:center}
+.custom-logo-link img,.custom-logo{height:42px;width:auto;max-width:min(180px,42vw);object-fit:contain}
 .brand-mark{display:grid;place-items:center;width:39px;height:39px;background:var(--purple);color:#fff;font-weight:900;font-size:25px;line-height:1;clip-path:polygon(25% 0,100% 0,75% 100%,0 100%)}
 .brand-copy{display:flex;flex-direction:column;line-height:1.15;letter-spacing:0;color:var(--ink)}
 .brand-copy strong{font-size:15px;font-weight:900}

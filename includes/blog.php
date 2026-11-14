@@ -241,7 +241,7 @@ function nasim_post_thumbnail($post = null, $size = 'medium_large') {
         return;
     }
 
-    echo '<span class="thumb-placeholder" aria-hidden="true"><span class="brand-mark">N</span></span>';
+    echo '<span class="thumb-placeholder" aria-hidden="true"><span class="brand-mark">ن</span></span>';
 }
 
 

@@ -132,7 +132,11 @@ get_header();
       <aside class="auth-aside" aria-hidden="true">
         <span class="auth-aside-ring"></span>
         <div class="auth-aside-copy">
-          <span class="brand-mark">N</span>
+          <?php if (function_exists('nasim_theme_logo_url') && nasim_theme_logo_url('white')) : ?>
+          <img src="<?php echo esc_url(nasim_theme_logo_url('white')); ?>" alt="<?php echo esc_attr(get_bloginfo('name') ?: 'نیلوفر وفایی'); ?>" width="160" height="72" decoding="async" style="height:48px;width:auto;margin-bottom:22px">
+          <?php else : ?>
+          <span class="brand-mark">ن</span>
+          <?php endif; ?>
           <h2>پشتیبانی وردپرس و افزونه‌های کاربردی، یکجا</h2>
           <ul>
             <li><span>✓</span>دسترسی به دوره‌های اشتراکی با یک پلن</li>

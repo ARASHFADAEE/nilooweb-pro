@@ -97,7 +97,7 @@ while (have_posts()) :
             <strong><?php echo esc_html($author_name); ?></strong>
             <p><?php echo esc_html($author_bio); ?></p>
             <p class="author-bio-links">
-              <a class="text-link" href="<?php echo esc_url(nasim_profile_bio_url()); ?>">آرش فدایی کیست؟</a>
+              <a class="text-link" href="<?php echo esc_url(nasim_profile_bio_url()); ?>"><?php echo esc_html(function_exists('nasim_profile') ? (nasim_profile()['bio_label'] ?? 'درباره من') : 'درباره من'); ?></a>
               <?php if ($author_id) : ?>
               <span aria-hidden="true">·</span>
               <a class="text-link" href="<?php echo esc_url(get_author_posts_url($author_id)); ?>">همه مطالب</a>

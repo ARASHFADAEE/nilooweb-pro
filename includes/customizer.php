@@ -128,8 +128,8 @@ function nasim_customizer_sections() {
                 'about_sticker'         => ['label' => __('متن برچسب روی تصویر', 'niloo-web'), 'default' => 'تهران · وردپرس · لاراول'],
                 'about_eyebrow'         => ['label' => __('تیتر کوچک', 'niloo-web'), 'default' => 'درباره من'],
                 'about_title'           => ['label' => __('عنوان', 'niloo-web'), 'default' => 'سلام، من'],
-                'about_title_highlight' => ['label' => __('عنوان رنگی', 'niloo-web'), 'default' => 'آرش فدایی هستم'],
-                'about_text'            => ['label' => __('متن', 'niloo-web'), 'type' => 'textarea', 'default' => 'فریلنسر توسعه وب در تهران با تمرکز روی پشتیبانی ماهانه وردپرس، افزونه آماده و پلاگین اختصاصی. کیفیت، پایداری و رضایت مشتری اولویت کار من است.'],
+                'about_title_highlight' => ['label' => __('عنوان رنگی', 'niloo-web'), 'default' => 'نیلوفر وفایی هستم'],
+                'about_text'            => ['label' => __('متن', 'niloo-web'), 'type' => 'textarea', 'default' => 'طراح و توسعه‌دهنده وب با سال‌ها تجربه در طراحی سایت و آموزش؛ هدفم رساندن شما از یادگیری تئوری به اجرای پروژه‌های واقعی و کسب درآمد از طراحی وب است.'],
                 'about_stat_1_value'    => ['label' => __('آمار ۱: مقدار', 'niloo-web'), 'default' => 'WP'],
                 'about_stat_1_label'    => ['label' => __('آمار ۱: عنوان', 'niloo-web'), 'default' => 'قالب و افزونه'],
                 'about_stat_2_value'    => ['label' => __('آمار ۲: مقدار', 'niloo-web'), 'default' => 'Laravel'],
@@ -168,9 +168,9 @@ function nasim_customizer_sections() {
             'fields' => [
                 'cta_eyebrow'     => ['label' => __('تیتر کوچک', 'niloo-web'), 'default' => 'شروع همکاری'],
                 'cta_title'       => ['label' => __('عنوان', 'niloo-web'), 'default' => 'برای پشتیبانی یا افزونه اختصاصی آماده‌ای؟'],
-                'cta_text'        => ['label' => __('متن', 'niloo-web'), 'default' => 'در تلگرام @fadaeedevs پیام بده؛ درباره محدوده کار و زمان‌بندی شفاف توافق می‌کنیم.'],
-                'cta_button_text' => ['label' => __('متن دکمه', 'niloo-web'), 'default' => 'پیام در تلگرام'],
-                'cta_button_url'  => ['label' => __('آدرس دکمه', 'niloo-web'), 'type' => 'url', 'default' => 'https://t.me/fadaeedevs'],
+                'cta_text'        => ['label' => __('متن', 'niloo-web'), 'default' => 'جدیدترین آموزش‌ها، مقالات و دوره‌ها را با ما دنبال کنید.'],
+                'cta_button_text' => ['label' => __('متن دکمه', 'niloo-web'), 'default' => ''],
+                'cta_button_url'  => ['label' => __('آدرس دکمه', 'niloo-web'), 'type' => 'url', 'default' => ''],
             ],
         ],
 
@@ -178,9 +178,9 @@ function nasim_customizer_sections() {
             'title'  => __('فوتر', 'niloo-web'),
             'fields' => [
                 'footer_tagline'   => ['label' => __('شعار', 'niloo-web'), 'default' => 'پشتیبانی وردپرس، افزونه اختصاصی و رشد فروش آنلاین'],
-                'footer_copyright' => ['label' => __('متن کپی‌رایت', 'niloo-web'), 'default' => '© تمام حقوق برای آرش فدایی محفوظ است.'],
-                'social_instagram' => ['label' => __('لینک اینستاگرام', 'niloo-web'), 'type' => 'url', 'default' => ''],
-                'social_telegram'  => ['label' => __('لینک تلگرام', 'niloo-web'), 'type' => 'url', 'default' => 'https://t.me/fadaeedevs'],
+                'footer_copyright' => ['label' => __('متن کپی‌رایت', 'niloo-web'), 'default' => '© تمامی حقوق برای نیلوفر وفایی محفوظ می‌باشد.'],
+                'social_instagram' => ['label' => __('لینک اینستاگرام', 'niloo-web'), 'type' => 'url', 'default' => 'https://www.instagram.com/niloofarvafaei'],
+                'social_telegram'  => ['label' => __('لینک تلگرام', 'niloo-web'), 'type' => 'url', 'default' => ''],
             ],
         ],
     ];
