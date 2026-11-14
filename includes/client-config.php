@@ -112,18 +112,19 @@ function nasim_is_built_with_elementor(int $post_id = 0): bool
  */
 function nasim_use_theme_front_sections(): bool
 {
+    $page_id = (int) get_option('page_on_front');
+
+    // Elementor-built homepage uses Niloo widgets — never force PHP sections over it.
+    if ($page_id && nasim_is_built_with_elementor($page_id)) {
+        return (bool) apply_filters('nasim_use_theme_front_sections', false);
+    }
+
     if (defined('NASIM_FORCE_THEME_HOMEPAGE') && NASIM_FORCE_THEME_HOMEPAGE) {
         return (bool) apply_filters('nasim_use_theme_front_sections', true);
     }
 
-    $page_id = (int) get_option('page_on_front');
-
     if (!$page_id) {
         return (bool) apply_filters('nasim_use_theme_front_sections', true);
-    }
-
-    if (nasim_is_built_with_elementor($page_id)) {
-        return false;
     }
 
     $content = (string) get_post_field('post_content', $page_id);

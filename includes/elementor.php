@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Elementor compatibility: wide alignment, minimal theme chrome on builder pages.
+ * Elementor compatibility: wide alignment, canvas shell, Niloo widgets.
  */
 function nasim_elementor_theme_setup(): void
 {
@@ -40,7 +40,7 @@ function nasim_elementor_should_render_theme_shell(): bool
         return true;
     }
 
-    $post_id = get_queried_object_id();
+    $post_id  = get_queried_object_id();
     $template = (string) get_page_template_slug($post_id);
 
     if (in_array($template, ['elementor_canvas', 'elementor_header_footer'], true)) {
@@ -49,3 +49,8 @@ function nasim_elementor_should_render_theme_shell(): bool
 
     return true;
 }
+
+/**
+ * Load Niloo Elementor widgets (courses, articles, radio, hero, …).
+ */
+require_once THEME_DIR . '/includes/elementor/bootstrap.php';
