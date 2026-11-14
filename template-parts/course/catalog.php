@@ -21,28 +21,6 @@ $access_tabs = [
 $has_active = ('all' !== $filters['access']) || $filters['cat'] || $filters['level'] || $filters['q'] || ('featured' !== $filters['sort']);
 ?>
 <main class="course-catalog" id="course-catalog">
-  <header class="catalog-hero">
-    <div class="container-wide catalog-hero-inner">
-      <nav class="lms-breadcrumb catalog-crumb" aria-label="مسیر">
-        <a href="<?php echo esc_url(home_url('/')); ?>">خانه</a><span>／</span><span>دوره‌ها</span>
-      </nav>
-      <div class="catalog-hero-copy">
-        <span class="catalog-kicker">آکادمی نیلوفر وفایی</span>
-        <h1>کاتالوگ <em>دوره‌ها</em></h1>
-        <p>مسیرت را فیلتر کن: رایگان شروع کن، با اشتراک ادامه بده، یا دوره‌های پرچمدار را یک‌بار بخر.</p>
-      </div>
-      <div class="catalog-hero-stats" aria-label="آمار دوره‌ها">
-        <?php foreach (['free' => 'رایگان', 'subscription' => 'اشتراک', 'purchase' => 'خرید'] as $key => $label) : ?>
-        <a class="catalog-stat<?php echo $filters['access'] === $key ? ' is-active' : ''; ?>" href="<?php echo esc_url(nasim_course_catalog_url(['access' => $key, 'paged' => 1])); ?>">
-          <strong><?php echo esc_html(nasim_fa_digits($stats[$key])); ?></strong>
-          <small><?php echo esc_html($label); ?></small>
-        </a>
-        <?php endforeach; ?>
-      </div>
-    </div>
-    <div class="catalog-hero-glow" aria-hidden="true"></div>
-  </header>
-
   <div class="container-wide catalog-shell">
     <aside class="catalog-aside" aria-label="فیلتر دوره‌ها">
       <form id="catalogAsidePanel" class="catalog-filters" method="get" action="<?php echo esc_url(function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : home_url('/courses/')); ?>">
