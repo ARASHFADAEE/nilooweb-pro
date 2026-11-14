@@ -91,14 +91,16 @@ while (have_posts()) :
     <header class="course-hero-band">
       <div class="container-wide course-hero-band-inner">
         <nav class="course-breadcrumb" aria-label="مسیر صفحه">
-          <a href="<?php echo esc_url(home_url('/')); ?>">خانه</a>
-          <span aria-hidden="true">/</span>
-          <a href="<?php echo esc_url($courses_list ?: home_url('/courses/')); ?>">دوره‌ها</a>
-          <span aria-hidden="true">/</span>
-          <span><?php the_title(); ?></span>
+          <div class="course-breadcrumb-track">
+            <a href="<?php echo esc_url(home_url('/')); ?>">خانه</a>
+            <span aria-hidden="true">/</span>
+            <a href="<?php echo esc_url($courses_list ?: home_url('/courses/')); ?>">دوره‌ها</a>
+            <span aria-hidden="true">/</span>
+            <span class="course-breadcrumb-current"><?php the_title(); ?></span>
+          </div>
         </nav>
 
-        <div class="course-hero-top">
+        <div class="course-hero-stage">
           <div class="course-hero-copy">
             <span class="course-type-badge">
               <span aria-hidden="true">▶</span>
@@ -156,37 +158,17 @@ while (have_posts()) :
             </div>
           </div>
 
-          <aside class="course-hero-panel" aria-label="خرید یا پیشرفت دوره">
-            <?php if ($has_access) : ?>
-              <div class="course-progress-card course-progress-card--hero">
-                <div class="progress-top">
-                  <strong>پیشرفت دوره</strong>
-                  <span><?php echo esc_html(nasim_fa_digits($progress['percent'])); ?>٪</span>
-                </div>
-                <div class="progress-track"><span style="width:<?php echo esc_attr($progress['percent']); ?>%"></span></div>
-                <small><?php echo esc_html(nasim_fa_digits($progress['completed']) . ' از ' . nasim_fa_digits($progress['total'])); ?> درس تکمیل شده</small>
-                <?php if ($next_lesson) : ?>
-                <a class="button button-primary course-aside-button" href="<?php echo esc_url(nasim_lesson_url($course_id, $next_lesson['id'])); ?>">
-                  <?php echo !empty($progress['completed']) ? 'ادامه یادگیری' : 'شروع یادگیری'; ?> <span>←</span>
-                </a>
-                <?php endif; ?>
-              </div>
+          <div class="course-hero-preview<?php echo has_post_thumbnail() ? ' has-image' : ''; ?>">
+            <?php if (has_post_thumbnail()) : ?>
+              <?php the_post_thumbnail('large', ['alt' => the_title_attribute(['echo' => false]), 'fetchpriority' => 'high']); ?>
             <?php else : ?>
-              <?php get_template_part('template-parts/course/subscribe-card', null, ['course_id' => $course_id, 'variant' => 'hero']); ?>
+              <div class="course-hero-placeholder"><span class="brand-mark">ن</span></div>
             <?php endif; ?>
-          </aside>
-        </div>
-
-        <div class="course-hero-preview<?php echo has_post_thumbnail() ? ' has-image' : ''; ?>">
-          <?php if (has_post_thumbnail()) : ?>
-            <?php the_post_thumbnail('large', ['alt' => the_title_attribute(['echo' => false]), 'fetchpriority' => 'high']); ?>
-          <?php else : ?>
-            <div class="course-hero-placeholder"><span class="brand-mark">ن</span></div>
-          <?php endif; ?>
-          <?php if ($preview_url) : ?>
-          <a class="course-hero-play" href="<?php echo esc_url($preview_url); ?>" aria-label="پیش‌نمایش دوره"><span>▶</span></a>
-          <span class="course-hero-preview-label">پیش‌نمایش دوره</span>
-          <?php endif; ?>
+            <?php if ($preview_url) : ?>
+            <a class="course-hero-play" href="<?php echo esc_url($preview_url); ?>" aria-label="پیش‌نمایش دوره"><span>▶</span></a>
+            <span class="course-hero-preview-label">پیش‌نمایش دوره</span>
+            <?php endif; ?>
+          </div>
         </div>
       </div>
     </header>
@@ -206,85 +188,85 @@ while (have_posts()) :
       </div>
     </nav>
 
-    <div class="container-wide course-sale-body">
-      <section class="course-glance" id="glance" aria-labelledby="glance-title">
-        <div class="course-glance-head">
-          <span class="course-kicker">در یک نگاه</span>
-          <h2 id="glance-title">همه‌چیز، پیش از شروع.</h2>
-        </div>
-        <div class="course-glance-grid">
-          <?php if ($duration) : ?>
-          <article>
-            <small>زمان آموزش</small>
-            <strong><?php echo esc_html($duration); ?></strong>
-          </article>
-          <?php endif; ?>
-          <article>
-            <small>سرفصل‌ها</small>
-            <strong><?php echo esc_html(nasim_fa_digits($section_count)); ?> فصل</strong>
-          </article>
-          <article>
-            <small>جلسات</small>
-            <strong><?php echo esc_html(nasim_fa_digits($lesson_count)); ?> درس</strong>
-          </article>
-          <?php if ($level) : ?>
-          <article>
-            <small>سطح</small>
-            <strong><?php echo esc_html($level); ?></strong>
-          </article>
-          <?php endif; ?>
-        </div>
-      </section>
-
-      <section class="course-block" id="intro">
-        <span class="course-kicker">معرفی دوره</span>
-        <h2>آن‌چه یاد می‌گیری و می‌سازی</h2>
-        <?php if ($outcomes) : ?>
-        <ul class="outcome-list">
-          <?php foreach ($outcomes as $outcome) : ?>
-          <li><span>✓</span><?php echo esc_html($outcome); ?></li>
-          <?php endforeach; ?>
-        </ul>
-        <?php endif; ?>
-        <?php if (get_the_content()) : ?>
-        <div class="course-content"><?php the_content(); ?></div>
-        <?php elseif (!$outcomes) : ?>
-        <p class="course-empty-copy">توضیحات این دوره به‌زودی تکمیل می‌شود.</p>
-        <?php endif; ?>
-      </section>
-
-      <?php if ($curriculum) : ?>
-      <section class="course-block" id="curriculum">
-        <div class="course-block-heading">
-          <div>
-            <span class="course-kicker">سرفصل‌ها</span>
-            <h2>مسیرت، جلسه به جلسه.</h2>
+    <div class="container-wide course-sale-shell">
+      <div class="course-sale-body">
+        <section class="course-glance" id="glance" aria-labelledby="glance-title">
+          <div class="course-glance-head">
+            <span class="course-kicker">در یک نگاه</span>
+            <h2 id="glance-title">همه‌چیز، پیش از شروع.</h2>
           </div>
-          <span><?php echo esc_html(nasim_fa_digits($section_count) . ' سرفصل · ' . nasim_fa_digits($lesson_count) . ' جلسه' . ($duration ? ' · ' . $duration : '')); ?></span>
-        </div>
-        <?php get_template_part('template-parts/course/curriculum', null, ['course_id' => $course_id, 'curriculum' => $curriculum]); ?>
-      </section>
-      <?php endif; ?>
-
-      <section class="course-block course-instructor-block" id="instructor">
-        <span class="course-kicker">مدرس</span>
-        <h2>مدرست را بشناس.</h2>
-        <div class="course-instructor-panel">
-          <div class="course-instructor-avatar" aria-hidden="true"><?php echo esc_html(mb_substr($instructor, 0, 1)); ?></div>
-          <div class="course-instructor-copy">
-            <strong><?php echo esc_html($instructor); ?></strong>
-            <?php if ($role) : ?><small><?php echo esc_html($role); ?></small><?php endif; ?>
-            <?php if ($about_short) : ?><p><?php echo esc_html($about_short); ?></p><?php endif; ?>
-            <a class="text-link" href="<?php echo esc_url($bio_url); ?>">معرفی کامل ←</a>
+          <div class="course-glance-grid">
+            <?php if ($duration) : ?>
+            <article>
+              <small>زمان آموزش</small>
+              <strong><?php echo esc_html($duration); ?></strong>
+            </article>
+            <?php endif; ?>
+            <article>
+              <small>سرفصل‌ها</small>
+              <strong><?php echo esc_html(nasim_fa_digits($section_count)); ?> فصل</strong>
+            </article>
+            <article>
+              <small>جلسات</small>
+              <strong><?php echo esc_html(nasim_fa_digits($lesson_count)); ?> درس</strong>
+            </article>
+            <?php if ($level) : ?>
+            <article>
+              <small>سطح</small>
+              <strong><?php echo esc_html($level); ?></strong>
+            </article>
+            <?php endif; ?>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <?php if (!$has_access) : ?>
-      <section class="course-block course-enroll-block" id="enroll">
-        <span class="course-kicker">ثبت‌نام</span>
-        <h2>همین حالا شروع کن.</h2>
-        <div class="course-enroll-layout">
+        <section class="course-block" id="intro">
+          <span class="course-kicker">معرفی دوره</span>
+          <h2>آن‌چه یاد می‌گیری و می‌سازی</h2>
+          <?php if ($outcomes) : ?>
+          <ul class="outcome-list">
+            <?php foreach ($outcomes as $outcome) : ?>
+            <li><span>✓</span><?php echo esc_html($outcome); ?></li>
+            <?php endforeach; ?>
+          </ul>
+          <?php endif; ?>
+          <?php if (get_the_content()) : ?>
+          <div class="course-content"><?php the_content(); ?></div>
+          <?php elseif (!$outcomes) : ?>
+          <p class="course-empty-copy">توضیحات این دوره به‌زودی تکمیل می‌شود.</p>
+          <?php endif; ?>
+        </section>
+
+        <?php if ($curriculum) : ?>
+        <section class="course-block" id="curriculum">
+          <div class="course-block-heading">
+            <div>
+              <span class="course-kicker">سرفصل‌ها</span>
+              <h2>مسیرت، جلسه به جلسه.</h2>
+            </div>
+            <span><?php echo esc_html(nasim_fa_digits($section_count) . ' سرفصل · ' . nasim_fa_digits($lesson_count) . ' جلسه' . ($duration ? ' · ' . $duration : '')); ?></span>
+          </div>
+          <?php get_template_part('template-parts/course/curriculum', null, ['course_id' => $course_id, 'curriculum' => $curriculum]); ?>
+        </section>
+        <?php endif; ?>
+
+        <section class="course-block course-instructor-block" id="instructor">
+          <span class="course-kicker">مدرس</span>
+          <h2>مدرست را بشناس.</h2>
+          <div class="course-instructor-panel">
+            <div class="course-instructor-avatar" aria-hidden="true"><?php echo esc_html(mb_substr($instructor, 0, 1)); ?></div>
+            <div class="course-instructor-copy">
+              <strong><?php echo esc_html($instructor); ?></strong>
+              <?php if ($role) : ?><small><?php echo esc_html($role); ?></small><?php endif; ?>
+              <?php if ($about_short) : ?><p><?php echo esc_html($about_short); ?></p><?php endif; ?>
+              <a class="text-link" href="<?php echo esc_url($bio_url); ?>">معرفی کامل ←</a>
+            </div>
+          </div>
+        </section>
+
+        <?php if (!$has_access) : ?>
+        <section class="course-block course-enroll-block" id="enroll">
+          <span class="course-kicker">ثبت‌نام</span>
+          <h2>همین حالا شروع کن.</h2>
           <div class="course-enroll-copy">
             <p>با یک‌بار پرداخت، به همه جلسات این دوره دسترسی دائمی می‌گیری و پشتیبانی آکادمی همراهت است.</p>
             <ul>
@@ -292,24 +274,46 @@ while (have_posts()) :
               <li><span>✓</span> پرداخت امن از درگاه بانکی</li>
               <li><span>✓</span> پشتیبانی از طریق پنل کاربری</li>
             </ul>
+            <button type="button" class="button button-primary button-large" data-express-open>
+              <?php echo esc_html(nasim_course_cta_label($course_id)); ?> <span>←</span>
+            </button>
           </div>
-          <?php get_template_part('template-parts/course/subscribe-card', null, ['course_id' => $course_id, 'variant' => 'enroll']); ?>
-        </div>
-      </section>
-      <?php endif; ?>
+        </section>
+        <?php endif; ?>
 
-      <section class="course-block" id="faq">
-        <span class="course-kicker">سؤالات پرتکرار</span>
-        <h2>قبل از ثبت‌نام، این‌ها را بدان.</h2>
-        <div class="course-faq">
-          <?php foreach ($faqs as $i => $item) : ?>
-          <details class="course-faq-item" <?php echo 0 === $i ? 'open' : ''; ?>>
-            <summary><?php echo esc_html($item['q']); ?></summary>
-            <p><?php echo esc_html($item['a']); ?></p>
-          </details>
-          <?php endforeach; ?>
-        </div>
-      </section>
+        <section class="course-block" id="faq">
+          <span class="course-kicker">سؤالات پرتکرار</span>
+          <h2>قبل از ثبت‌نام، این‌ها را بدان.</h2>
+          <div class="course-faq">
+            <?php foreach ($faqs as $i => $item) : ?>
+            <details class="course-faq-item" <?php echo 0 === $i ? 'open' : ''; ?>>
+              <summary><?php echo esc_html($item['q']); ?></summary>
+              <p><?php echo esc_html($item['a']); ?></p>
+            </details>
+            <?php endforeach; ?>
+          </div>
+        </section>
+      </div>
+
+      <aside class="course-sale-aside" aria-label="خرید یا پیشرفت دوره">
+        <?php if ($has_access) : ?>
+          <div class="course-progress-card course-progress-card--hero">
+            <div class="progress-top">
+              <strong>پیشرفت دوره</strong>
+              <span><?php echo esc_html(nasim_fa_digits($progress['percent'])); ?>٪</span>
+            </div>
+            <div class="progress-track"><span style="width:<?php echo esc_attr($progress['percent']); ?>%"></span></div>
+            <small><?php echo esc_html(nasim_fa_digits($progress['completed']) . ' از ' . nasim_fa_digits($progress['total'])); ?> درس تکمیل شده</small>
+            <?php if ($next_lesson) : ?>
+            <a class="button button-primary course-aside-button" href="<?php echo esc_url(nasim_lesson_url($course_id, $next_lesson['id'])); ?>">
+              <?php echo !empty($progress['completed']) ? 'ادامه یادگیری' : 'شروع یادگیری'; ?> <span>←</span>
+            </a>
+            <?php endif; ?>
+          </div>
+        <?php else : ?>
+          <?php get_template_part('template-parts/course/subscribe-card', null, ['course_id' => $course_id, 'variant' => 'aside']); ?>
+        <?php endif; ?>
+      </aside>
     </div>
   </main>
 
