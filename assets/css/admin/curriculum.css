@@ -1,0 +1,24 @@
+.nasim-curriculum .description{margin:4px 0 14px}
+.nasim-sections{display:grid;gap:14px;margin-bottom:12px}
+.nasim-section{border:1px solid #dcdcde;border-radius:8px;background:#f6f7f7;padding:12px}
+.nasim-section-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.nasim-section-title{flex:1;font-weight:600;font-size:14px}
+.nasim-handle{cursor:move;color:#8c8f94}
+.nasim-lessons{display:grid;gap:8px;margin-bottom:10px}
+.nasim-lesson{background:#fff;border:1px solid #dcdcde;border-radius:6px}
+.nasim-lesson>summary{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;list-style:none}
+.nasim-lesson>summary::-webkit-details-marker{display:none}
+.nasim-lesson[open]>summary{border-bottom:1px solid #f0f0f1}
+.nasim-lesson-preview{font-weight:600;flex:1}
+.nasim-lesson-badges{display:flex;gap:5px}
+.nasim-badge{font-size:11px;background:#f0f0f1;border-radius:20px;padding:1px 8px;color:#50575e}
+.nasim-badge-free{background:#e7f7ed;color:#1a7f37}
+.nasim-badge-warning{background:#fcf0e1;color:#9a6700}
+.nasim-lesson-body{display:grid;gap:10px;padding:12px}
+.nasim-lesson-body label{display:grid;gap:4px;font-weight:600;font-size:12px}
+.nasim-lesson-body input[type=text],.nasim-lesson-body input[type=url],.nasim-lesson-body textarea{width:100%;font-weight:400}
+.nasim-lesson-body .nasim-checkbox{display:flex;align-items:center;gap:6px}
+.nasim-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.nasim-col-2{grid-column:span 2}
+.nasim-section.ui-sortable-helper,.nasim-lesson.ui-sortable-helper{box-shadow:0 6px 18px rgba(0,0,0,.12)}
+@media(max-width:782px){.nasim-grid{grid-template-columns:1fr}.nasim-col-2{grid-column:auto}}

@@ -1,0 +1,11 @@
+{
+  "name": "nasim-fitness-theme",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/src/app.css -o ./assets/css/app.css --minify",
+    "watch:css": "tailwindcss -i ./assets/src/app.css -o ./assets/css/app.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}
