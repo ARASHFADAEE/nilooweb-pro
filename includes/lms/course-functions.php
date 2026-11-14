@@ -179,7 +179,13 @@ function nasim_course_checkout_url($course_id) {
     $plan_id = (int) get_post_meta($course_id, '_nasim_linked_plan_id', true);
 
     if ('purchase' === $mode && $plan_id) {
-        return nasim_subscription_url(['tab' => 'plans', 'highlight' => $plan_id, 'course' => $course_id]);
+        // Dedicated course-buy mode — never open as generic monthly subscription.
+        return nasim_subscription_url([
+            'tab'       => 'plans',
+            'highlight' => $plan_id,
+            'course'    => (int) $course_id,
+            'buy'       => 'course',
+        ]);
     }
 
     if ('subscription' === $mode) {
