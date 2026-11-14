@@ -129,16 +129,12 @@ function nasim_course_access_badge_class($course_id) {
 
 
 /**
- * Full course access: free for all, otherwise requires a purchase grant.
+ * Full course access: free courses require login; paid courses require a purchase grant.
  */
 function nasim_user_has_course_access($course_id, $user_id = null) {
 
     $user_id = $user_id ?? get_current_user_id();
     $mode    = nasim_course_access_mode($course_id);
-
-    if ('free' === $mode) {
-        return true;
-    }
 
     if (!$user_id) {
         return false;
@@ -148,13 +144,60 @@ function nasim_user_has_course_access($course_id, $user_id = null) {
         return true;
     }
 
+    if ('free' === $mode) {
+        return true;
+    }
+
     return in_array((int) $course_id, nasim_get_course_grants($user_id), true);
 }
 
 
+/**
+ * LMS playback always requires a logged-in account.
+ * Free lessons are open to any member; other lessons need full course access.
+ */
 function nasim_can_watch_lesson($course_id, $lesson, $user_id = null) {
 
+    $user_id = $user_id ?? get_current_user_id();
+    if (!$user_id) {
+        return false;
+    }
+
     return !empty($lesson['is_free']) || nasim_user_has_course_access($course_id, $user_id);
+}
+
+
+/**
+ * First lesson URL for a course (falls back to the sale page).
+ */
+function nasim_course_first_lesson_url($course_id): string
+{
+    $lessons = nasim_get_course_lessons($course_id);
+    if ($lessons) {
+        return nasim_lesson_url($course_id, $lessons[0]['id']);
+    }
+
+    return (string) get_permalink($course_id);
+}
+
+
+/**
+ * Start / continue URL: LMS for members, auth gate for guests (then back into LMS).
+ */
+function nasim_course_start_url($course_id): string
+{
+    $dest = nasim_course_first_lesson_url($course_id);
+
+    if (is_user_logged_in()) {
+        $next = nasim_next_lesson_to_watch($course_id);
+        return $next ? nasim_lesson_url($course_id, $next['id']) : $dest;
+    }
+
+    if (function_exists('nasim_auth_url')) {
+        return nasim_auth_url('login', $dest);
+    }
+
+    return wp_login_url($dest);
 }
 
 
@@ -184,7 +227,11 @@ function nasim_course_checkout_url($course_id) {
  */
 function nasim_course_cta_label($course_id) {
 
-    return 'free' === nasim_course_access_mode($course_id) ? 'شروع دوره' : 'خرید این دوره';
+    if ('free' === nasim_course_access_mode($course_id)) {
+        return is_user_logged_in() ? 'شروع دوره' : 'ورود و شروع رایگان';
+    }
+
+    return 'خرید این دوره';
 }
 
 
@@ -344,6 +391,72 @@ function nasim_embed_allowed_html() {
             'src'  => true,
             'type' => true,
         ],
+    ];
+}
+
+
+/**
+ * First free lesson that has playable embed markup.
+ *
+ * @return array<string,mixed>|null
+ */
+function nasim_course_first_free_preview_lesson(int $course_id): ?array
+{
+    foreach (nasim_get_course_lessons($course_id) as $lesson) {
+        if (empty($lesson['is_free'])) {
+            continue;
+        }
+        $embed = trim((string) ($lesson['embed'] ?? ''));
+        if ('' !== $embed) {
+            return $lesson;
+        }
+    }
+
+    return null;
+}
+
+
+/**
+ * Public trailer / preview media for the course sale page (never requires LMS access).
+ *
+ * Priority: course trailer meta → first free lesson embed.
+ *
+ * @return array{html:string,use_plyr:bool}|null
+ */
+function nasim_course_preview_media(int $course_id): ?array
+{
+    $trailer = trim((string) get_post_meta($course_id, '_nasim_course_preview_embed', true));
+    if ('' !== $trailer) {
+        $normalized = nasim_normalize_lesson_embed($trailer);
+        if ('' === $normalized) {
+            return null;
+        }
+
+        $fake_lesson = ['embed' => $normalized];
+        $html        = nasim_render_lesson_player_html($course_id, $fake_lesson);
+        if ('' === $html) {
+            $html = wp_kses($normalized, nasim_embed_allowed_html());
+        }
+
+        return [
+            'html'     => $html,
+            'use_plyr' => nasim_lesson_uses_plyr($course_id, $fake_lesson),
+        ];
+    }
+
+    $lesson = nasim_course_first_free_preview_lesson($course_id);
+    if (!$lesson) {
+        return null;
+    }
+
+    $html = nasim_render_lesson_player_html($course_id, $lesson);
+    if ('' === $html) {
+        return null;
+    }
+
+    return [
+        'html'     => $html,
+        'use_plyr' => nasim_lesson_uses_plyr($course_id, $lesson),
     ];
 }
 

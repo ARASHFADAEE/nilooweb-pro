@@ -81,7 +81,6 @@ $account_label = is_user_logged_in() ? 'ورود به پنل کاربری' : 'و
         <a class="button button-primary nav-drawer-auth" href="<?php echo esc_url(nasim_subscription_url()); ?>">ورود به پنل کاربری</a>
         <?php else : ?>
         <a class="button button-primary nav-drawer-auth" href="<?php echo esc_url($auth_url); ?>">ورود / ثبت‌نام</a>
-        <a class="nav-drawer-auth-secondary" href="<?php echo esc_url(function_exists('nasim_auth_url') ? nasim_auth_url('register') : $auth_url); ?>">حساب جدید بساز</a>
         <?php endif; ?>
       </div>
     </div>

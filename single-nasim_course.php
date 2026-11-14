@@ -29,26 +29,32 @@ while (have_posts()) :
     $role         = $profile['role'] ?? 'مدرس دوره';
     $about_short  = $profile['about_short'] ?? ($profile['author_bio'] ?? '');
     $delivery     = function_exists('nasim_course_delivery') ? nasim_course_delivery($course_id) : 'lms';
+    $access_mode  = function_exists('nasim_course_access_mode') ? nasim_course_access_mode($course_id) : 'purchase';
+    $is_free_course = 'free' === $access_mode;
+    $lesson_dest  = function_exists('nasim_course_first_lesson_url') ? nasim_course_first_lesson_url($course_id) : get_permalink($course_id);
+    $start_url    = function_exists('nasim_course_start_url') ? nasim_course_start_url($course_id) : $lesson_dest;
     $plan_id      = (int) get_post_meta($course_id, '_nasim_linked_plan_id', true);
     $plan         = $plan_id ? nasim_get_plan($plan_id, false) : null;
-    $price        = $plan ? (int) $plan['price'] : 0;
-    $preview_url  = $next_lesson
-        ? nasim_lesson_url($course_id, $next_lesson['id'])
-        : ($free_lessons
-            ? nasim_lesson_url($course_id, $free_lessons[0]['id'])
-            : ($lessons ? nasim_lesson_url($course_id, $lessons[0]['id']) : ''));
+    $price          = $plan ? (int) $plan['price'] : 0;
+    $preview_media  = function_exists('nasim_course_preview_media') ? nasim_course_preview_media($course_id) : null;
+    $has_preview    = is_array($preview_media) && !empty($preview_media['html']);
+    $preview_plyr   = $has_preview && !empty($preview_media['use_plyr']);
 
     $section_count = count($curriculum);
     $lesson_count  = count($lessons);
 
     $faqs = [
         [
-            'q' => 'بعد از خرید چطور به دوره دسترسی پیدا می‌کنم؟',
-            'a' => 'بلافاصله بعد از پرداخت موفق، حسابت فعال می‌شود و می‌توانی از همین صفحه یا پنل کاربری وارد درس‌ها شوی.',
+            'q' => $is_free_course ? 'چطور دوره رایگان را شروع کنم؟' : 'بعد از خرید چطور به دوره دسترسی پیدا می‌کنم؟',
+            'a' => $is_free_course
+                ? 'با ورود یا ساخت حساب، بلافاصله به پلیر دوره (LMS) دسترسی پیدا می‌کنی و می‌توانی جلسات را تماشا کنی.'
+                : 'بلافاصله بعد از پرداخت موفق، حسابت فعال می‌شود و می‌توانی از همین صفحه یا پنل کاربری وارد درس‌ها شوی.',
         ],
         [
             'q' => 'مدت دسترسی به دوره چقدر است؟',
-            'a' => 'با خرید این دوره، دسترسی دائمی به محتوای همین دوره برای حساب تو باز می‌ماند.',
+            'a' => $is_free_course
+                ? 'تا وقتی حسابت فعال باشد، به این دوره رایگان دسترسی داری.'
+                : 'با خرید این دوره، دسترسی دائمی به محتوای همین دوره برای حساب تو باز می‌ماند.',
         ],
         [
             'q' => 'محتوای دوره چطور ارائه می‌شود؟',
@@ -62,7 +68,7 @@ while (have_posts()) :
         ],
     ];
 
-    if ($price > 0) {
+    if (!$is_free_course && $price > 0) {
         array_unshift($faqs, [
             'q' => 'هزینه دوره چقدر است؟',
             'a' => sprintf('قیمت این دوره %s است و پرداخت از طریق درگاه امن انجام می‌شود.', nasim_format_price($price)),
@@ -102,10 +108,6 @@ while (have_posts()) :
 
         <div class="course-hero-stage">
           <div class="course-hero-copy">
-            <span class="course-type-badge">
-              <span aria-hidden="true">▶</span>
-              دوره ویدیویی
-            </span>
             <h1><?php the_title(); ?></h1>
             <?php if (has_excerpt()) : ?>
             <p class="course-hero-lead"><?php echo esc_html(get_the_excerpt()); ?></p>
@@ -143,30 +145,51 @@ while (have_posts()) :
                 <a class="button button-light button-large" href="<?php echo esc_url(nasim_lesson_url($course_id, $next_lesson['id'])); ?>">
                   <?php echo !empty($progress['completed']) ? 'ادامه دوره' : 'شروع دوره'; ?> <span>←</span>
                 </a>
+              <?php elseif ($is_free_course) : ?>
+                <a class="button button-light button-large" href="<?php echo esc_url($start_url); ?>">
+                  <?php echo esc_html(nasim_course_cta_label($course_id)); ?> <span>←</span>
+                </a>
               <?php elseif (!$has_access) : ?>
                 <button type="button" class="button button-light button-large" data-express-open>
                   <?php echo esc_html(nasim_course_cta_label($course_id)); ?> <span>←</span>
                 </button>
               <?php endif; ?>
-              <?php if (!$has_access && $free_lessons) : ?>
-                <a class="button button-ghost button-large" href="<?php echo esc_url(nasim_lesson_url($course_id, $free_lessons[0]['id'])); ?>">
-                  مشاهده درس رایگان <span>▶</span>
-                </a>
-              <?php elseif ($curriculum) : ?>
-                <a class="button button-ghost button-large" href="#curriculum">سرفصل‌ها <span>↓</span></a>
+              <?php if ($has_preview) : ?>
+                <button type="button" class="button button-ghost button-large" data-preview-play>
+                  پخش پیش‌نمایش <span>▶</span>
+                </button>
               <?php endif; ?>
             </div>
           </div>
 
-          <div class="course-hero-preview<?php echo has_post_thumbnail() ? ' has-image' : ''; ?>">
-            <?php if (has_post_thumbnail()) : ?>
-              <?php the_post_thumbnail('large', ['alt' => the_title_attribute(['echo' => false]), 'fetchpriority' => 'high']); ?>
-            <?php else : ?>
-              <div class="course-hero-placeholder"><span class="brand-mark">ن</span></div>
-            <?php endif; ?>
-            <?php if ($preview_url) : ?>
-            <a class="course-hero-play" href="<?php echo esc_url($preview_url); ?>" aria-label="پیش‌نمایش دوره"><span>▶</span></a>
-            <span class="course-hero-preview-label">پیش‌نمایش دوره</span>
+          <div class="course-hero-preview<?php echo has_post_thumbnail() ? ' has-image' : ''; ?><?php echo $has_preview ? ' has-preview' : ''; ?>" data-course-preview<?php echo $preview_plyr ? ' data-preview-plyr="1"' : ''; ?>>
+            <div class="course-hero-preview-poster">
+              <?php if (has_post_thumbnail()) : ?>
+                <?php the_post_thumbnail('large', ['alt' => the_title_attribute(['echo' => false]), 'fetchpriority' => 'high']); ?>
+              <?php else : ?>
+                <div class="course-hero-placeholder"><span class="brand-mark">ن</span></div>
+              <?php endif; ?>
+            </div>
+            <?php if ($has_preview) : ?>
+            <button type="button" class="course-hero-play" data-preview-play aria-label="پخش پیش‌نمایش دوره">
+              <span class="course-hero-play-stage" aria-hidden="true">
+                <span class="course-hero-play-aura"></span>
+                <span class="course-hero-play-ring"></span>
+                <span class="course-hero-play-ring is-delayed"></span>
+                <span class="course-hero-play-core">
+                  <svg viewBox="0 0 24 24" width="30" height="30" focusable="false">
+                    <path d="M8.2 5.6c-.8-.5-1.7.1-1.7 1v10.8c0 .9.9 1.5 1.7 1l9.2-5.4c.7-.4.7-1.5 0-1.9L8.2 5.6z" fill="currentColor"/>
+                  </svg>
+                </span>
+              </span>
+              <span class="course-hero-play-copy">
+                <strong>پیش‌نمایش دوره</strong>
+                <small>پخش همین‌جا · بدون ورود</small>
+              </span>
+            </button>
+            <div class="course-hero-preview-player" data-preview-player hidden>
+              <?php echo $preview_media['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitized player markup. ?>
+            </div>
             <?php endif; ?>
           </div>
         </div>
@@ -178,9 +201,13 @@ while (have_posts()) :
         <a href="#intro" class="is-active">معرفی</a>
         <?php if ($curriculum) : ?><a href="#curriculum">سرفصل‌ها</a><?php endif; ?>
         <a href="#instructor">مدرس</a>
-        <?php if (!$has_access) : ?><a href="#enroll">ثبت‌نام</a><?php endif; ?>
+        <?php if (!$has_access) : ?><a href="#enroll"><?php echo $is_free_course ? 'شروع' : 'ثبت‌نام'; ?></a><?php endif; ?>
         <a href="#faq">سؤالات</a>
-        <?php if (!$has_access) : ?>
+        <?php if (!$has_access && $is_free_course) : ?>
+        <a class="button button-primary course-section-nav-cta" href="<?php echo esc_url($start_url); ?>">
+          <?php echo esc_html(nasim_course_cta_label($course_id)); ?>
+        </a>
+        <?php elseif (!$has_access) : ?>
         <button type="button" class="button button-primary course-section-nav-cta" data-express-open>
           <?php echo esc_html(nasim_course_cta_label($course_id)); ?>
         </button>
@@ -265,9 +292,20 @@ while (have_posts()) :
 
         <?php if (!$has_access) : ?>
         <section class="course-block course-enroll-block" id="enroll">
-          <span class="course-kicker">ثبت‌نام</span>
+          <span class="course-kicker"><?php echo $is_free_course ? 'شروع رایگان' : 'ثبت‌نام'; ?></span>
           <h2>همین حالا شروع کن.</h2>
           <div class="course-enroll-copy">
+            <?php if ($is_free_course) : ?>
+            <p>این دوره رایگان است؛ فقط وارد حساب شو تا در پلیر آکادمی جلسات را تماشا کنی.</p>
+            <ul>
+              <li><span>✓</span> رایگان بعد از ورود</li>
+              <li><span>✓</span> تماشا داخل LMS</li>
+              <li><span>✓</span> ذخیره پیشرفت در حساب</li>
+            </ul>
+            <a class="button button-primary button-large" href="<?php echo esc_url($start_url); ?>">
+              <?php echo esc_html(nasim_course_cta_label($course_id)); ?> <span>←</span>
+            </a>
+            <?php else : ?>
             <p>با یک‌بار پرداخت، به همه جلسات این دوره دسترسی دائمی می‌گیری و پشتیبانی آکادمی همراهت است.</p>
             <ul>
               <li><span>✓</span> دسترسی آنی بعد از پرداخت</li>
@@ -277,6 +315,7 @@ while (have_posts()) :
             <button type="button" class="button button-primary button-large" data-express-open>
               <?php echo esc_html(nasim_course_cta_label($course_id)); ?> <span>←</span>
             </button>
+            <?php endif; ?>
           </div>
         </section>
         <?php endif; ?>
@@ -309,6 +348,19 @@ while (have_posts()) :
               <?php echo !empty($progress['completed']) ? 'ادامه یادگیری' : 'شروع یادگیری'; ?> <span>←</span>
             </a>
             <?php endif; ?>
+          </div>
+        <?php elseif ($is_free_course) : ?>
+          <div class="subscribe-card subscribe-card--aside subscribe-card--free">
+            <div class="subscribe-card-head">
+              <span class="subscribe-card-icon">▶</span>
+              <div>
+                <h3>شروع رایگان</h3>
+                <p>برای تماشا در LMS وارد حساب شو؛ بعد از ورود همه جلسات این دوره باز است.</p>
+              </div>
+            </div>
+            <a class="button button-primary" href="<?php echo esc_url($start_url); ?>">
+              <?php echo esc_html(nasim_course_cta_label($course_id)); ?> <span>←</span>
+            </a>
           </div>
         <?php else : ?>
           <?php get_template_part('template-parts/course/subscribe-card', null, ['course_id' => $course_id, 'variant' => 'aside']); ?>

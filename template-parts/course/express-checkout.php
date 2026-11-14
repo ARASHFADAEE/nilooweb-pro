@@ -19,11 +19,10 @@ $label = function_exists('nasim_course_cta_label') ? nasim_course_cta_label($cou
 $title = get_the_title($course_id);
 
 if ('free' === $mode) {
-    $lessons = function_exists('nasim_get_course_lessons') ? nasim_get_course_lessons($course_id) : [];
-    $free    = array_values(array_filter($lessons, static function ($l) {
-        return !empty($l['is_free']);
-    }));
-    $start = $free ? nasim_lesson_url($course_id, $free[0]['id']) : get_permalink($course_id);
+    $start = function_exists('nasim_course_start_url')
+        ? nasim_course_start_url($course_id)
+        : get_permalink($course_id);
+    $cta   = function_exists('nasim_course_cta_label') ? nasim_course_cta_label($course_id) : 'ورود و شروع رایگان';
     ?>
 <div class="express-buybar" data-express-bar>
   <div class="express-buybar-inner container-wide">
@@ -31,7 +30,7 @@ if ('free' === $mode) {
       <strong><?php echo esc_html($title); ?></strong>
       <span class="express-buybar-price is-free">رایگان</span>
     </div>
-    <a class="button button-primary" href="<?php echo esc_url($start); ?>">شروع رایگان <span>←</span></a>
+    <a class="button button-primary" href="<?php echo esc_url($start); ?>"><?php echo esc_html($cta); ?> <span>←</span></a>
   </div>
 </div>
     <?php
@@ -88,7 +87,7 @@ $prefill_mobile = is_user_logged_in() ? nasim_get_user_mobile($user->ID) : '';
         </label>
         <p class="express-hint">کد تأیید پیامک می‌شود؛ بعد از تأیید به درگاه پرداخت می‌روی.</p>
         <button type="submit" class="button button-primary button-large" data-express-send>
-          <?php echo is_user_logged_in() ? 'ادامه و پرداخت' : 'دریافت کد تأیید'; ?> <span>←</span>
+          <?php echo is_user_logged_in() ? 'ادامه و پرداخت' : 'دریافت کد تأیید و پرداخت'; ?>
         </button>
       </div>
 

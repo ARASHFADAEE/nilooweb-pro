@@ -66,13 +66,4 @@ $curriculum = function_exists('nasim_get_curriculum') ? nasim_get_curriculum($co
   </ul>
 
   <button type="button" class="button button-primary" data-express-open><?php echo esc_html($cta_label); ?> <span>←</span></button>
-
-  <div class="subscribe-card-trust">
-    <span>دسترسی آنی بعد از ثبت‌نام</span>
-    <span>پرداخت امن</span>
-  </div>
-
-  <?php if (!is_user_logged_in()) : ?>
-  <small class="subscribe-card-login">قبلاً خریده‌ای؟ <a href="<?php echo esc_url(wp_login_url(get_permalink($course_id))); ?>">وارد شو</a></small>
-  <?php endif; ?>
 </div>

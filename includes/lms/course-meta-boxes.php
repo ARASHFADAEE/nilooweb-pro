@@ -19,7 +19,13 @@ function nasim_render_course_details_meta_box($post) {
 
     $level    = get_post_meta($post->ID, '_nasim_course_level', true);
     $outcomes = get_post_meta($post->ID, '_nasim_course_outcomes', true);
+    $preview  = get_post_meta($post->ID, '_nasim_course_preview_embed', true);
     ?>
+    <p>
+        <label for="nasim_course_preview_embed"><strong><?php esc_html_e('ویدیو پیش‌نمایش (صفحه فروش)', 'niloo-web'); ?></strong></label>
+        <textarea class="widefat ltr" id="nasim_course_preview_embed" name="nasim_course_preview_embed" rows="3" placeholder="https://www.aparat.com/v/... یا iframe / لینک mp4"><?php echo esc_textarea($preview); ?></textarea>
+        <span class="description"><?php esc_html_e('این ویدیو روی خود صفحه دوره پخش می‌شود (بدون ورود به LMS). آپارات، یوتیوب یا فایل مستقیم.', 'niloo-web'); ?></span>
+    </p>
     <p>
         <label for="nasim_course_level"><strong><?php esc_html_e('سطح دوره', 'niloo-web'); ?></strong></label>
         <input type="text" class="widefat" id="nasim_course_level" name="nasim_course_level" value="<?php echo esc_attr($level); ?>" placeholder="مقدماتی" list="nasim_course_levels">
@@ -38,10 +44,10 @@ function nasim_render_course_details_meta_box($post) {
     <p>
         <label for="nasim_course_access_mode"><strong><?php esc_html_e('نحوه دسترسی', 'niloo-web'); ?></strong></label>
         <select id="nasim_course_access_mode" name="nasim_course_access_mode" class="widefat">
-            <option value="free" <?php selected($access === 'free', true); ?>><?php esc_html_e('رایگان (برای همه)', 'niloo-web'); ?></option>
+            <option value="free" <?php selected($access === 'free', true); ?>><?php esc_html_e('رایگان (بعد از ورود)', 'niloo-web'); ?></option>
             <option value="purchase" <?php selected($access !== 'free', true); ?>><?php esc_html_e('پولی — نیاز به خرید', 'niloo-web'); ?></option>
         </select>
-        <span class="description"><?php esc_html_e('دوره‌های پولی بعد از پرداخت در پنل کاربری و اسپات‌پلیر در دسترسند.', 'niloo-web'); ?></span>
+        <span class="description"><?php esc_html_e('دوره رایگان بعد از ورود به حساب در LMS باز می‌شود. دوره‌های پولی بعد از پرداخت در پنل و اسپات‌پلیر در دسترسند.', 'niloo-web'); ?></span>
     </p>
     <p>
         <label for="nasim_course_delivery"><strong><?php esc_html_e('نوع تحویل', 'niloo-web'); ?></strong></label>
@@ -67,7 +73,7 @@ function nasim_render_curriculum_meta_box($post) {
     wp_nonce_field('nasim_save_course', 'nasim_course_nonce');
     ?>
     <div class="nasim-curriculum" id="nasimCurriculum">
-        <p class="description"><?php esc_html_e('فصل‌ها و درس‌ها را با کشیدن آیکون ⇅ مرتب کنید. کد Embed ویدیو (iframe) را از سرویس ویدیویی کپی کنید. درس‌های «رایگان» پیش‌نمایش عمومی‌اند؛ بقیه بر اساس «نحوه دسترسی» دوره (اشتراک یا خرید جدا) باز می‌شوند.', 'niloo-web'); ?></p>
+        <p class="description"><?php esc_html_e('فصل‌ها و درس‌ها را با کشیدن آیکون ⇅ مرتب کنید. کد Embed ویدیو (iframe) را از سرویس ویدیویی کپی کنید. تماشا در LMS همیشه بعد از ورود است؛ درس‌های «رایگان» برای اعضای واردشده بدون خرید باز می‌شوند. ویدیو پیش‌نمایش صفحه فروش جداگانه در جزئیات دوره تنظیم می‌شود.', 'niloo-web'); ?></p>
 
         <div class="nasim-sections">
             <?php foreach (nasim_get_curriculum($post->ID) as $section_index => $section) : ?>
@@ -163,7 +169,7 @@ function nasim_render_curriculum_lesson($section_key, $lesson_key, $lesson) {
 
             <label class="nasim-checkbox">
                 <input type="checkbox" name="<?php echo esc_attr($name); ?>[is_free]" value="1" <?php checked(!empty($lesson['is_free'])); ?>>
-                <?php esc_html_e('درس رایگان (پیش‌نمایش برای همه)', 'niloo-web'); ?>
+                <?php esc_html_e('درس رایگان (بعد از ورود، بدون خرید)', 'niloo-web'); ?>
             </label>
         </div>
     </details>
@@ -252,6 +258,14 @@ function nasim_save_course_meta($post_id) {
 
     if (isset($_POST['nasim_course_outcomes'])) {
         update_post_meta($post_id, '_nasim_course_outcomes', sanitize_textarea_field(wp_unslash($_POST['nasim_course_outcomes'])));
+    }
+
+    if (isset($_POST['nasim_course_preview_embed'])) {
+        $preview_raw = wp_unslash((string) $_POST['nasim_course_preview_embed']);
+        $preview     = function_exists('nasim_normalize_lesson_embed')
+            ? nasim_normalize_lesson_embed($preview_raw)
+            : sanitize_textarea_field($preview_raw);
+        update_post_meta($post_id, '_nasim_course_preview_embed', $preview);
     }
 
     if (isset($_POST['nasim_course_access_mode'])) {

@@ -182,6 +182,69 @@ document.querySelectorAll('[data-ticket-form]').forEach(form => {
   });
 })();
 
+// Course sale page: inline preview (no LMS navigation)
+(() => {
+  const box = document.querySelector('[data-course-preview]');
+  if (!box) return;
+
+  const playerWrap = box.querySelector('[data-preview-player]');
+  if (!playerWrap) return;
+
+  let started = false;
+
+  const enableAutoplay = (iframe) => {
+    if (!iframe || !iframe.getAttribute('src')) return;
+    try {
+      const url = new URL(iframe.getAttribute('src'), window.location.href);
+      if (!url.searchParams.has('autoplay')) {
+        url.searchParams.set('autoplay', '1');
+        iframe.setAttribute('src', url.toString());
+      }
+    } catch (_) {
+      const src = iframe.getAttribute('src');
+      if (src && !/[?&]autoplay=/.test(src)) {
+        iframe.setAttribute('src', src + (src.includes('?') ? '&' : '?') + 'autoplay=1');
+      }
+    }
+  };
+
+  const startPreview = () => {
+    if (started) return;
+    started = true;
+    box.classList.add('is-playing');
+    playerWrap.hidden = false;
+
+    const video = playerWrap.querySelector('video.nasim-plyr, video');
+    if (video && box.hasAttribute('data-preview-plyr') && window.Plyr) {
+      const player = new window.Plyr(video, {
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+        invertTime: false,
+        i18n: { play: 'پخش', pause: 'توقف', mute: 'بی‌صدا', unmute: 'با صدا', enterFullscreen: 'تمام‌صفحه', exitFullscreen: 'خروج' },
+      });
+      player.play().catch(() => {});
+      return;
+    }
+
+    if (video) {
+      video.play().catch(() => {});
+      return;
+    }
+
+    const iframe = playerWrap.querySelector('iframe');
+    enableAutoplay(iframe);
+  };
+
+  document.querySelectorAll('[data-preview-play]').forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+      event.preventDefault();
+      startPreview();
+      if (!box.contains(btn)) {
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  });
+})();
+
 // Course sale page: sticky section nav active state
 (() => {
   const nav = document.querySelector('[data-course-nav]');

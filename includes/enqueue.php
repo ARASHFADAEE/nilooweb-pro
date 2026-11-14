@@ -48,6 +48,27 @@ function nasim_enqueue_assets() {
     }
 
     if (is_singular('nasim_course') && !nasim_is_course_player()) {
+        $preview_media = function_exists('nasim_course_preview_media')
+            ? nasim_course_preview_media(get_queried_object_id())
+            : null;
+        $preview_plyr  = is_array($preview_media) && !empty($preview_media['use_plyr']);
+
+        if ($preview_plyr) {
+            wp_enqueue_style(
+                'nasim-plyr',
+                THEME_URL . '/assets/vendor/plyr/plyr.css',
+                [],
+                nasim_asset_version('/assets/vendor/plyr/plyr.css')
+            );
+            wp_enqueue_script(
+                'nasim-plyr',
+                THEME_URL . '/assets/vendor/plyr/plyr.min.js',
+                [],
+                nasim_asset_version('/assets/vendor/plyr/plyr.min.js'),
+                true
+            );
+        }
+
         wp_enqueue_script(
             'nasim-express-checkout',
             THEME_URL . '/assets/js/express-checkout.js',

@@ -43,7 +43,14 @@ get_header();
       <div class="course-meta">
         <span>◷ <?php echo esc_html($total); ?> درس</span>
         <?php if ($level) : ?><span>▱ سطح <?php echo esc_html($level); ?></span><?php endif; ?>
-        <span>♧ <?php echo $has_access ? 'دسترسی فعال' : 'نیاز به خرید'; ?></span>
+        <?php
+          $is_free_course = function_exists('nasim_course_access_mode') && 'free' === nasim_course_access_mode($course_id);
+          $access_meta   = $has_access ? 'دسترسی فعال' : ($is_free_course ? 'نیاز به ورود' : 'نیاز به خرید');
+          $login_url     = function_exists('nasim_auth_url')
+              ? nasim_auth_url('login', nasim_lesson_url($course_id, $lesson['id']))
+              : wp_login_url(nasim_lesson_url($course_id, $lesson['id']));
+        ?>
+        <span>♧ <?php echo esc_html($access_meta); ?></span>
       </div>
     </div>
 
@@ -64,20 +71,30 @@ get_header();
           <?php else : ?>
             <div class="video-placeholder video-locked">
               <div class="placeholder-play"><?php echo nasim_lock_icon(); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?></div>
+              <?php if (!$logged_in) : ?>
+              <strong><?php echo $is_free_course ? 'برای تماشای دوره رایگان وارد شو' : 'برای تماشا وارد حساب شو'; ?></strong>
+              <span><?php echo $is_free_course
+                  ? 'بعد از ورود، همه جلسات این دوره در LMS برایت باز می‌شود.'
+                  : 'اگر دوره را خریدی یا درس رایگان است، با ورود به حساب می‌توانی ادامه دهی.'; ?></span>
+              <div class="video-locked-actions">
+                <a class="button button-primary" href="<?php echo esc_url($login_url); ?>">ورود به حساب <span>←</span></a>
+                <?php if (function_exists('nasim_auth_url')) : ?>
+                <a class="button button-outline" href="<?php echo esc_url(nasim_auth_url('register', nasim_lesson_url($course_id, $lesson['id']))); ?>">ثبت‌نام</a>
+                <?php endif; ?>
+              </div>
+              <?php else : ?>
               <strong>این درس بعد از خرید دوره باز می‌شود</strong>
               <span>با خرید این دوره به همه جلسات دسترسی دائمی می‌گیری.</span>
               <div class="video-locked-actions">
                 <a class="button button-primary" href="<?php echo esc_url(function_exists('nasim_course_checkout_url') ? nasim_course_checkout_url($course_id) : get_permalink($course_id)); ?>">خرید این دوره <span>←</span></a>
-                <?php if (!$logged_in) : ?>
-                <a class="button button-outline" href="<?php echo esc_url(wp_login_url(nasim_lesson_url($course_id, $lesson['id']))); ?>">ورود به حساب</a>
-                <?php endif; ?>
               </div>
+              <?php endif; ?>
             </div>
           <?php endif; ?>
         </div>
         <div class="video-underbar">
           <span class="live-dot<?php echo $can_watch ? '' : ' is-locked'; ?>"></span>
-          <span class="video-underbar-status"><?php echo esc_html($can_watch ? (!empty($lesson['is_free']) && !$has_access ? 'درس رایگان' : 'در حال پخش') : 'قفل — نیاز به خرید'); ?></span>
+          <span class="video-underbar-status"><?php echo esc_html($can_watch ? (!empty($lesson['is_free']) && !$has_access ? 'درس رایگان' : 'در حال پخش') : (!$logged_in ? 'قفل — نیاز به ورود' : 'قفل — نیاز به خرید')); ?></span>
           <a class="subtle-button video-underbar-course" href="<?php echo esc_url(get_permalink($course_id)); ?>">صفحه دوره</a>
           <nav class="video-dock-nav" aria-label="جابجایی سریع درس">
             <?php if ($prev) : ?>

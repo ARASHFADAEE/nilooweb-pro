@@ -12,7 +12,6 @@ $mode      = function_exists('nasim_course_access_mode') ? nasim_course_access_m
 $label     = function_exists('nasim_course_access_label') ? nasim_course_access_label($course_id) : '';
 $badge     = function_exists('nasim_course_access_badge_class') ? nasim_course_access_badge_class($course_id) : '';
 $cta       = function_exists('nasim_course_cta_label') ? nasim_course_cta_label($course_id) : 'مشاهده';
-$buy_url   = function_exists('nasim_course_checkout_url') ? nasim_course_checkout_url($course_id) : get_permalink();
 $thumb     = function_exists('nasim_niloo_course_image_url')
     ? nasim_niloo_course_image_url($course_id, 'medium_large')
     : (string) get_the_post_thumbnail_url($course_id, 'medium_large');
@@ -23,7 +22,7 @@ $meta_bits = array_filter([
     $duration,
     $level,
 ]);
-$primary_url = ('free' === $mode) ? get_permalink() : $buy_url;
+$primary_url = get_permalink($course_id);
 ?>
 <article class="ccard ccard--<?php echo esc_attr($mode); ?>">
   <a class="ccard-media" href="<?php the_permalink(); ?>">
