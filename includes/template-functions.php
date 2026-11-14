@@ -223,24 +223,34 @@ function nasim_fallback_menu_items($location) {
     $courses_url  = get_post_type_archive_link('nasim_course');
     $products_url = get_post_type_archive_link('nasim_product');
 
+    $connect_url = home_url('/connect/');
+    $contact_url = function_exists('nasim_seo_contact_url') ? nasim_seo_contact_url() : home_url('/contact/');
+    $request_url = home_url('/request/');
+    $courses_url = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : $courses_url;
+
     $items = [
         'primary' => [
             ['title' => 'خانه', 'url' => '#home'],
-            ['title' => 'درباره من', 'url' => '#about'],
+            ['title' => 'درباره من', 'url' => $connect_url],
             ['title' => 'دوره‌ها', 'url' => $courses_url],
-            ['title' => 'افزونه‌ها', 'url' => $products_url],
             ['title' => 'مقالات', 'url' => $articles_url],
-            ['title' => 'ارتباط با من', 'url' => '#contact'],
+            ['title' => 'مشاوره', 'url' => $request_url],
+            ['title' => 'تماس', 'url' => $contact_url],
         ],
         'footer' => [
-            ['title' => 'درباره من', 'url' => '#about'],
+            ['title' => 'درباره من', 'url' => $connect_url],
             ['title' => 'دوره‌ها', 'url' => $courses_url],
-            ['title' => 'افزونه‌ها', 'url' => $products_url],
+            ['title' => 'مشاوره', 'url' => $request_url],
             ['title' => 'اشتراک', 'url' => nasim_subscription_url()],
             ['title' => 'مقالات', 'url' => $articles_url],
-            ['title' => 'قوانین', 'url' => nasim_default_page_url('terms')],
+            ['title' => 'قوانین', 'url' => nasim_default_page_url('terms', home_url('/terms/'))],
+            ['title' => 'حریم خصوصی', 'url' => nasim_default_page_url('privacy', home_url('/privacy/'))],
         ],
     ];
+
+    if ($products_url && function_exists('nasim_store_enabled') && nasim_store_enabled()) {
+        array_splice($items['primary'], 3, 0, [['title' => 'افزونه‌ها', 'url' => $products_url]]);
+    }
 
     return array_filter($items[$location] ?? [], function ($item) {
         return '' !== (string) $item['url'];

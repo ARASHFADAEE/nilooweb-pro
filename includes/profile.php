@@ -22,30 +22,30 @@ function nasim_profile() {
     $profile = [
         'name'          => 'نیلوفر وفایی',
         'legal_name'    => 'نیلوفر وفایی',
-        'role'          => 'طراح و مدرس طراحی سایت',
-        'tagline'       => 'آموزش طراحی سایت و کسب درآمد به زبان ساده و کاربردی.',
+        'role'          => 'طراح و توسعه‌دهنده وب · مدرس آکادمی اولترا',
+        'tagline'       => 'مدرس و توسعه‌دهنده وب، بنیان‌گذار وبلبز و آکادمی اولترا.',
         'location'      => 'ایران',
         'bio_url'       => home_url('/connect/'),
-        'bio_label'     => 'درباره من',
+        'bio_label'     => 'داستان کامل من را بخوان',
         'telegram'      => '',
         'telegram_user' => '',
         'phone'         => '',
         'phone_tel'     => '',
         'hours'         => '',
-        'author_bio'    => 'مدرس طراحی سایت و مسیر فریلنسری؛ تمرکز روی پروژه‌های واقعی.',
-        'about_short'   => 'طراح و توسعه‌دهنده وب؛ از یادگیری پایه تا پروژه واقعی و ورود به بازار کار کنارتان هستم.',
+        'author_bio'    => 'طراح و توسعه‌دهنده وب؛ بنیان‌گذار وبلبز و آکادمی اولترا. تمرکز روی آموزش کاربردی و پروژه‌های واقعی.',
+        'about_short'   => 'سلام، من نیلوفر وفایی، طراح و توسعه‌دهنده وب هستم. تجربه‌ام در آموزش، طراحی و اجرای پروژه‌های واقعی کمک می‌کند ایده‌ها را به راهکار دیجیتال کاربردی تبدیل کنیم؛ از ساخت سایت حرفه‌ای تا یادگیری مسیر گرفتن پروژه.',
         'domains'       => [
-            ['title' => 'آموزش از پایه', 'text' => 'ساده، کاربردی و مرحله‌به‌مرحله'],
-            ['title' => 'پشتیبانی', 'text' => 'همراهی در مسیر یادگیری و درآمد'],
-            ['title' => 'بازار کار', 'text' => 'آماده‌سازی برای پروژه واقعی'],
+            ['title' => 'توسعه وب', 'text' => 'طراحی و توسعه وب‌سایت‌های حرفه‌ای متناسب با نیاز کسب‌وکار'],
+            ['title' => 'آموزش', 'text' => 'یادگیری مهارت‌های کاربردی برای ورود به دنیای طراحی و توسعه وب'],
+            ['title' => 'محصول', 'text' => 'معرفی محصولات و راهکارهای دیجیتال برای حل نیازهای واقعی'],
         ],
         'skills'        => [
-            'WordPress', 'Elementor', 'WooCommerce', 'UI/UX', 'Figma', 'HTML', 'CSS',
+            'WordPress', 'Elementor', 'WooCommerce', 'UI/UX', 'Figma', 'آموزش بازارمحور U3P',
         ],
         'services'      => [
-            ['title' => 'آموزش طراحی سایت', 'text' => 'از پایه تا پروژه واقعی'],
-            ['title' => 'مسیر فریلنسری', 'text' => 'گرفتن پروژه و درآمد'],
-            ['title' => 'سفارش طراحی سایت', 'text' => 'همراهی تا تحویل'],
+            ['title' => 'وبلبز', 'text' => 'طراحی و توسعه سایت شرکتی/فروشگاهی، سامانه اختصاصی، سئو و مشاوره'],
+            ['title' => 'آکادمی اولترا', 'text' => 'آموزش طراحی سایت، نمونه‌کار و مسیر گرفتن پروژه'],
+            ['title' => 'محصولات وردپرس', 'text' => 'توسعه و ارائه راهکارهای وردپرسی در وبلبز'],
         ],
         'instagram'     => 'https://www.instagram.com/niloofarvafaei',
         'bale'          => 'https://ble.ir/niloofarvafaei',
@@ -76,46 +76,24 @@ function nasim_profile_bio_url() {
  */
 function nasim_profile_about_page_blocks() {
 
+    if (function_exists('nasim_niloo_page_blocks_connect')) {
+        return nasim_niloo_page_blocks_connect();
+    }
+
     $p       = nasim_profile();
     $bio     = nasim_profile_bio_url();
-    $skills  = array_map('esc_html', $p['skills']);
     $domains = [];
     foreach ($p['domains'] as $item) {
         $domains[] = '<strong>' . esc_html($item['title']) . ':</strong> ' . esc_html($item['text']);
     }
-    $services = [];
-    foreach ($p['services'] as $item) {
-        $services[] = '<strong>' . esc_html($item['title']) . ':</strong> ' . esc_html($item['text']);
-    }
 
-    $blocks = [
+    return [
         nasim_block_paragraph('سلام، من <strong>' . esc_html($p['name']) . '</strong> هستم — ' . esc_html($p['role']) . '.'),
-        nasim_block_paragraph(esc_html($p['tagline'])),
+        nasim_block_paragraph(esc_html($p['about_short'])),
         nasim_block_heading('حوزه‌های کاری'),
         nasim_block_list($domains),
-        nasim_block_heading('مهارت‌ها'),
-        nasim_block_paragraph(implode(' · ', $skills)),
-        nasim_block_heading('چه کمکی می‌کنم؟'),
-        nasim_block_list($services),
+        nasim_block_paragraph('صفحه معرفی: ' . nasim_block_link($bio, $p['bio_label'] ?: 'درباره من')),
     ];
-
-    if (!empty($p['instagram']) || !empty($p['bale'])) {
-        $links = [];
-        if (!empty($p['instagram'])) {
-            $links[] = 'اینستاگرام: ' . nasim_block_link($p['instagram'], '@niloofarvafaei');
-        }
-        if (!empty($p['bale'])) {
-            $links[] = 'بله: ' . nasim_block_link($p['bale'], 'کانال بله');
-        }
-        $blocks[] = nasim_block_heading('ارتباط');
-        $blocks[] = nasim_block_list($links);
-    }
-
-    $blocks[] = nasim_block_paragraph(
-        'برای آشنایی بیشتر: ' . nasim_block_link($bio, $p['bio_label'] ?: 'درباره من')
-    );
-
-    return $blocks;
 }
 
 
@@ -126,23 +104,18 @@ function nasim_profile_about_page_blocks() {
  */
 function nasim_profile_contact_page_blocks() {
 
-    $p   = nasim_profile();
-    $bio = nasim_profile_bio_url();
-    $links = [];
-    if (!empty($p['instagram'])) {
-        $links[] = 'اینستاگرام: ' . nasim_block_link($p['instagram'], '@niloofarvafaei');
-    }
-    if (!empty($p['bale'])) {
-        $links[] = 'بله: ' . nasim_block_link($p['bale'], 'کانال بله');
-    }
-    if (!empty($p['telegram'])) {
-        $links[] = 'تلگرام: ' . nasim_block_link($p['telegram'], $p['telegram_user'] ?: 'تلگرام');
+    if (function_exists('nasim_niloo_page_blocks_contact')) {
+        return nasim_niloo_page_blocks_contact();
     }
 
+    $p = nasim_profile();
+
     return [
-        nasim_block_paragraph('اگر برای یادگیری طراحی سایت، مشاوره مسیر شغلی، یا سفارش سایت نیاز به همراهی داری، خوشحال می‌شوم کمکت کنم.'),
+        nasim_block_paragraph('برای سفارش پروژه، آموزش یا همکاری در ارتباط باشیم.'),
         nasim_block_heading('راه‌های ارتباط'),
-        $links ? nasim_block_list($links) : nasim_block_paragraph('از صفحه معرفی یا فرم مشاوره پیام بده.'),
-        nasim_block_paragraph('صفحه معرفی: ' . nasim_block_link($bio, esc_html($p['name']))),
+        nasim_block_list([
+            'اینستاگرام: ' . nasim_block_link($p['instagram'] ?? '#', '@niloofarvafaei'),
+            'صفحه معرفی: ' . nasim_block_link(nasim_profile_bio_url(), 'معرفی نیلوفر وفایی'),
+        ]),
     ];
 }

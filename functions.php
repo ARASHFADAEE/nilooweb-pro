@@ -99,6 +99,7 @@ include_once THEME_DIR . '/includes/seo.php';
 */
 include_once THEME_DIR . '/includes/lms/lms.php';
 include_once THEME_DIR . '/includes/niloo-posts-seed.php';
+include_once THEME_DIR . '/includes/niloo-pages-seed.php';
 
 
 /**

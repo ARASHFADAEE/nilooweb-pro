@@ -68,9 +68,11 @@ function nasim_seo_hubs() {
  */
 function nasim_seo_contact_url() {
 
-    $page = get_page_by_path('contact');
-    if ($page instanceof WP_Post) {
-        return get_permalink($page);
+    foreach (['contact', 'request', 'connect'] as $slug) {
+        $page = get_page_by_path($slug);
+        if ($page instanceof WP_Post && 'publish' === $page->post_status) {
+            return get_permalink($page);
+        }
     }
 
     $fallback = nasim_default_page_url('contact');

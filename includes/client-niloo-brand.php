@@ -50,20 +50,20 @@ function nasim_niloo_customizer_sections(array $sections): array
     $sections['nasim_benefits']['fields']['benefit_4_title']['default'] = 'جامعه دانشجویان';
     $sections['nasim_benefits']['fields']['benefit_4_text']['default']  = 'یادگیری در کنار یک جامعه فعال';
 
-    $sections['nasim_about']['fields']['about_eyebrow']['default']          = 'چرا این مسیر؟';
-    $sections['nasim_about']['fields']['about_title']['default']            = 'من';
+    $sections['nasim_about']['fields']['about_eyebrow']['default']          = 'درباره من';
+    $sections['nasim_about']['fields']['about_title']['default']            = 'سلام، من';
     $sections['nasim_about']['fields']['about_title_highlight']['default']  = 'نیلوفر وفایی هستم';
-    $sections['nasim_about']['fields']['about_text']['default']             = 'طراح و توسعه‌دهنده وب با سال‌ها تجربه در طراحی سایت و آموزش؛ هدفم رساندن شما از یادگیری تئوری به اجرای پروژه‌های واقعی و کسب درآمد از طراحی وب است.';
-    $sections['nasim_about']['fields']['about_sticker']['default']          = 'آموزش · طراحی سایت';
+    $sections['nasim_about']['fields']['about_text']['default']             = 'مدرس و توسعه‌دهنده وب، بنیان‌گذار وبلبز و آکادمی اولترا. تجربه‌ام در آموزش، طراحی و اجرای پروژه‌های واقعی کمک می‌کند ایده‌ها را به راهکار دیجیتال کاربردی تبدیل کنیم و مسیر رشد کسب‌وکار یا ورود شما به بازار کار را هموارتر کنیم.';
+    $sections['nasim_about']['fields']['about_sticker']['default']          = 'DESIGN · DEVELOP · EDUCATE';
     $sections['nasim_about']['fields']['about_image']['default']            = 'https://niloofarvafaei.ir/wp-content/uploads/2026/03/niloo-about.webp';
-    $sections['nasim_about']['fields']['about_button_text']['default']      = 'درباره من';
+    $sections['nasim_about']['fields']['about_button_text']['default']      = 'صفحه معرفی کامل';
     $sections['nasim_about']['fields']['about_button_url']['default']       = home_url('/connect/');
-    $sections['nasim_about']['fields']['about_stat_1_value']['default']     = '+۱۰۰۰';
-    $sections['nasim_about']['fields']['about_stat_1_label']['default']     = 'دانشجویان';
-    $sections['nasim_about']['fields']['about_stat_2_value']['default']     = '۱۰۰٪';
-    $sections['nasim_about']['fields']['about_stat_2_label']['default']     = 'پروژه‌محور';
-    $sections['nasim_about']['fields']['about_stat_3_value']['default']     = '۲۴/۷';
-    $sections['nasim_about']['fields']['about_stat_3_label']['default']     = 'پشتیبانی';
+    $sections['nasim_about']['fields']['about_stat_1_value']['default']     = 'وبلبز';
+    $sections['nasim_about']['fields']['about_stat_1_label']['default']     = 'محصولات وردپرس';
+    $sections['nasim_about']['fields']['about_stat_2_value']['default']     = 'اولترا';
+    $sections['nasim_about']['fields']['about_stat_2_label']['default']     = 'مسیر مهارت تا پروژه';
+    $sections['nasim_about']['fields']['about_stat_3_value']['default']     = 'U3P';
+    $sections['nasim_about']['fields']['about_stat_3_label']['default']     = 'متد بازارمحور';
 
     $sections['nasim_testimonials']['fields']['testimonials_eyebrow']['default']          = 'نظرات و نتایج';
     $sections['nasim_testimonials']['fields']['testimonials_title']['default']            = 'موفقیت شما';
@@ -73,10 +73,11 @@ function nasim_niloo_customizer_sections(array $sections): array
     $sections['nasim_articles']['fields']['articles_title']['default']           = 'جدیدترین';
     $sections['nasim_articles']['fields']['articles_title_highlight']['default'] = 'آموزش‌ها';
 
-    $sections['nasim_cta']['fields']['cta_eyebrow']['default']     = 'خبرنامه';
-    $sections['nasim_cta']['fields']['cta_title']['default']       = 'برای رشد در مسیر طراحی سایت؛ همراه ما باشید';
-    $sections['nasim_cta']['fields']['cta_text']['default']        = 'جدیدترین آموزش‌ها، مقالات و دوره‌ها را با ما دنبال کنید.';
-    $sections['nasim_cta']['fields']['cta_button_text']['default'] = '';
+    $sections['nasim_cta']['fields']['cta_eyebrow']['default']     = 'تماس و مشاوره';
+    $sections['nasim_cta']['fields']['cta_title']['default']       = 'برای شروع یک همکاری خوب، فقط یک پیام فاصله داریم';
+    $sections['nasim_cta']['fields']['cta_text']['default']        = 'برای سفارش پروژه، آموزش یا همکاری در ارتباط باشیم؛ یا در خبرنامه همراه مسیر طراحی سایت بمان.';
+    $sections['nasim_cta']['fields']['cta_button_text']['default'] = 'رزرو مشاوره رایگان';
+    $sections['nasim_cta']['fields']['cta_button_url']['default']  = home_url('/request/');
 
     $sections['nasim_footer']['fields']['footer_tagline']['default']   = 'آموزش طراحی سایت و کسب درآمد به زبان ساده و کاربردی، همراه با پروژه‌های واقعی و پشتیبانی تا ورود شما به بازار کار.';
     $sections['nasim_footer']['fields']['footer_copyright']['default'] = '© تمامی حقوق برای نیلوفر وفایی محفوظ می‌باشد.';
@@ -146,17 +147,28 @@ function nasim_niloo_profile(array $profile): array
 {
     return array_merge($profile, [
         'name'        => 'نیلوفر وفایی',
-        'role'        => 'طراح و مدرس طراحی سایت',
-        'tagline'     => 'آموزش طراحی سایت و کسب درآمد به زبان ساده و کاربردی.',
-        'about_short' => 'طراح و توسعه‌دهنده وب؛ از یادگیری پایه تا پروژه واقعی و ورود به بازار کار کنارتان هستم.',
-        'bio_label'   => 'درباره من',
+        'legal_name'  => 'نیلوفر وفایی',
+        'role'        => 'طراح و توسعه‌دهنده وب · مدرس آکادمی اولترا',
+        'tagline'     => 'مدرس و توسعه‌دهنده وب، بنیان‌گذار وبلبز و آکادمی اولترا.',
+        'about_short' => 'سلام، من نیلوفر وفایی، طراح و توسعه‌دهنده وب هستم. تجربه‌ام در آموزش، طراحی و اجرای پروژه‌های واقعی کمک می‌کند ایده‌ها را به راهکار دیجیتال کاربردی تبدیل کنیم؛ از ساخت سایت حرفه‌ای تا یادگیری مسیر گرفتن پروژه.',
+        'bio_label'   => 'داستان کامل من را بخوان',
         'bio_url'     => home_url('/connect/'),
         'domains'     => [
-            ['title' => 'آموزش از پایه', 'text' => 'ساده، کاربردی و مرحله‌به‌مرحله'],
-            ['title' => 'پشتیبانی', 'text' => 'همراهی در مسیر یادگیری و درآمد'],
-            ['title' => 'بازار کار', 'text' => 'آماده‌سازی برای پروژه واقعی'],
+            ['title' => 'توسعه وب', 'text' => 'طراحی و توسعه وب‌سایت‌های حرفه‌ای متناسب با نیاز کسب‌وکار'],
+            ['title' => 'آموزش', 'text' => 'یادگیری مهارت‌های کاربردی برای ورود به دنیای طراحی و توسعه وب'],
+            ['title' => 'محصول', 'text' => 'معرفی محصولات و راهکارهای دیجیتال برای حل نیازهای واقعی'],
         ],
-        'author_bio'  => 'مدرس طراحی سایت و مسیر فریلنسری؛ تمرکز روی پروژه‌های واقعی.',
+        'skills'      => [
+            'WordPress', 'Elementor', 'WooCommerce', 'UI/UX', 'Figma', 'آموزش بازارمحور U3P',
+        ],
+        'services'    => [
+            ['title' => 'وبلبز', 'text' => 'طراحی و توسعه سایت شرکتی/فروشگاهی، سامانه اختصاصی، سئو و مشاوره'],
+            ['title' => 'آکادمی اولترا', 'text' => 'آموزش طراحی سایت، نمونه‌کار و مسیر گرفتن پروژه'],
+            ['title' => 'محصولات وردپرس', 'text' => 'توسعه و ارائه راهکارهای وردپرسی در وبلبز'],
+        ],
+        'author_bio'  => 'طراح و توسعه‌دهنده وب؛ بنیان‌گذار وبلبز و آکادمی اولترا. تمرکز روی آموزش کاربردی و پروژه‌های واقعی.',
+        'instagram'   => 'https://www.instagram.com/niloofarvafaei',
+        'bale'        => 'https://ble.ir/niloofarvafaei',
     ]);
 }
 add_filter('nasim_profile', 'nasim_niloo_profile');
