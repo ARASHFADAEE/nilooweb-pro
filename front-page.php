@@ -20,7 +20,6 @@ get_header();
                 if (nasim_store_enabled()) {
                     get_template_part('template-parts/front-page/products');
                 }
-                get_template_part('template-parts/front-page/programs');
                 get_template_part('template-parts/front-page/about');
                 get_template_part('template-parts/front-page/testimonials');
                 get_template_part('template-parts/front-page/articles');
