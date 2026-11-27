@@ -195,3 +195,34 @@ function nasim_install_default_pages() {
     }
 }
 add_action('after_switch_theme', 'nasim_install_default_pages');
+
+
+/**
+ * Safety net: if the About page (/about/ or /connect/) was never created or was deleted,
+ * still serve the designed About template instead of a 404.
+ */
+function nasim_about_page_fallback() {
+
+    if (!is_404()) {
+        return;
+    }
+
+    $home_path = trim((string) wp_parse_url(home_url('/'), PHP_URL_PATH), '/');
+    $req_path  = trim((string) wp_parse_url(isset($_SERVER['REQUEST_URI']) ? wp_unslash($_SERVER['REQUEST_URI']) : '', PHP_URL_PATH), '/');
+
+    if ($home_path && 0 === strpos($req_path, $home_path)) {
+        $req_path = trim(substr($req_path, strlen($home_path)), '/');
+    }
+
+    if (!in_array(urldecode($req_path), ['about', 'connect'], true)) {
+        return;
+    }
+
+    global $wp_query;
+    $wp_query->is_404 = false;
+    status_header(200);
+
+    include THEME_DIR . '/page-about.php';
+    exit;
+}
+add_action('template_redirect', 'nasim_about_page_fallback', 20);
