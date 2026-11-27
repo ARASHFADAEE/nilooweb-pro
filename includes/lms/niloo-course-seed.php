@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
  * روی پرود با ووکامرس، «ایمپورت ووکامرس» شناسه اسپات و فایل‌های آموزشیار را تکمیل می‌کند.
  */
 
-define('NASIM_NILOO_COURSE_SEED_VERSION', '2');
+define('NASIM_NILOO_COURSE_SEED_VERSION', '3');
 
 /**
  * Absolute path to the bundled JSON dump.
@@ -232,12 +232,31 @@ function nasim_niloo_upsert_course(array $row): int
         update_post_meta($course_id, '_nasim_course_level', sanitize_text_field((string) $row['level']));
     }
 
+    $text_meta_map = [
+        'tagline'        => '_nasim_course_tagline',
+        'badge'          => '_nasim_course_badge',
+        'duration_label' => '_nasim_course_duration_label',
+        'projects'       => '_nasim_course_projects',
+        'students'       => '_nasim_course_students',
+        'status_label'   => '_nasim_course_status_label',
+        'prereq'         => '_nasim_course_prereq',
+    ];
+    foreach ($text_meta_map as $row_key => $meta_key) {
+        if (!empty($row[$row_key])) {
+            update_post_meta($course_id, $meta_key, sanitize_text_field((string) $row[$row_key]));
+        }
+    }
+
     if (function_exists('nasim_assign_course_categories')) {
         nasim_assign_course_categories($course_id, $row);
     }
 
     if (!empty($row['outcomes'])) {
         update_post_meta($course_id, '_nasim_course_outcomes', sanitize_textarea_field((string) $row['outcomes']));
+    }
+
+    if (!empty($row['audience'])) {
+        update_post_meta($course_id, '_nasim_course_audience', sanitize_textarea_field((string) $row['audience']));
     }
 
     $curriculum = nasim_niloo_normalize_curriculum((array) ($row['curriculum'] ?? []), $slug);

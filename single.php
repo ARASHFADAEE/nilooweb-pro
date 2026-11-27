@@ -9,199 +9,125 @@ get_header();
 while (have_posts()) :
     the_post();
 
-    $author_id   = (int) get_the_author_meta('ID');
-    $author_name = nasim_post_author_name();
-    $author_bio  = nasim_seo_author_bio($author_id);
-    $category    = nasim_primary_category();
-    $tags        = get_the_tags();
-    $content     = nasim_article_content();
-    $content_html = nasim_seo_inject_mid_cta($content['html']);
-    $updated     = get_the_modified_time('U') - get_the_time('U') > DAY_IN_SECONDS;
-    $caption     = has_post_thumbnail() ? wp_get_attachment_caption(get_post_thumbnail_id()) : '';
-    $related     = nasim_related_posts(get_the_ID(), 4);
-    $blog_label  = nasim_mod('articles_eyebrow') ?: 'مقالات';
-    $crumbs      = nasim_seo_breadcrumb_items();
-    $share       = nasim_seo_share_links();
-    $toc         = $content['toc'];
-    $profile     = function_exists('nasim_profile') ? nasim_profile() : [];
-    $bio_url     = function_exists('nasim_profile_bio_url') ? nasim_profile_bio_url() : home_url('/connect/');
+    $pid         = get_the_ID();
+    $cats        = get_the_category($pid);
+    $cat         = !empty($cats) ? $cats[0]->name : 'آموزش';
+    $mins        = function_exists('nasim_reading_time') ? nasim_reading_time($pid) : 3;
+    $blog_url    = function_exists('nasim_blog_url') ? nasim_blog_url() : home_url('/blog/');
     $courses_url = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : home_url('/courses/');
-    $sidebar_courses = get_posts([
-        'post_type'      => 'nasim_course',
-        'post_status'    => 'publish',
-        'posts_per_page' => 3,
-        'orderby'        => ['menu_order' => 'ASC', 'date' => 'DESC'],
-        'no_found_rows'  => true,
-    ]);
-    ?>
+    $contact_url = function_exists('nasim_default_page_url') ? nasim_default_page_url('contact', home_url('/contact/')) : home_url('/contact/');
+    $radio_slug  = nasim_mod('radio_cat') ?: 'radionil';
+    $is_radio    = has_category($radio_slug, $pid);
+    $related     = function_exists('nasim_related_posts') ? nasim_related_posts($pid, 3) : [];
+?>
 
-  <div class="reading-progress" id="readingProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="پیشرفت مطالعه"></div>
+  <div class="reading-progress" id="readingProgress" aria-hidden="true"><span></span></div>
 
-  <main id="main-content">
-    <nav class="container-wide article-breadcrumb" aria-label="مسیر صفحه">
-      <?php foreach ($crumbs as $index => $crumb) : ?>
-        <?php if ($index > 0) : ?><span aria-hidden="true">／</span><?php endif; ?>
-        <?php if ($index === count($crumbs) - 1) : ?>
-          <span aria-current="page"><?php echo esc_html($crumb['name']); ?></span>
-        <?php else : ?>
-          <a href="<?php echo esc_url($crumb['url']); ?>"><?php echo esc_html($crumb['name']); ?></a>
-        <?php endif; ?>
-      <?php endforeach; ?>
-    </nav>
+  <main id="main-content" class="flex-1">
+    <div class="container-site py-10 md:py-14">
 
-    <article <?php post_class('container-wide article-layout'); ?>>
-      <div class="article-main">
-        <?php if ($category) : ?><a class="article-category" href="<?php echo esc_url(get_category_link($category)); ?>"><?php echo esc_html($category->name); ?></a><?php endif; ?>
-        <h1><?php the_title(); ?></h1>
-        <?php if (has_excerpt()) : ?><p class="article-lead"><?php echo esc_html(get_the_excerpt()); ?></p><?php endif; ?>
+      <!-- بردکرامب -->
+      <nav aria-label="مسیر صفحه" class="flex flex-wrap items-center gap-1.5 text-[12px] font-semibold text-muted-foreground">
+        <a href="<?php echo esc_url(home_url('/')); ?>" class="hover:text-foreground">خانه</a>
+        <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        <a href="<?php echo esc_url($blog_url); ?>" class="hover:text-foreground"><?php echo $is_radio ? 'رادیو نیل' : 'مقالات'; ?></a>
+        <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        <span class="text-foreground/80 truncate max-w-[260px]"><?php the_title(); ?></span>
+      </nav>
 
-        <div class="article-byline">
-          <div class="article-author-avatar" aria-hidden="true"><?php echo esc_html(mb_substr($author_name, 0, 1)); ?></div>
-          <div><strong><?php echo esc_html($author_name); ?></strong><?php if (get_bloginfo('description')) : ?><small><?php echo esc_html(get_bloginfo('description')); ?></small><?php endif; ?></div>
-          <span class="byline-separator"></span>
-          <span><?php echo esc_html(nasim_fa_digits(nasim_reading_time())); ?> دقیقه مطالعه</span><span>•</span>
-          <time datetime="<?php echo esc_attr(get_the_modified_date('c')); ?>"><?php echo $updated ? 'به‌روزرسانی: ' : 'انتشار: '; ?><?php echo esc_html(nasim_jdate($updated ? get_the_modified_time('U') : get_the_time('U'))); ?></time>
-        </div>
+      <article <?php post_class('mt-8 grid lg:grid-cols-12 gap-10'); ?>>
+        <!-- بدنه مقاله -->
+        <div class="lg:col-span-8 min-w-0">
+          <header>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="rounded-full bg-violet-100 border border-violet-200 px-2.5 py-1 text-xs font-bold text-violet-800"><?php echo esc_html($cat); ?></span>
+              <span class="text-xs font-bold text-muted-foreground"><?php echo esc_html(get_the_date()); ?></span>
+              <span class="text-xs font-bold text-muted-foreground">· زمان مطالعه: <?php echo esc_html(nasim_fa_digits($mins)); ?> دقیقه</span>
+            </div>
+            <h1 class="mt-4 text-xl md:text-3xl font-black leading-[1.6]"><?php the_title(); ?></h1>
+          </header>
 
-        <?php if (has_post_thumbnail()) : ?>
-        <figure class="article-cover">
-          <?php the_post_thumbnail('large', ['alt' => the_title_attribute(['echo' => false]), 'fetchpriority' => 'high', 'decoding' => 'async']); ?>
-          <?php if ($caption) : ?><figcaption><?php echo esc_html($caption); ?></figcaption><?php endif; ?>
-        </figure>
-        <?php endif; ?>
+          <?php if (has_post_thumbnail()) : ?>
+          <figure class="mt-6 rounded-3xl overflow-hidden border border-border shadow-soft">
+            <?php the_post_thumbnail('large', ['class' => 'w-full h-auto object-cover', 'alt' => the_title_attribute(['echo' => false])]); ?>
+          </figure>
+          <?php endif; ?>
 
-        <?php if (count($toc) > 1) : ?>
-        <nav class="toc-card toc-mobile" aria-label="فهرست مطالب">
-          <strong>در این مقاله می‌خوانید</strong>
-          <?php foreach ($toc as $heading) : ?>
-          <a href="#<?php echo esc_attr($heading['id']); ?>"><?php echo esc_html($heading['title']); ?></a>
-          <?php endforeach; ?>
-        </nav>
-        <?php endif; ?>
-
-        <div class="article-body">
-          <?php echo $content_html; // phpcs:ignore WordPress.Security.EscapeOutput -- filtered post content + theme CTA. ?>
-          <?php wp_link_pages(['before' => '<nav class="page-links">', 'after' => '</nav>']); ?>
-        </div>
-
-        <div class="article-share" aria-label="اشتراک‌گذاری">
-          <span>اشتراک‌گذاری:</span>
-          <a href="<?php echo esc_url($share['telegram']); ?>" target="_blank" rel="noopener noreferrer">تلگرام</a>
-          <a href="<?php echo esc_url($share['whatsapp']); ?>" target="_blank" rel="noopener noreferrer">واتساپ</a>
-          <a href="<?php echo esc_url($share['linkedin']); ?>" target="_blank" rel="noopener noreferrer">لینکدین</a>
-          <a href="<?php echo esc_url($share['twitter']); ?>" target="_blank" rel="noopener noreferrer">ایکس</a>
-        </div>
-
-        <?php if ($tags) : ?>
-        <div class="article-tags"><span>برچسب‌ها:</span>
-          <?php foreach ($tags as $tag) : ?><a href="<?php echo esc_url(get_tag_link($tag)); ?>"><?php echo esc_html($tag->name); ?></a><?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-
-        <?php nasim_seo_render_hub_links(); ?>
-
-        <div class="article-author-box">
-          <div class="article-author-avatar large" aria-hidden="true"><?php echo esc_html(mb_substr($author_name, 0, 1)); ?></div>
-          <div>
-            <strong><?php echo esc_html($author_name); ?></strong>
-            <p><?php echo esc_html($author_bio); ?></p>
-            <p class="author-bio-links">
-              <a class="text-link" href="<?php echo esc_url(nasim_profile_bio_url()); ?>"><?php echo esc_html(function_exists('nasim_profile') ? (nasim_profile()['bio_label'] ?? 'درباره من') : 'درباره من'); ?></a>
-              <?php if ($author_id) : ?>
-              <span aria-hidden="true">·</span>
-              <a class="text-link" href="<?php echo esc_url(get_author_posts_url($author_id)); ?>">همه مطالب</a>
-              <?php endif; ?>
-            </p>
+          <div class="article-body article-prose mt-8">
+            <?php the_content(); ?>
+            <?php wp_link_pages(['before' => '<nav class="mt-6 flex gap-2">', 'after' => '</nav>']); ?>
           </div>
-        </div>
 
-        <?php if (comments_open() || get_comments_number()) : ?>
-          <?php comments_template(); ?>
-        <?php endif; ?>
-
-        <?php if ($related) : ?>
-        <section class="related-articles">
-          <div class="section-heading"><div><span class="eyebrow">ادامه مطالعه</span><h2>مقالات مرتبط برای <span>مسیر یادگیری</span></h2></div></div>
-          <div class="related-grid">
-            <?php foreach ($related as $item) : ?>
-            <a href="<?php echo esc_url(get_permalink($item)); ?>" class="related-card">
-              <?php nasim_post_thumbnail($item); ?>
-              <strong><?php echo esc_html(get_the_title($item)); ?></strong>
-              <small><?php echo esc_html(nasim_post_card_meta($item)); ?></small>
-            </a>
-            <?php endforeach; ?>
-          </div>
-        </section>
-        <?php endif; ?>
-      </div>
-
-      <aside class="article-sidebar">
-        <?php if (count($toc) > 1) : ?>
-        <nav class="sidebar-card toc-card toc-desktop" aria-label="فهرست مطالب">
-          <strong>در این مقاله می‌خوانید</strong>
-          <?php foreach ($toc as $heading) : ?>
-          <a href="#<?php echo esc_attr($heading['id']); ?>"><?php echo esc_html($heading['title']); ?></a>
-          <?php endforeach; ?>
-        </nav>
-        <?php endif; ?>
-
-        <div class="sidebar-card sidebar-about">
-          <div class="sidebar-about-top">
-            <span class="sidebar-about-avatar" aria-hidden="true"><?php echo esc_html(mb_substr($profile['name'] ?? 'ن', 0, 1)); ?></span>
+          <!-- CTA گام بعدی -->
+          <div class="reveal mt-10 rounded-3xl border border-violet-300 bg-violet-100/50 p-6 md:p-7 flex flex-col md:flex-row items-center gap-5 justify-between">
             <div>
-              <strong><?php echo esc_html($profile['name'] ?? 'نیلوفر وفایی'); ?></strong>
-              <small><?php echo esc_html($profile['role'] ?? 'مدرس طراحی سایت'); ?></small>
+              <p class="text-[13px] font-black text-violet-900">گام بعدی مسیر یادگیری</p>
+              <h3 class="mt-1.5 text-[16px] font-extrabold text-ink-950">مسیر پروژه‌محور طراحی سایت در آکادمی نیلوفر وفایی</h3>
+            </div>
+            <a href="<?php echo esc_url($courses_url); ?>" class="btn btn-violet rounded-full font-bold shrink-0">
+              مشاهده دوره‌ها
+              <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            </a>
+          </div>
+
+          <!-- دیدگاه‌های واقعی وردپرس -->
+          <?php if (comments_open() || get_comments_number()) : ?>
+          <div class="mt-12">
+            <?php comments_template(); ?>
+          </div>
+          <?php endif; ?>
+
+          <!-- مقالات مرتبط -->
+          <?php if ($related) : ?>
+          <div class="reveal mt-12">
+            <h2 class="text-lg font-extrabold mb-4">مطالب مرتبط</h2>
+            <ul class="space-y-2.5">
+              <?php foreach ($related as $rel) : ?>
+              <li>
+                <a href="<?php echo esc_url(get_permalink($rel->ID)); ?>" class="block rounded-2xl border border-border bg-card px-4 py-3.5 hover:border-violet-400 transition-colors">
+                  <span class="block text-[14px] font-bold"><?php echo esc_html($rel->post_title); ?></span>
+                  <span class="block mt-1 text-xs font-semibold text-muted-foreground"><?php echo esc_html(get_the_date('', $rel->ID)); ?></span>
+                </a>
+              </li>
+              <?php endforeach; ?>
+            </ul>
+            <div class="mt-6">
+              <a href="<?php echo esc_url($blog_url); ?>" class="btn btn-outline rounded-full font-bold">بازگشت به همه مقالات</a>
             </div>
           </div>
-          <p><?php echo esc_html($profile['about_short'] ?? ($profile['tagline'] ?? '')); ?></p>
-          <a class="button button-primary button-small" href="<?php echo esc_url($bio_url); ?>"><?php echo esc_html($profile['bio_label'] ?? 'معرفی من'); ?> ←</a>
+          <?php endif; ?>
         </div>
 
-        <?php if ($sidebar_courses) : ?>
-        <div class="sidebar-card sidebar-courses">
-          <div class="sidebar-courses-head">
-            <strong>دوره‌های آموزشی</strong>
-            <a class="text-link" href="<?php echo esc_url($courses_url); ?>">همه ←</a>
+        <!-- سایدبار مقاله -->
+        <aside class="lg:col-span-4 space-y-5 min-w-0">
+          <?php if ($related) : ?>
+          <div class="rounded-3xl border border-border bg-card p-6 shadow-soft">
+            <h3 class="font-extrabold text-[14.5px] mb-4">مطالب پیشنهادی</h3>
+            <ul class="space-y-4">
+              <?php foreach ($related as $rel) : ?>
+              <li>
+                <a href="<?php echo esc_url(get_permalink($rel->ID)); ?>" class="group block">
+                  <span class="block text-[13.5px] font-bold leading-6 group-hover:text-violet-700 transition-colors"><?php echo esc_html($rel->post_title); ?></span>
+                  <span class="mt-1 block text-xs font-semibold text-muted-foreground"><?php echo esc_html(get_the_date('', $rel->ID)); ?></span>
+                </a>
+              </li>
+              <?php endforeach; ?>
+            </ul>
           </div>
-          <ul class="sidebar-course-list">
-            <?php foreach ($sidebar_courses as $course) :
-                $cid   = (int) $course->ID;
-                $thumb = function_exists('nasim_niloo_course_image_url')
-                    ? nasim_niloo_course_image_url($cid, 'thumbnail')
-                    : (string) get_the_post_thumbnail_url($cid, 'thumbnail');
-                $price = function_exists('nasim_course_catalog_price') ? nasim_course_catalog_price($cid) : 0;
-                $mode  = function_exists('nasim_course_access_mode') ? nasim_course_access_mode($cid) : 'purchase';
-                ?>
-            <li>
-              <a class="sidebar-course-row" href="<?php echo esc_url(get_permalink($cid)); ?>">
-                <?php if ($thumb) : ?>
-                <img src="<?php echo esc_url($thumb); ?>" alt="" width="56" height="56" loading="lazy" decoding="async">
-                <?php else : ?>
-                <span class="sidebar-course-fallback" aria-hidden="true">ن</span>
-                <?php endif; ?>
-                <span class="sidebar-course-copy">
-                  <strong><?php echo esc_html(get_the_title($cid)); ?></strong>
-                  <small><?php
-                    if ('free' === $mode) {
-                        echo 'رایگان';
-                    } elseif ($price > 0 && function_exists('nasim_format_price')) {
-                        echo esc_html(nasim_format_price($price));
-                    } else {
-                        echo 'مشاهده دوره';
-                    }
-                  ?></small>
-                </span>
-              </a>
-            </li>
-            <?php endforeach; ?>
-          </ul>
-        </div>
-        <?php endif; ?>
-      </aside>
-    </article>
-  </main>
+          <?php endif; ?>
 
-  <button type="button" class="back-to-top" id="backToTop" aria-label="بازگشت به بالای صفحه" hidden>↑</button>
+          <div class="rounded-3xl bg-ink-900 text-cream p-6">
+            <p class="text-[14px] font-extrabold">مشاوره رایگان قبل از ثبت‌نام</p>
+            <p class="mt-2 fa-line text-xs text-ink-200 leading-6">
+              اگر سوالی درباره این آموزش یا انتخاب دوره مناسب خودت داری، همین الان بپرس.
+            </p>
+            <a href="<?php echo esc_url($contact_url); ?>" class="btn btn-violet btn-sm w-full mt-4 rounded-full font-bold">ارتباط و مشاوره</a>
+          </div>
+        </aside>
+      </article>
+
+    </div>
+  </main>
 
 <?php
 endwhile;

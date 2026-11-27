@@ -202,3 +202,130 @@ function nasim_ajax_auth_register() {
     wp_send_json_success(['redirect' => nasim_auth_redirect_target(nasim_auth_posted('redirect_to'), $user)]);
 }
 nasim_auth_add_ajax_action('nasim_auth_register', 'nasim_ajax_auth_register');
+
+
+/**
+ * Unified mobile-first flow (step 1): one field for login and sign-up.
+ * Existing numbers get a login code; new numbers get a sign-up code and the form asks for a name.
+ */
+function nasim_auth_generate_username($mobile) {
+
+    $base     = 'u' . substr((string) $mobile, 1);
+    $username = $base;
+    $i        = 0;
+
+    while (username_exists($username)) {
+        $i++;
+        $username = $base . '_' . $i;
+    }
+
+    return $username;
+}
+
+
+function nasim_ajax_auth_start() {
+
+    nasim_auth_guard();
+
+    $mobile = nasim_normalize_mobile(nasim_auth_posted('mobile'));
+
+    if (!$mobile) {
+        nasim_auth_json_error('شماره موبایل درست نیست؛ مثل ۰۹۱۲۳۴۵۶۷۸۹ وارد کن.', 'mobile');
+    }
+
+    $user   = nasim_get_user_by_mobile($mobile);
+    $is_new = !$user;
+
+    if ($is_new && !nasim_registration_enabled()) {
+        nasim_auth_json_error('حسابی با این شماره پیدا نشد و ثبت‌نام فعلاً بسته است.', 'mobile');
+    }
+
+    if (!$is_new && !nasim_otp_login_enabled()) {
+        nasim_auth_json_error('ورود با کد پیامکی غیرفعال است؛ با رمز عبور وارد شو.', 'mobile', ['password' => true]);
+    }
+
+    $sent = nasim_otp_send($mobile, 'auth', $is_new ? 'register' : 'login');
+
+    if (is_wp_error($sent)) {
+        $data = (array) $sent->get_error_data();
+        nasim_auth_json_error($sent->get_error_message(), 'mobile', isset($data['wait']) ? ['wait' => (int) $data['wait'], 'is_new' => $is_new, 'mobile' => nasim_mask_mobile($mobile)] : []);
+    }
+
+    wp_send_json_success([
+        'message' => sprintf('کد تأیید به %s پیامک شد.', nasim_mask_mobile($mobile)),
+        'mobile'  => nasim_mask_mobile($mobile),
+        'is_new'  => $is_new,
+        'resend'  => (int) $sent['resend'],
+        'length'  => (int) $sent['length'],
+    ]);
+}
+nasim_auth_add_ajax_action('nasim_auth_start', 'nasim_ajax_auth_start');
+
+
+/**
+ * Unified flow (step 2): verify the code, then sign in or create the account
+ */
+function nasim_ajax_auth_verify() {
+
+    nasim_auth_guard();
+
+    $mobile = nasim_normalize_mobile(nasim_auth_posted('mobile'));
+
+    if (!$mobile) {
+        nasim_auth_json_error('شماره موبایل درست نیست.', 'mobile');
+    }
+
+    $user = nasim_get_user_by_mobile($mobile);
+    $name = trim(sanitize_text_field(nasim_auth_posted('name')));
+
+    // Validate the name before touching the code, so a typo never burns an attempt.
+    if (!$user) {
+        if (!nasim_registration_enabled()) {
+            nasim_auth_json_error('ثبت‌نام فعلاً بسته است.', 'mobile');
+        }
+
+        if (mb_strlen($name) < 2 || mb_strlen($name) > 60) {
+            nasim_auth_json_error('نام و نام خانوادگی‌ات را بنویس (حداقل ۲ حرف).', 'name');
+        }
+    }
+
+    $verified = nasim_otp_verify($mobile, 'auth', nasim_auth_posted('code'));
+
+    if (is_wp_error($verified)) {
+        nasim_auth_json_error($verified->get_error_message(), 'code', ['expired' => 'otp_expired' === $verified->get_error_code()]);
+    }
+
+    $is_new = false;
+
+    if (!$user) {
+        // Another request may have registered this number in the meantime.
+        $user = nasim_get_user_by_mobile($mobile);
+    }
+
+    if (!$user) {
+        $user_id = nasim_create_user([
+            'name'     => $name,
+            'username' => nasim_auth_generate_username($mobile),
+            'mobile'   => $mobile,
+            'password' => wp_generate_password(24, true, true),
+        ]);
+
+        if (is_wp_error($user_id)) {
+            nasim_auth_json_error('ساخت حساب ناموفق بود؛ دوباره تلاش کن.');
+        }
+
+        $user   = get_userdata($user_id);
+        $is_new = true;
+    }
+
+    nasim_login_user($user);
+
+    $target = nasim_auth_redirect_target(nasim_auth_posted('redirect_to'), $user);
+
+    if ($is_new && !nasim_auth_posted('redirect_to')) {
+        $target = add_query_arg('welcome', 1, $target);
+    }
+
+    wp_send_json_success(['redirect' => $target, 'is_new' => $is_new]);
+}
+nasim_auth_add_ajax_action('nasim_auth_verify', 'nasim_ajax_auth_verify');

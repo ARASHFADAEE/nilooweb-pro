@@ -54,9 +54,14 @@ function nasim_sms_template($purpose) {
         return absint(nasim_setting($prefix . 'subscription_template'));
     }
 
-    $template = 'register' === $purpose ? nasim_setting($prefix . 'register_template') : '';
+    $login    = absint(nasim_setting($prefix . 'login_template'));
+    $register = absint(nasim_setting($prefix . 'register_template'));
 
-    return absint($template ?: nasim_setting($prefix . 'login_template'));
+    if ('register' === $purpose) {
+        return $register ?: $login;
+    }
+
+    return $login ?: $register;
 }
 
 

@@ -43,6 +43,7 @@ final class SaveHandler {
 
 		$page_id = sanitize_key( wp_unslash( (string) $_POST['mino_page_id'] ) );
 		$action  = sanitize_key( wp_unslash( (string) $_POST['mino_action'] ) );
+		$tab_id  = isset( $_POST['mino_tab'] ) ? sanitize_key( wp_unslash( (string) $_POST['mino_tab'] ) ) : '';
 
 		$result = self::process_request( $page_id, $action, $_POST );
 
@@ -60,11 +61,11 @@ final class SaveHandler {
 					45
 				);
 			}
-			self::redirect( $slug, 'error' );
+			self::redirect( $slug, 'error', $tab_id );
 			return;
 		}
 
-		self::redirect( $slug, 'reset' === $action ? 'reset' : 'saved' );
+		self::redirect( $slug, 'reset' === $action ? 'reset' : 'saved', $tab_id );
 	}
 
 	/**
@@ -135,17 +136,26 @@ final class SaveHandler {
 			);
 		}
 
-		$raw = wp_unslash( $source );
-		unset( $raw['mino_action'], $raw['mino_page_id'], $raw['mino_nonce'], $raw['_wp_http_referer'], $raw['action'], $raw['mino_no_js'] );
+		$raw    = wp_unslash( $source );
+		$tab_id = isset( $raw['mino_tab'] ) ? sanitize_key( (string) $raw['mino_tab'] ) : '';
+		$tabs   = PageRegistry::instance()->get_tabs( $page_id );
+		if ( '' === $tab_id || ! isset( $tabs[ $tab_id ] ) ) {
+			$tab_id = null;
+		}
 
-		$fields = PageRegistry::instance()->get_fields( $page_id );
+		unset( $raw['mino_action'], $raw['mino_page_id'], $raw['mino_tab'], $raw['mino_nonce'], $raw['_wp_http_referer'], $raw['action'], $raw['mino_no_js'] );
+
+		$fields = null !== $tab_id
+			? PageRegistry::instance()->get_tab_fields( $page_id, $tab_id )
+			: PageRegistry::instance()->get_fields( $page_id );
+
 		foreach ( $fields as $fid => $field ) {
 			if ( 'gallery' === $field['type'] && isset( $raw[ $fid ] ) && is_string( $raw[ $fid ] ) ) {
 				$raw[ $fid ] = array_filter( array_map( 'absint', explode( ',', $raw[ $fid ] ) ) );
 			}
 		}
 
-		$sanitized = Sanitizer::sanitize_page( $page_id, $raw );
+		$sanitized = Sanitizer::sanitize_page( $page_id, $raw, $tab_id );
 
 		foreach ( $fields as $fid => $field ) {
 			if ( in_array( (string) $field['type'], array( 'heading', 'notice', 'html' ), true ) ) {
@@ -156,7 +166,7 @@ final class SaveHandler {
 			}
 		}
 
-		$errors = Validator::validate_page( $page_id, $sanitized );
+		$errors = Validator::validate_page( $page_id, $sanitized, $tab_id );
 		if ( ! empty( $errors ) ) {
 			return array(
 				'ok'      => false,
@@ -184,15 +194,17 @@ final class SaveHandler {
 	/**
 	 * @param string $menu_slug Menu slug.
 	 * @param string $status    Status flag.
+	 * @param string $tab_id    Active tab ID.
 	 */
-	private static function redirect( string $menu_slug, string $status ): void {
-		$url = add_query_arg(
-			array(
-				'page'       => $menu_slug,
-				'mino_status' => $status,
-			),
-			admin_url( 'admin.php' )
+	private static function redirect( string $menu_slug, string $status, string $tab_id = '' ): void {
+		$args = array(
+			'page'        => $menu_slug,
+			'mino_status' => $status,
 		);
+		if ( '' !== $tab_id ) {
+			$args['mino_tab'] = $tab_id;
+		}
+		$url = add_query_arg( $args, admin_url( 'admin.php' ) );
 		wp_safe_redirect( $url );
 		exit;
 	}

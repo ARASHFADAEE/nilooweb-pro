@@ -99,9 +99,9 @@ function nasim_ensure_checkout_user(string $name, string $mobile)
  * @param array<string,mixed> $plan
  * @return string|WP_Error
  */
-function nasim_express_start_payment(int $user_id, array $plan, string $return_url = '')
+function nasim_express_start_payment(int $user_id, array $plan, string $return_url = '', string $gateway_id = '')
 {
-    return nasim_start_plan_payment($user_id, $plan, $return_url);
+    return nasim_start_plan_payment($user_id, $plan, $return_url, $gateway_id);
 }
 
 /**
@@ -118,6 +118,11 @@ function nasim_express_payment_return_url(object $payment): string
 
     $plan_type = (string) get_post_meta((int) $payment->plan_id, '_nasim_plan_type', true);
     $course_id = (int) get_post_meta((int) $payment->plan_id, '_nasim_plan_course_id', true);
+    $bundle_id = (int) get_post_meta((int) $payment->plan_id, '_nasim_plan_bundle_id', true);
+
+    if ('bundle' === $plan_type && $bundle_id && get_permalink($bundle_id)) {
+        return (string) get_permalink($bundle_id);
+    }
 
     if (in_array($plan_type, ['course', 'spot_course'], true) && $course_id) {
         return (string) get_permalink($course_id);
@@ -209,6 +214,14 @@ function nasim_ajax_express_pay(): void
         $return_url = $return_url ?: (string) get_permalink($course_id);
     }
 
+    if ('bundle' === ($plan['type'] ?? '') && !empty($plan['bundle_id'])) {
+        $return_url = $return_url ?: (string) get_permalink((int) $plan['bundle_id']);
+
+        if (is_user_logged_in() && nasim_user_owns_bundle((int) $plan['bundle_id'])) {
+            nasim_express_json_error('همه دوره‌های این پکیج در حساب تو فعال است.', '', ['redirect' => nasim_subscription_url(['tab' => 'courses'])]);
+        }
+    }
+
     if (is_user_logged_in()) {
         $user_id = get_current_user_id();
     } else {
@@ -248,7 +261,8 @@ function nasim_ajax_express_pay(): void
         delete_transient('nasim_checkout_id_' . md5($mobile));
     }
 
-    $pay_url = nasim_express_start_payment((int) $user_id, $plan, $return_url);
+    $requested_gateway = sanitize_key(wp_unslash($_POST['gateway'] ?? ''));
+    $pay_url = nasim_express_start_payment((int) $user_id, $plan, $return_url, $requested_gateway);
     if (is_wp_error($pay_url)) {
         nasim_express_json_error($pay_url->get_error_message());
     }

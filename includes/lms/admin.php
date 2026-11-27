@@ -17,7 +17,7 @@ function nasim_lms_admin_menu() {
         'manage_options',
         'nasim-payment-settings',
         static function () {
-            wp_safe_redirect(admin_url('admin.php?page=niloo_theme_settings&tab=payment'));
+            wp_safe_redirect(admin_url('admin.php?page=niloo_theme_settings&mino_tab=payment'));
             exit;
         }
     );

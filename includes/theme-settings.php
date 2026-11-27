@@ -145,7 +145,15 @@ add_action('after_setup_theme', 'nasim_register_mino_theme_settings', 30);
  */
 function nasim_mino_preserve_secrets($value, array $field)
 {
-    $secrets = ['smsir_api_key', 'msgway_api_key', 'spot_api'];
+    $secrets = [
+        'smsir_api_key',
+        'msgway_api_key',
+        'spot_api',
+        'snapppay_client_secret',
+        'snapppay_password',
+        'digipay_client_secret',
+        'digipay_password',
+    ];
     $id      = (string) ($field['id'] ?? '');
 
     if (!in_array($id, $secrets, true)) {
@@ -446,14 +454,14 @@ function nasim_register_mino_tab_payment()
     Settings::register_tab(NILOO_SETTINGS_PAGE, [
         'id'          => 'payment',
         'title'       => __('درگاه پرداخت', 'niloo-web'),
-        'description' => __('زیبال و زرین‌پال', 'niloo-web'),
+        'description' => __('زیبال، زرین‌پال و پرداخت اقساطی اسنپ‌پی / دیجی‌پی', 'niloo-web'),
         'icon'        => 'dashicons-money-alt',
         'fields'      => [
             [
                 'id'          => 'payment_gateway',
                 'type'        => 'buttonset',
-                'title'       => __('درگاه فعال', 'niloo-web'),
-                'description' => __('بدون ووکامرس؛ خرید دوره‌ها مستقیم با درگاه انتخابی انجام می‌شود.', 'niloo-web'),
+                'title'       => __('درگاه پرداخت نقدی (آنلاین)', 'niloo-web'),
+                'description' => __('بدون ووکامرس؛ خرید نقدی دوره‌ها با درگاه انتخابی انجام می‌شود.', 'niloo-web'),
                 'options'     => [
                     'zibal'    => 'زیبال',
                     'zarinpal' => 'زرین‌پال',
@@ -510,6 +518,147 @@ function nasim_register_mino_tab_payment()
                 'title'       => __('حالت آزمایشی (Sandbox) زرین‌پال', 'niloo-web'),
                 'default'     => false,
                 'require'     => [['payment_gateway', '==', 'zarinpal']],
+            ],
+
+            /* ---------------- SnappPay (اقساطی اسنپ‌پی) ---------------- */
+            [
+                'id'    => 'snapppay_heading',
+                'type'  => 'heading',
+                'title' => __('پرداخت اقساطی اسنپ‌پی (SnappPay)', 'niloo-web'),
+            ],
+            [
+                'id'          => 'snapppay_enabled',
+                'type'        => 'switch',
+                'title'       => __('فعالسازی درگاه اقساطی اسنپ‌پی', 'niloo-web'),
+                'description' => __('به‌صورت اختیاری در کنار درگاه آنلاین به کاربر نمایش داده می‌شود.', 'niloo-web'),
+                'default'     => false,
+            ],
+            [
+                'id'          => 'snapppay_base_url',
+                'type'        => 'url',
+                'title'       => __('آدرس API اسنپ‌پی (Base URL)', 'niloo-web'),
+                'description' => __('پیش‌فرض: https://api.snapppay.ir/ — برای محیط سندباکس آدرس تست اسنپ‌پی را وارد کنید.', 'niloo-web'),
+                'default'     => 'https://api.snapppay.ir/',
+                'require'     => [['snapppay_enabled', '==', true]],
+            ],
+            [
+                'id'      => 'snapppay_client_id',
+                'type'    => 'text',
+                'title'   => __('شناسه مشتری (Client ID)', 'niloo-web'),
+                'default' => '',
+                'require' => [['snapppay_enabled', '==', true]],
+            ],
+            [
+                'id'          => 'snapppay_client_secret',
+                'type'        => 'password',
+                'title'       => __('کلید امنیتی مشتری (Client Secret)', 'niloo-web'),
+                'description' => __('برای حفظ مقدار قبلی، خالی بگذارید.', 'niloo-web'),
+                'default'     => '',
+                'require'     => [['snapppay_enabled', '==', true]],
+            ],
+            [
+                'id'      => 'snapppay_username',
+                'type'    => 'text',
+                'title'   => __('نام کاربری پذیرنده (Username)', 'niloo-web'),
+                'default' => '',
+                'require' => [['snapppay_enabled', '==', true]],
+            ],
+            [
+                'id'          => 'snapppay_password',
+                'type'        => 'password',
+                'title'       => __('رمز عبور پذیرنده (Password)', 'niloo-web'),
+                'description' => __('برای حفظ مقدار قبلی، خالی بگذارید.', 'niloo-web'),
+                'default'     => '',
+                'require'     => [['snapppay_enabled', '==', true]],
+            ],
+            [
+                'id'      => 'snapppay_title',
+                'type'    => 'text',
+                'title'   => __('عنوان نمایشی در صفحه پرداخت', 'niloo-web'),
+                'default' => 'پرداخت اقساطی اسنپ‌پی',
+                'require' => [['snapppay_enabled', '==', true]],
+            ],
+            [
+                'id'          => 'snapppay_description',
+                'type'        => 'text',
+                'title'       => __('توضیح کوتاه (اختیاری)', 'niloo-web'),
+                'description' => __('اگر خالی بماند، مبلغ هر قسط (تقسیم بر ۴) خودکار نمایش داده می‌شود.', 'niloo-web'),
+                'default'     => '',
+                'require'     => [['snapppay_enabled', '==', true]],
+            ],
+
+            /* ---------------- DigiPay (اقساطی دیجی‌پی ایران) ---------------- */
+            [
+                'id'    => 'digipay_heading',
+                'type'  => 'heading',
+                'title' => __('پرداخت اقساطی دیجی‌پی (mydigipay.com)', 'niloo-web'),
+            ],
+            [
+                'id'          => 'digipay_enabled',
+                'type'        => 'switch',
+                'title'       => __('فعالسازی درگاه اقساطی دیجی‌پی', 'niloo-web'),
+                'description' => __('به‌صورت اختیاری در کنار درگاه آنلاین به کاربر نمایش داده می‌شود.', 'niloo-web'),
+                'default'     => false,
+            ],
+            [
+                'id'          => 'digipay_sandbox',
+                'type'        => 'switch',
+                'title'       => __('حالت آزمایشی (UAT / Sandbox) دیجی‌پی', 'niloo-web'),
+                'description' => __('در حالت تست به سرور uat.mydigipay.info متصل می‌شود.', 'niloo-web'),
+                'default'     => false,
+                'require'     => [['digipay_enabled', '==', true]],
+            ],
+            [
+                'id'          => 'digipay_base_url',
+                'type'        => 'url',
+                'title'       => __('آدرس سفارشی API دیجی‌پی (اختیاری)', 'niloo-web'),
+                'description' => __('اگر خالی بماند، خودکار از https://api.mydigipay.com/digipay/api استفاده می‌شود.', 'niloo-web'),
+                'default'     => '',
+                'require'     => [['digipay_enabled', '==', true]],
+            ],
+            [
+                'id'      => 'digipay_client_id',
+                'type'    => 'text',
+                'title'   => __('Client ID دیجی‌پی', 'niloo-web'),
+                'default' => '',
+                'require' => [['digipay_enabled', '==', true]],
+            ],
+            [
+                'id'          => 'digipay_client_secret',
+                'type'        => 'password',
+                'title'       => __('Client Secret دیجی‌پی', 'niloo-web'),
+                'description' => __('برای حفظ مقدار قبلی، خالی بگذارید.', 'niloo-web'),
+                'default'     => '',
+                'require'     => [['digipay_enabled', '==', true]],
+            ],
+            [
+                'id'      => 'digipay_username',
+                'type'    => 'text',
+                'title'   => __('نام کاربری (Username) دیجی‌پی', 'niloo-web'),
+                'default' => '',
+                'require' => [['digipay_enabled', '==', true]],
+            ],
+            [
+                'id'          => 'digipay_password',
+                'type'        => 'password',
+                'title'       => __('رمز عبور (Password) دیجی‌پی', 'niloo-web'),
+                'description' => __('برای حفظ مقدار قبلی، خالی بگذارید.', 'niloo-web'),
+                'default'     => '',
+                'require'     => [['digipay_enabled', '==', true]],
+            ],
+            [
+                'id'      => 'digipay_title',
+                'type'    => 'text',
+                'title'   => __('عنوان نمایشی در صفحه پرداخت', 'niloo-web'),
+                'default' => 'پرداخت اقساطی دیجی‌پی',
+                'require' => [['digipay_enabled', '==', true]],
+            ],
+            [
+                'id'      => 'digipay_description',
+                'type'    => 'text',
+                'title'   => __('توضیح کوتاه (اختیاری)', 'niloo-web'),
+                'default' => 'پرداخت اعتباری و اقساطی با دیجی‌پی',
+                'require' => [['digipay_enabled', '==', true]],
             ],
         ],
     ]);
@@ -609,16 +758,73 @@ function nasim_render_mino_tools_tab($page_id, $tab, $values)
         );
     }
 
+    $otp_login_flag = function_exists('nasim_setting') && (bool) nasim_setting('auth_otp_login');
+    $reg_flag       = function_exists('nasim_setting') && (bool) nasim_setting('auth_registration');
+    $sms_ready      = function_exists('nasim_sms_configured') && nasim_sms_configured();
+    $login_tpl      = function_exists('nasim_sms_template') ? (int) nasim_sms_template('login') : 0;
+    $otp_active     = function_exists('nasim_otp_login_enabled') && nasim_otp_login_enabled();
+    $reg_active     = function_exists('nasim_registration_enabled') && nasim_registration_enabled();
+
     echo '<div class="mino-card" style="margin-bottom:20px">';
-    echo '<h3>' . esc_html__('وضعیت درگاه', 'niloo-web') . '</h3>';
+    echo '<h3>' . esc_html__('وضعیت ورود و ثبت‌نام با کد یک‌بارمصرف (OTP)', 'niloo-web') . '</h3>';
+    printf(
+        '<p>%s: %s</p>',
+        esc_html__('وضعیت کلی OTP در صفحه ورود', 'niloo-web'),
+        ($otp_active || $reg_active)
+            ? '<span style="color:#008a20;font-weight:600">' . esc_html__('فعال و آماده ارسال کد', 'niloo-web') . '</span>'
+            : '<span style="color:#b32d2e;font-weight:600">' . esc_html__('غیرفعال (موارد قرمز زیر را بررسی کنید)', 'niloo-web') . '</span>'
+    );
+    printf(
+        '<p>%s: %s · %s: %s</p>',
+        esc_html__('سوییچ ورود با OTP', 'niloo-web'),
+        $otp_login_flag ? '<span style="color:#008a20">' . esc_html__('روشن', 'niloo-web') . '</span>' : '<span style="color:#b32d2e">' . esc_html__('خاموش', 'niloo-web') . '</span>',
+        esc_html__('سوییچ ثبت‌نام جدید', 'niloo-web'),
+        $reg_flag ? '<span style="color:#008a20">' . esc_html__('روشن', 'niloo-web') . '</span>' : '<span style="color:#b32d2e">' . esc_html__('خاموش', 'niloo-web') . '</span>'
+    );
+    printf(
+        '<p>%s: <strong>%s</strong> — %s · %s: %s</p>',
+        esc_html__('سامانه پیامک', 'niloo-web'),
+        esc_html($labels[$provider] ?? $provider),
+        $sms_ready ? '<span style="color:#008a20">' . esc_html__('کلید API ثبت شده', 'niloo-web') . '</span>' : '<span style="color:#b32d2e">' . esc_html__('کلید API وارد نشده', 'niloo-web') . '</span>',
+        esc_html__('کد قالب ورود', 'niloo-web'),
+        $login_tpl > 0 ? '<span style="color:#008a20" dir="ltr">#' . esc_html((string) $login_tpl) . '</span>' : '<span style="color:#b32d2e">' . esc_html__('تنظیم نشده', 'niloo-web') . '</span>'
+    );
+    echo '</div>';
+
+    echo '<div class="mino-card" style="margin-bottom:20px">';
+    echo '<h3>' . esc_html__('وضعیت درگاه‌های پرداخت', 'niloo-web') . '</h3>';
     printf(
         '<p>%s: <strong>%s</strong> — %s</p>',
-        esc_html__('درگاه فعال', 'niloo-web'),
+        esc_html__('درگاه نقدی فعال', 'niloo-web'),
         esc_html($gw_labels[$gateway_id] ?? $gateway_id),
         $configured
             ? '<span style="color:#008a20">' . esc_html__('پیکربندی شده', 'niloo-web') . '</span>'
             : '<span style="color:#b32d2e">' . esc_html__('مرچنت تنظیم نشده', 'niloo-web') . '</span>'
     );
+    if (class_exists('Nasim_Snapppay_Gateway')) {
+        $spp = Nasim_Snapppay_Gateway::from_settings();
+        printf(
+            '<p>%s: %s</p>',
+            esc_html__('اقساطی اسنپ‌پی', 'niloo-web'),
+            $spp->is_available()
+                ? '<span style="color:#008a20">' . esc_html__('فعال و پیکربندی شده', 'niloo-web') . '</span>'
+                : ($spp->is_enabled()
+                    ? '<span style="color:#b32d2e">' . esc_html__('فعال ولی اطلاعات API ناقص است', 'niloo-web') . '</span>'
+                    : '<span style="color:#646970">' . esc_html__('غیرفعال', 'niloo-web') . '</span>')
+        );
+    }
+    if (class_exists('Nasim_Digipay_Gateway')) {
+        $dp = Nasim_Digipay_Gateway::from_settings();
+        printf(
+            '<p>%s: %s</p>',
+            esc_html__('اقساطی دیجی‌پی', 'niloo-web'),
+            $dp->is_available()
+                ? '<span style="color:#008a20">' . esc_html__('فعال و پیکربندی شده', 'niloo-web') . '</span>'
+                : ($dp->is_enabled()
+                    ? '<span style="color:#b32d2e">' . esc_html__('فعال ولی اطلاعات API ناقص است', 'niloo-web') . '</span>'
+                    : '<span style="color:#646970">' . esc_html__('غیرفعال', 'niloo-web') . '</span>')
+        );
+    }
     echo '</div>';
 
     echo '<div class="mino-card">';
@@ -653,6 +859,8 @@ function nasim_on_mino_settings_saved(array $values, string $page_id)
     }
 
     delete_transient('nasim_smsir_credit');
+    delete_transient('nasim_snapppay_bearer_token');
+    delete_transient('nasim_digipay_access_token');
 
     // Keep legacy options in sync for any leftover readers.
     $legacy = (array) get_option('nasim_theme_settings', []);
@@ -722,7 +930,7 @@ function nasim_output_theme_color_vars()
     }
 
     $css = ':root{' . implode(';', $rules) . '}';
-    wp_add_inline_style('nasim-main', $css);
+    wp_add_inline_style(wp_style_is('nasim-design', 'enqueued') ? 'nasim-design' : 'nasim-main', $css);
 }
 add_action('wp_enqueue_scripts', 'nasim_output_theme_color_vars', 30);
 
@@ -738,8 +946,8 @@ function nasim_redirect_legacy_settings_pages()
 
     $page = sanitize_key(wp_unslash((string) $_GET['page']));
     $map  = [
-        'nasim-theme-settings'   => ['tab' => 'sms'],
-        'nasim-payment-settings' => ['tab' => 'payment'],
+        'nasim-theme-settings'   => ['mino_tab' => 'sms'],
+        'nasim-payment-settings' => ['mino_tab' => 'payment'],
     ];
 
     if (!isset($map[$page])) {

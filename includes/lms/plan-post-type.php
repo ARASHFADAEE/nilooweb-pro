@@ -65,6 +65,7 @@ function nasim_render_plan_meta_box($post) {
                     <option value="subscription" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true) ?: 'subscription', 'subscription'); ?>><?php esc_html_e('اشتراک (غیرفعال در فروش — فقط سازگاری)', 'niloo-web'); ?></option>
                     <option value="course" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'course'); ?>><?php esc_html_e('خرید دوره (LMS)', 'niloo-web'); ?></option>
                     <option value="spot_course" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'spot_course'); ?>><?php esc_html_e('خرید دوره اسپات‌پلیر', 'niloo-web'); ?></option>
+                    <option value="bundle" <?php selected(get_post_meta($post->ID, '_nasim_plan_type', true), 'bundle'); ?>><?php esc_html_e('پکیج (از بخش «پکیج‌ها» مدیریت می‌شود)', 'niloo-web'); ?></option>
                 </select>
             </td>
         </tr>
@@ -96,13 +97,13 @@ function nasim_save_plan_meta($post_id) {
     update_post_meta($post_id, '_nasim_plan_featured', !empty($_POST['nasim_plan_featured']) ? 1 : 0);
 
     $type = sanitize_key(wp_unslash($_POST['nasim_plan_type'] ?? 'subscription'));
-    if (!in_array($type, ['subscription', 'course', 'spot_course'], true)) {
+    if (!in_array($type, ['subscription', 'course', 'spot_course', 'bundle'], true)) {
         $type = 'subscription';
     }
     update_post_meta($post_id, '_nasim_plan_type', $type);
     update_post_meta($post_id, '_nasim_plan_course_id', absint($_POST['nasim_plan_course_id'] ?? 0));
 
-    if (in_array($type, ['course', 'spot_course'], true)) {
+    if (in_array($type, ['course', 'spot_course', 'bundle'], true)) {
         update_post_meta($post_id, '_nasim_plan_days', 0);
     }
 }
@@ -117,11 +118,11 @@ function nasim_get_plan($plan_id, $published_only = true) {
     $post = get_post($plan_id);
 
     if (!$post || 'nasim_plan' !== $post->post_type || ($published_only && 'publish' !== $post->post_status)) {
-        return $published_only ? null : ['id' => 0, 'title' => '', 'price' => 0, 'days' => 30, 'features' => [], 'featured' => false, 'type' => 'subscription', 'course_id' => 0];
+        return $published_only ? null : ['id' => 0, 'title' => '', 'price' => 0, 'days' => 30, 'features' => [], 'featured' => false, 'type' => 'subscription', 'course_id' => 0, 'bundle_id' => 0];
     }
 
     $type = sanitize_key((string) get_post_meta($post->ID, '_nasim_plan_type', true));
-    if (!in_array($type, ['subscription', 'course', 'spot_course'], true)) {
+    if (!in_array($type, ['subscription', 'course', 'spot_course', 'bundle'], true)) {
         $type = 'subscription';
     }
 
@@ -139,6 +140,7 @@ function nasim_get_plan($plan_id, $published_only = true) {
         'featured'  => (bool) get_post_meta($post->ID, '_nasim_plan_featured', true),
         'type'      => $type,
         'course_id' => (int) get_post_meta($post->ID, '_nasim_plan_course_id', true),
+        'bundle_id' => (int) get_post_meta($post->ID, '_nasim_plan_bundle_id', true),
     ];
 }
 
@@ -167,7 +169,7 @@ function nasim_get_plans($type = 'subscription') {
             return true;
         }
         if ('purchase' === $type) {
-            return in_array($plan['type'], ['course', 'spot_course'], true);
+            return in_array($plan['type'], ['course', 'spot_course', 'bundle'], true);
         }
 
         return $plan['type'] === $type;
@@ -190,6 +192,10 @@ function nasim_plan_monthly_price($plan) {
 function nasim_plan_duration_label($plan) {
 
     $type = $plan['type'] ?? (string) get_post_meta((int) ($plan['id'] ?? 0), '_nasim_plan_type', true);
+    if ('bundle' === $type) {
+        return 'پکیج · یک‌بار خرید';
+    }
+
     if (in_array($type, ['course', 'spot_course'], true) || (int) $plan['days'] <= 0) {
         return 'یک‌بار خرید';
     }

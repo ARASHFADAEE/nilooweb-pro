@@ -45,6 +45,7 @@ final class Nasim_Elementor_Bootstrap
             'class-widget-radio-nil.php'    => 'Nasim_Elementor_Widget_Radio_Nil',
             'class-widget-articles.php'     => 'Nasim_Elementor_Widget_Articles',
             'class-widget-newsletter.php'   => 'Nasim_Elementor_Widget_Newsletter',
+            'class-widget-bundles.php'      => 'Nasim_Elementor_Widget_Bundles',
         ];
 
         foreach ($widgets as $file => $class) {
@@ -69,29 +70,17 @@ final class Nasim_Elementor_Bootstrap
     public static function editor_styles(): void
     {
         wp_enqueue_style(
-            'nasim-main',
-            THEME_URL . '/assets/css/tailwind.css',
+            'nasim-theme',
+            THEME_URL . '/assets/css/theme.css',
             [],
-            function_exists('nasim_asset_version') ? nasim_asset_version('/assets/css/tailwind.css') : null
-        );
-        wp_enqueue_style(
-            'nasim-lms',
-            THEME_URL . '/assets/css/lms.css',
-            ['nasim-main'],
-            function_exists('nasim_asset_version') ? nasim_asset_version('/assets/css/lms.css') : null
+            function_exists('nasim_asset_version') ? nasim_asset_version('/assets/css/theme.css') : null
         );
     }
 
     public static function frontend_styles(): void
     {
-        // Theme assets already enqueue on front; ensure LMS cards look right in Elementor pages.
-        if (!wp_style_is('nasim-lms', 'enqueued')) {
-            wp_enqueue_style(
-                'nasim-lms',
-                THEME_URL . '/assets/css/lms.css',
-                ['nasim-main'],
-                function_exists('nasim_asset_version') ? nasim_asset_version('/assets/css/lms.css') : null
-            );
+        if (wp_style_is('nasim-theme', 'registered')) {
+            wp_enqueue_style('nasim-theme');
         }
     }
 }

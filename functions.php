@@ -59,6 +59,8 @@ include_once THEME_DIR . '/includes/enqueue.php';
 * Include template helpers
 */
 include_once THEME_DIR . '/includes/template-functions.php';
+include_once THEME_DIR . '/includes/home.php';
+include_once THEME_DIR . '/includes/account-panel.php';
 
 
 /**

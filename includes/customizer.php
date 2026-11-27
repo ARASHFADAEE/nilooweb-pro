@@ -121,6 +121,17 @@ function nasim_customizer_sections() {
             ],
         ],
 
+        'nasim_bundles' => [
+            'title'       => __('پکیج‌ها در صفحه اصلی', 'niloo-web'),
+            'description' => __('پکیج‌هایی که گزینه «نمایش در صفحه اصلی» دارند (یا آخرین پکیج‌ها) نمایش داده می‌شوند.', 'niloo-web'),
+            'fields'      => [
+                'bundles_home_eyebrow'         => ['label' => __('تیتر کوچک', 'niloo-web'), 'default' => 'پکیج‌های آموزشی'],
+                'bundles_home_title'           => ['label' => __('عنوان', 'niloo-web'), 'default' => 'مسیر کامل،'],
+                'bundles_home_title_highlight' => ['label' => __('عنوان رنگی', 'niloo-web'), 'default' => 'با قیمت کمتر'],
+                'bundles_home_description'     => ['label' => __('توضیح', 'niloo-web'), 'type' => 'textarea', 'default' => 'چند دوره مکمل را یک‌جا بخر؛ بعد از پرداخت، همه دوره‌های پکیج بلافاصله در پنلت فعال می‌شود.'],
+            ],
+        ],
+
         'nasim_about' => [
             'title'  => __('درباره من', 'niloo-web'),
             'fields' => [

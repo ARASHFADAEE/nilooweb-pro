@@ -18,7 +18,8 @@ function nasim_handle_subscribe()
         exit;
     }
 
-    $url = nasim_start_plan_payment(get_current_user_id(), $plan);
+    $requested_gateway = sanitize_key(wp_unslash($_POST['gateway'] ?? ''));
+    $url = nasim_start_plan_payment(get_current_user_id(), $plan, '', $requested_gateway);
 
     if (is_wp_error($url)) {
         $payment_hint = get_current_user_id() ? ['nasim_error' => 'gateway'] : ['nasim_error' => 'payment'];
@@ -49,6 +50,10 @@ function nasim_handle_subscribe_guest()
 
     if ($plan && $plan['price'] > 0) {
         $args['highlight'] = $plan_id;
+        if ('bundle' === ($plan['type'] ?? '') && !empty($plan['bundle_id']) && get_permalink((int) $plan['bundle_id'])) {
+            wp_safe_redirect(nasim_auth_url('login', (string) get_permalink((int) $plan['bundle_id'])));
+            exit;
+        }
         if (!empty($plan['course_id'])) {
             $args['course'] = (int) $plan['course_id'];
             $args['buy']    = 'course';

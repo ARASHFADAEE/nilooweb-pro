@@ -13,7 +13,7 @@ define('NASIM_LMS_REWRITE_VERSION', '2');
 /**
  * Bump when the payments table schema changes
  */
-define('NASIM_LMS_DB_VERSION', '2');
+define('NASIM_LMS_DB_VERSION', '3');
 
 
 include_once THEME_DIR . '/includes/lms/helpers.php';
@@ -23,11 +23,14 @@ include_once THEME_DIR . '/includes/lms/course-catalog.php';
 include_once THEME_DIR . '/includes/lms/course-functions.php';
 include_once THEME_DIR . '/includes/lms/course-meta-boxes.php';
 include_once THEME_DIR . '/includes/lms/plan-post-type.php';
+include_once THEME_DIR . '/includes/lms/bundles.php';
 include_once THEME_DIR . '/includes/lms/subscription.php';
 include_once THEME_DIR . '/includes/lms/access.php';
 include_once THEME_DIR . '/includes/lms/payments.php';
 include_once THEME_DIR . '/includes/lms/class-nasim-zibal-gateway.php';
 include_once THEME_DIR . '/includes/lms/class-nasim-zarinpal-gateway.php';
+include_once THEME_DIR . '/includes/lms/class-nasim-snapppay-gateway.php';
+include_once THEME_DIR . '/includes/lms/class-nasim-digipay-gateway.php';
 include_once THEME_DIR . '/includes/lms/gateway.php';
 include_once THEME_DIR . '/includes/lms/checkout.php';
 include_once THEME_DIR . '/includes/lms/express-checkout.php';

@@ -143,33 +143,12 @@ class Nasim_Elementor_Widget_Courses extends Nasim_Elementor_Widget_Base
             return;
         }
 
-        // Showcase layout (homepage cards) — reuse markup with a custom loop.
-        $this->with_theme_mods($mods, function () use ($posts, $archive, $show_link, $s) {
-            ?>
-    <section class="section container-wide home-courses niloo-el-courses" id="courses">
-      <div class="section-heading">
-        <div>
-          <?php if (!empty($s['courses_home_eyebrow'])) : ?>
-          <span class="eyebrow"><span class="eyebrow-line"></span> <?php echo esc_html($s['courses_home_eyebrow']); ?></span>
-          <?php endif; ?>
-          <h2><?php echo esc_html($s['courses_home_title'] ?? ''); ?> <span class="accent"><?php echo esc_html($s['courses_home_title_highlight'] ?? ''); ?></span></h2>
-        </div>
-        <?php if ($show_link && $archive) : ?>
-        <a class="text-link" href="<?php echo esc_url($archive); ?>">همه دوره‌ها <span>←</span></a>
-        <?php endif; ?>
-      </div>
-      <div class="home-course-grid">
-        <?php
-        global $post;
-        foreach ($posts as $post) :
-            setup_postdata($post);
-            get_template_part('template-parts/course/card-catalog');
-        endforeach;
-        wp_reset_postdata();
-        ?>
-      </div>
-    </section>
-            <?php
+        // Showcase layout: the redesigned homepage section, fed with the widget's courses.
+        $this->with_theme_mods($mods, function () use ($posts, $show_link) {
+            get_template_part('template-parts/front-page/courses-showcase', null, [
+                'course_ids' => wp_list_pluck($posts, 'ID'),
+                'hide_link'  => !$show_link,
+            ]);
         });
     }
 

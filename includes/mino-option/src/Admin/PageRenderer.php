@@ -34,7 +34,9 @@ final class PageRenderer {
 		}
 
 		$tabs      = PageRegistry::instance()->get_tabs( $page_id );
-		$requested = isset( $_GET['mino_tab'] ) ? sanitize_key( wp_unslash( (string) $_GET['mino_tab'] ) ) : '';
+		$requested = isset( $_GET['mino_tab'] )
+			? sanitize_key( wp_unslash( (string) $_GET['mino_tab'] ) )
+			: ( isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( (string) $_GET['tab'] ) ) : '' );
 		$active    = RequestGuard::sanitize_tab( $page_id, $requested );
 		$values    = OptionStore::instance()->all( $page_id );
 		$status    = isset( $_GET['mino_status'] ) ? sanitize_key( wp_unslash( (string) $_GET['mino_status'] ) ) : '';

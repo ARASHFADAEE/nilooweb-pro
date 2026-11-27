@@ -1,0 +1,138 @@
+/* ==========================================================================
+   Niloo design system v2 — tokens + shared components (minimal, RTL, mobile-first)
+   Loaded after tailwind.css on every front-end page. All shades derive from the
+   brand colors in «تنظیمات نیلو ← رنگ‌بندی», so changing --purple re-tints everything.
+   ========================================================================== */
+
+:root{
+  /* Brand scale (primary = --purple from settings) */
+  --p-25:  color-mix(in oklab, var(--purple) 4%,  #fff);
+  --p-50:  color-mix(in oklab, var(--purple) 8%,  #fff);
+  --p-100: color-mix(in oklab, var(--purple) 14%, #fff);
+  --p-200: color-mix(in oklab, var(--purple) 26%, #fff);
+  --p-300: color-mix(in oklab, var(--purple) 48%, #fff);
+  --p-500: var(--purple);
+  --p-600: color-mix(in oklab, var(--purple) 86%, #000);
+  --p-700: color-mix(in oklab, var(--purple) 70%, #0d0b1e);
+  --p-900: color-mix(in oklab, var(--purple) 30%, #0d0b1e);
+
+  /* Warm accent, used sparingly (badges, highlights) */
+  --a-50:  color-mix(in oklab, var(--accent) 12%, #fff);
+  --a-600: color-mix(in oklab, var(--accent) 80%, #5a2a00);
+
+  /* Neutrals (cool, slightly violet) */
+  --n-0:   #ffffff;
+  --n-25:  #fbfbfd;
+  --n-50:  #f6f6fa;
+  --n-100: #efeff5;
+  --n-200: #e4e4ec;
+  --n-300: #d2d3de;
+  --n-400: #a3a5b6;
+  --n-500: #6d6f83;   /* 5.1:1 on white */
+  --n-700: #3d3f52;
+  --n-900: #17161f;
+
+  /* Semantic */
+  --ok:     #11795a;  --ok-bg:   #e9f7f1;
+  --err:    #b8321d;  --err-bg:  #fdf0ed;
+  --warn:   #9a5b00;  --warn-bg: #fff6e5;
+
+  /* Shape, depth, motion */
+  --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px;
+  --sh-1: 0 1px 2px rgb(23 22 31 / .04), 0 1px 1px rgb(23 22 31 / .03);
+  --sh-2: 0 6px 24px -8px rgb(23 22 31 / .10), 0 2px 6px rgb(23 22 31 / .04);
+  --sh-3: 0 24px 60px -24px color-mix(in oklab, var(--purple) 35%, transparent);
+  --ease: cubic-bezier(.2,.7,.2,1);
+
+  /* Legacy aliases kept in sync */
+  --ink: var(--n-900);
+  --muted: var(--n-500);
+  --line: var(--n-200);
+  --soft: var(--n-50);
+}
+
+body{background:var(--n-25);color:var(--n-900);-webkit-tap-highlight-color:transparent;text-rendering:optimizeLegibility}
+::selection{background:var(--p-200);color:var(--n-900)}
+img{max-width:100%;height:auto}
+
+/* ---------- Buttons ---------- */
+.button{gap:8px;min-height:44px;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:700;letter-spacing:0;transition:background .2s var(--ease),color .2s,border-color .2s,box-shadow .2s,transform .15s}
+.button:hover{transform:none}
+.button:active{transform:scale(.98)}
+.button span{font-size:15px}
+.button-primary{background:var(--p-500);color:#fff;box-shadow:0 1px 0 rgb(255 255 255 / .2) inset,0 6px 16px -6px color-mix(in oklab,var(--purple) 60%,transparent)}
+.button-primary:hover{background:var(--p-600);box-shadow:0 1px 0 rgb(255 255 255 / .2) inset,0 10px 22px -8px color-mix(in oklab,var(--purple) 70%,transparent)}
+.button-outline{background:var(--n-0);border-color:var(--n-200);color:var(--n-900)}
+.button-outline:hover{border-color:var(--p-300);color:var(--p-600);background:var(--p-25)}
+.button-ghost{background:transparent;color:var(--p-600)}
+.button-ghost:hover{background:var(--p-50)}
+.button-light{background:#fff;color:var(--p-600)}
+.button-large{min-height:52px;padding:13px 26px;font-size:15px;border-radius:14px}
+.button-small{min-height:36px;padding:7px 14px;font-size:13px;border-radius:10px}
+.button[disabled],.button.is-disabled{opacity:.55;pointer-events:none}
+
+.text-link{color:var(--p-600);font-size:14px;font-weight:700;gap:6px}
+.text-link:hover{color:var(--p-700)}
+
+.eyebrow{color:var(--p-600);font-size:13px;font-weight:700;gap:8px}
+.eyebrow-line{display:none}
+
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,.button:focus-visible{outline:2px solid var(--p-500);outline-offset:2px;border-radius:10px}
+
+/* ---------- Announcement ---------- */
+.announcement{background:var(--n-900);color:#e9e8f3;font-size:12.5px}
+.announcement-inner{min-height:38px}
+.announcement a{color:#fff;text-decoration:underline;text-decoration-color:rgb(255 255 255 / .35);text-underline-offset:4px}
+.announcement-dot{background:#7ee2b8;box-shadow:0 0 0 4px rgb(126 226 184 / .15)}
+
+/* ---------- Header ---------- */
+.site-header{background:color-mix(in oklab,var(--n-25) 86%,transparent);backdrop-filter:saturate(160%) blur(14px);-webkit-backdrop-filter:saturate(160%) blur(14px);border-bottom:1px solid transparent;transition:border-color .2s,box-shadow .2s}
+.site-header.is-scrolled{border-bottom-color:var(--n-200);box-shadow:0 1px 0 rgb(23 22 31 / .02)}
+.nav-wrap{height:72px;gap:28px}
+.main-nav{gap:4px}
+.main-nav a{font-size:14px;color:var(--n-700);padding:8px 12px;border-radius:10px;transition:background .2s,color .2s}
+.main-nav a:hover{color:var(--n-900);background:var(--n-100)}
+.main-nav a.active{color:var(--p-600);background:var(--p-50)}
+.main-nav a.active:after{display:none}
+.icon-button{width:42px;height:42px;border-radius:12px;color:var(--n-700);transition:background .2s,color .2s}
+.icon-button:hover{background:var(--n-100);color:var(--n-900)}
+.nav-cta{min-height:42px}
+.search-panel{display:flex;gap:8px;padding:0 0 14px}
+.search-panel[hidden]{display:none}
+.search-panel input{flex:1;min-height:46px;border:1px solid var(--n-200);border-radius:12px;padding:0 14px;background:#fff;font-size:15px;outline:none}
+.search-panel input:focus{border-color:var(--p-300);box-shadow:0 0 0 4px var(--p-50)}
+
+/* ---------- Footer ---------- */
+.site-footer{background:var(--n-0);color:var(--n-900);border-top:1px solid var(--n-200);margin-top:96px}
+.footer-grid{padding-top:56px;padding-bottom:40px;gap:32px}
+.footer-brand-col>p,.footer-trust p{color:var(--n-500);font-size:13px}
+.footer-col-title{color:var(--n-900);font-size:14px;font-weight:800}
+.footer-col nav a{color:var(--n-700);font-size:13.5px}
+.footer-col nav a:hover{color:var(--p-600)}
+.footer-cta{border-color:var(--n-200);color:var(--n-900)}
+.footer-cta:hover{background:var(--p-50);color:var(--p-600);border-color:var(--p-200)}
+.footer-bottom{border-top-color:var(--n-200);color:var(--n-500);font-size:12px;padding-top:18px;padding-bottom:22px}
+.site-footer .social-link{width:40px;height:40px;border-radius:12px;display:inline-grid;place-items:center;background:var(--n-50);color:var(--n-700);border:1px solid var(--n-200);transition:background .2s,color .2s}
+.site-footer .social-link:hover{background:var(--p-50);color:var(--p-600);border-color:var(--p-200)}
+.site-footer .social-link svg{width:18px;height:18px}
+.social-links{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- Mobile ---------- */
+@media (max-width:800px){
+  .container-wide{width:calc(100% - 32px)}
+  .nav-wrap{height:62px}
+  .nav-cta{min-height:38px!important;padding:7px 12px!important;font-size:12.5px!important;border-radius:10px!important;gap:6px}
+  .nav-cta span{display:none}
+  .mobile-menu-button{width:42px;height:42px;border-radius:12px}
+  .site-footer{margin-top:64px;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+  .footer-grid{padding-top:36px}
+  .mobile-bottom-nav{border-top-color:var(--n-200);background:color-mix(in oklab,#fff 90%,transparent)}
+  .mobile-bottom-nav a{color:var(--n-500);min-height:48px;justify-content:center}
+  .mobile-bottom-nav a.selected{color:var(--p-600)}
+  .mobile-bottom-nav a.selected .nav-icon{background:var(--p-50)}
+  .button{min-height:46px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}

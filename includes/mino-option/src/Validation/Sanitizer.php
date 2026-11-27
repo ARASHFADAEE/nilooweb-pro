@@ -13,6 +13,8 @@ defined( 'ABSPATH' ) || exit;
 
 use Mino\Option\Fields\FieldTypeRegistry;
 use Mino\Option\Registry\PageRegistry;
+use Mino\Option\Storage\OptionStore;
+use Mino\Option\Support\ConditionalEvaluator;
 
 /**
  * Sanitizes inbound settings against registered field definitions.
@@ -20,29 +22,30 @@ use Mino\Option\Registry\PageRegistry;
 final class Sanitizer {
 
 	/**
-	 * Sanitize a full submitted payload for a page.
+	 * Sanitize a submitted payload for a page (or a single tab when $tab_id is given).
 	 *
-	 * Only registered field IDs are kept. Missing checkbox/switch fields are
-	 * coerced to false when present in the registered map and the submit
-	 * includes the page marker.
+	 * Only registered field IDs in the target scope are kept. Missing visible
+	 * checkbox/switch fields are coerced to false; fields belonging to other
+	 * tabs or hidden conditional groups keep their previously stored values.
 	 *
 	 * @param string               $page_id Page ID.
 	 * @param array<string, mixed> $input   Raw input (already unslashed preferred).
+	 * @param string|null          $tab_id  Optional tab ID to scope sanitization.
 	 * @return array<string, mixed>
 	 */
-	public static function sanitize_page( string $page_id, array $input ): array {
-		$fields = PageRegistry::instance()->get_fields( $page_id );
-		$out    = array();
+	public static function sanitize_page( string $page_id, array $input, ?string $tab_id = null ): array {
+		$registry = PageRegistry::instance();
+		$tabs     = $registry->get_tabs( $page_id );
+		$fields   = ( null !== $tab_id && '' !== $tab_id && isset( $tabs[ $tab_id ] ) )
+			? $registry->get_tab_fields( $page_id, $tab_id )
+			: $registry->get_fields( $page_id );
 
+		$out      = array();
+		$existing = OptionStore::instance()->all( $page_id );
+
+		// Pass 1: sanitize every submitted field in scope so conditional rules
+		// evaluate against the newly submitted controlling values.
 		foreach ( $fields as $field_id => $field ) {
-			$type = (string) $field['type'];
-
-			// Checkboxes / switches absent from POST mean unchecked.
-			if ( in_array( $type, array( 'checkbox', 'switch', 'switcher' ), true ) && ! array_key_exists( $field_id, $input ) ) {
-				$out[ $field_id ] = false;
-				continue;
-			}
-
 			if ( ! array_key_exists( $field_id, $input ) ) {
 				continue;
 			}
@@ -50,14 +53,40 @@ final class Sanitizer {
 			$out[ $field_id ] = self::sanitize_field( $field, $input[ $field_id ] );
 		}
 
+		// Effective values for evaluating conditional visibility of omitted switches/checkboxes.
+		$effective = array_merge( $existing, $out );
+
+		// Pass 2: checkboxes/switches omitted from POST mean unchecked ONLY when
+		// they are in the submitted tab and not conditionally hidden/disabled.
+		foreach ( $fields as $field_id => $field ) {
+			$type = (string) $field['type'];
+
+			if ( array_key_exists( $field_id, $out ) ) {
+				continue;
+			}
+
+			if ( ! in_array( $type, array( 'checkbox', 'switch', 'switcher' ), true ) ) {
+				continue;
+			}
+
+			$dep = ! empty( $field['require'] ) ? $field['require'] : ( $field['dependency'] ?? array() );
+			if ( ! empty( $dep ) && ! ConditionalEvaluator::passes( $dep, $effective ) ) {
+				// Hidden conditional fields are disabled in DOM; keep their saved value.
+				continue;
+			}
+
+			$out[ $field_id ] = false;
+		}
+
 		/**
 		 * Filters sanitized page values.
 		 *
-		 * @param array  $out     Sanitized values.
-		 * @param array  $input   Raw input.
-		 * @param string $page_id Page ID.
+		 * @param array       $out     Sanitized values.
+		 * @param array       $input   Raw input.
+		 * @param string      $page_id Page ID.
+		 * @param string|null $tab_id  Active tab ID when scoped.
 		 */
-		return apply_filters( 'mino_sanitize_page', $out, $input, $page_id );
+		return apply_filters( 'mino_sanitize_page', $out, $input, $page_id, $tab_id );
 	}
 
 	/**

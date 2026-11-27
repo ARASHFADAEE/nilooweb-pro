@@ -84,8 +84,8 @@ function nasim_spot_license_payload(int $user_id, object $payment): array
     }
 
     $phone = get_user_meta($user_id, 'nasim_phone', true);
-    if (!$phone && function_exists('nasim_auth_user_phone')) {
-        $phone = nasim_auth_user_phone($user_id);
+    if (!$phone && function_exists('nasim_get_user_mobile')) {
+        $phone = nasim_get_user_mobile($user_id);
     }
 
     $label = $phone ?: $user->user_email;
@@ -191,16 +191,28 @@ function nasim_spot_on_payment_completed(int $payment_id): void
 
     $plan_id = (int) $payment->plan_id;
     $type = (string) get_post_meta($plan_id, '_nasim_plan_type', true);
-    if ('spot_course' !== $type) {
+    if (!in_array($type, ['spot_course', 'bundle'], true)) {
         return;
     }
 
-    $course_id = (int) get_post_meta($plan_id, '_nasim_plan_course_id', true);
-    if (!$course_id) {
-        return;
+    if ('bundle' === $type) {
+        // One SpotPlayer license that covers every protected course in the bundle.
+        $course_id = 0;
+        $courses   = [];
+        foreach (nasim_plan_course_ids($plan_id) as $bundle_course) {
+            if (in_array(nasim_course_delivery($bundle_course), ['spot', 'hybrid'], true)) {
+                $courses = array_merge($courses, nasim_course_spot_ids($bundle_course));
+            }
+        }
+        $courses = array_values(array_unique($courses));
+    } else {
+        $course_id = (int) get_post_meta($plan_id, '_nasim_plan_course_id', true);
+        if (!$course_id) {
+            return;
+        }
+        $courses = nasim_course_spot_ids($course_id);
     }
 
-    $courses = nasim_course_spot_ids($course_id);
     if (!$courses) {
         return;
     }
@@ -367,4 +379,4 @@ function nasim_spot_account_tab_panel(): void
     </section>
     <?php
 }
-add_action('nasim_account_tab_content', 'nasim_spot_account_tab_panel', 20);
+// Rendered directly by templates/subscription.php (panel v2).

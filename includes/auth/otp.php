@@ -129,14 +129,18 @@ function nasim_otp_hash($mobile, $purpose, $code) {
 /**
  * Generate and send a one-time code
  *
+ * @param string $mobile      Normalized Iranian mobile.
+ * @param string $purpose     OTP storage bucket (login|register|auth).
+ * @param string $sms_purpose Optional SMS template purpose (defaults to $purpose).
  * @return array|WP_Error  ['resend' => seconds until a new code may be requested, 'length' => digits]
  */
-function nasim_otp_send($mobile, $purpose) {
+function nasim_otp_send($mobile, $purpose, $sms_purpose = '') {
 
-    $resend = (int) nasim_setting('otp_resend');
-    $ttl    = (int) nasim_setting('otp_ttl');
-    $length = (int) nasim_setting('otp_length');
-    $state  = get_transient(nasim_otp_key($mobile, $purpose));
+    $resend      = max(30, min(600, (int) nasim_setting('otp_resend') ?: 90));
+    $ttl         = max(60, min(600, (int) nasim_setting('otp_ttl') ?: 120));
+    $length      = max(4, min(8, (int) nasim_setting('otp_length') ?: 5));
+    $sms_purpose = '' !== $sms_purpose ? $sms_purpose : $purpose;
+    $state       = get_transient(nasim_otp_key($mobile, $purpose));
 
     if (is_array($state) && time() - $state['sent'] < $resend) {
         $wait = $resend - (time() - $state['sent']);
@@ -156,7 +160,7 @@ function nasim_otp_send($mobile, $purpose) {
     if ((defined('NILOO_OTP_DEBUG') && NILOO_OTP_DEBUG) || (defined('NASIM_OTP_DEBUG') && NASIM_OTP_DEBUG)) {
         error_log(sprintf('[nasim-otp] %s code for %s: %s', $purpose, $mobile, $code)); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
     } else {
-        $sent = nasim_sms_send_code($mobile, $purpose, $code);
+        $sent = nasim_sms_send_code($mobile, $sms_purpose, $code);
 
         if (is_wp_error($sent)) {
             error_log(sprintf('[nasim-otp] %s: %s', nasim_sms_provider(), $sent->get_error_message())); // phpcs:ignore WordPress.PHP.DevelopmentFunctions

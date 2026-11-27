@@ -22,7 +22,7 @@ abstract class Nasim_Elementor_Widget_Base extends Widget_Base
 
     public function get_style_depends(): array
     {
-        return ['nasim-main', 'nasim-tailwind'];
+        return ['nasim-main', 'nasim-tailwind', 'nasim-design', 'nasim-home'];
     }
 
     /**
@@ -45,9 +45,16 @@ abstract class Nasim_Elementor_Widget_Base extends Widget_Base
             add_filter("theme_mod_{$key}", $filter, 50);
         }
 
+        // nasim_mod() ignores theme_mod filters when the content source is "theme"; use the override stack too.
+        $previous = $GLOBALS['nasim_mod_overrides'] ?? [];
+        $GLOBALS['nasim_mod_overrides'] = array_merge($previous, array_filter($mods, static function ($value) {
+            return null !== $value && '' !== $value;
+        }));
+
         try {
             $callback();
         } finally {
+            $GLOBALS['nasim_mod_overrides'] = $previous;
             foreach ($filters as $key => $filter) {
                 remove_filter("theme_mod_{$key}", $filter, 50);
             }

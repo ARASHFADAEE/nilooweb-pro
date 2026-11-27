@@ -17,10 +17,26 @@ add_action('add_meta_boxes', 'nasim_add_course_meta_boxes');
 
 function nasim_render_course_details_meta_box($post) {
 
-    $level    = get_post_meta($post->ID, '_nasim_course_level', true);
-    $outcomes = get_post_meta($post->ID, '_nasim_course_outcomes', true);
-    $preview  = get_post_meta($post->ID, '_nasim_course_preview_embed', true);
+    $level        = get_post_meta($post->ID, '_nasim_course_level', true);
+    $outcomes     = get_post_meta($post->ID, '_nasim_course_outcomes', true);
+    $preview      = get_post_meta($post->ID, '_nasim_course_preview_embed', true);
+    $tagline      = get_post_meta($post->ID, '_nasim_course_tagline', true);
+    $badge        = get_post_meta($post->ID, '_nasim_course_badge', true);
+    $projects     = get_post_meta($post->ID, '_nasim_course_projects', true);
+    $students     = get_post_meta($post->ID, '_nasim_course_students', true);
+    $dur_label    = get_post_meta($post->ID, '_nasim_course_duration_label', true);
+    $status_label = get_post_meta($post->ID, '_nasim_course_status_label', true);
+    $prereq       = get_post_meta($post->ID, '_nasim_course_prereq', true);
+    $audience     = get_post_meta($post->ID, '_nasim_course_audience', true);
     ?>
+    <p>
+        <label for="nasim_course_tagline"><strong><?php esc_html_e('زیرعنوان کوتاه (تگ‌لاین)', 'niloo-web'); ?></strong></label>
+        <input type="text" class="widefat" id="nasim_course_tagline" name="nasim_course_tagline" value="<?php echo esc_attr($tagline); ?>" placeholder="از یادگیری تا پروژه گرفتن...">
+    </p>
+    <p>
+        <label for="nasim_course_badge"><strong><?php esc_html_e('بج / برچسب ویژه دوره', 'niloo-web'); ?></strong></label>
+        <input type="text" class="widefat" id="nasim_course_badge" name="nasim_course_badge" value="<?php echo esc_attr($badge); ?>" placeholder="مثلاً: جامع‌ترین دوره آکادمی">
+    </p>
     <p>
         <label for="nasim_course_preview_embed"><strong><?php esc_html_e('ویدیو پیش‌نمایش (صفحه فروش)', 'niloo-web'); ?></strong></label>
         <textarea class="widefat ltr" id="nasim_course_preview_embed" name="nasim_course_preview_embed" rows="3" placeholder="https://www.aparat.com/v/... یا iframe / لینک mp4"><?php echo esc_textarea($preview); ?></textarea>
@@ -28,12 +44,36 @@ function nasim_render_course_details_meta_box($post) {
     </p>
     <p>
         <label for="nasim_course_level"><strong><?php esc_html_e('سطح دوره', 'niloo-web'); ?></strong></label>
-        <input type="text" class="widefat" id="nasim_course_level" name="nasim_course_level" value="<?php echo esc_attr($level); ?>" placeholder="مقدماتی" list="nasim_course_levels">
-        <datalist id="nasim_course_levels"><option value="مقدماتی"><option value="متوسط"><option value="پیشرفته"><option value="همه سطوح"></datalist>
+        <input type="text" class="widefat" id="nasim_course_level" name="nasim_course_level" value="<?php echo esc_attr($level); ?>" placeholder="مبتدی تا پیشرفته" list="nasim_course_levels">
+        <datalist id="nasim_course_levels"><option value="مبتدی"><option value="مبتدی تا پیشرفته"><option value="متوسط"><option value="پیشرفته"><option value="همه سطوح"></datalist>
     </p>
     <p>
-        <label for="nasim_course_outcomes"><strong><?php esc_html_e('در این دوره یاد می‌گیری (هر مورد در یک خط)', 'niloo-web'); ?></strong></label>
-        <textarea class="widefat" id="nasim_course_outcomes" name="nasim_course_outcomes" rows="6"><?php echo esc_textarea($outcomes); ?></textarea>
+        <label for="nasim_course_duration_label"><strong><?php esc_html_e('مدت دوره (اختیاری - متنی)', 'niloo-web'); ?></strong></label>
+        <input type="text" class="widefat" id="nasim_course_duration_label" name="nasim_course_duration_label" value="<?php echo esc_attr($dur_label); ?>" placeholder="مثلاً: ۵۳ ساعت تاکنون">
+    </p>
+    <p>
+        <label for="nasim_course_projects"><strong><?php esc_html_e('تعداد پروژه (اختیاری)', 'niloo-web'); ?></strong></label>
+        <input type="text" class="widefat" id="nasim_course_projects" name="nasim_course_projects" value="<?php echo esc_attr($projects); ?>" placeholder="مثلاً: ۵ پروژه واقعی داخل دوره">
+    </p>
+    <p>
+        <label for="nasim_course_students"><strong><?php esc_html_e('تعداد دانشجو (اختیاری)', 'niloo-web'); ?></strong></label>
+        <input type="text" class="widefat" id="nasim_course_students" name="nasim_course_students" value="<?php echo esc_attr($students); ?>" placeholder="مثلاً: ۳۲۹ دانشجو">
+    </p>
+    <p>
+        <label for="nasim_course_status_label"><strong><?php esc_html_e('وضعیت دوره (اختیاری)', 'niloo-web'); ?></strong></label>
+        <input type="text" class="widefat" id="nasim_course_status_label" name="nasim_course_status_label" value="<?php echo esc_attr($status_label); ?>" placeholder="مثلاً: تکمیل شده یا در حال به‌روزرسانی">
+    </p>
+    <p>
+        <label for="nasim_course_prereq"><strong><?php esc_html_e('پیش‌نیاز (اختیاری)', 'niloo-web'); ?></strong></label>
+        <input type="text" class="widefat" id="nasim_course_prereq" name="nasim_course_prereq" value="<?php echo esc_attr($prereq); ?>" placeholder="ندارد">
+    </p>
+    <p>
+        <label for="nasim_course_outcomes"><strong><?php esc_html_e('نکات کلیدی / در این دوره یاد می‌گیری (هر مورد در یک خط)', 'niloo-web'); ?></strong></label>
+        <textarea class="widefat" id="nasim_course_outcomes" name="nasim_course_outcomes" rows="5"><?php echo esc_textarea($outcomes); ?></textarea>
+    </p>
+    <p>
+        <label for="nasim_course_audience"><strong><?php esc_html_e('مناسب چه افرادی است (هر مورد در یک خط)', 'niloo-web'); ?></strong></label>
+        <textarea class="widefat" id="nasim_course_audience" name="nasim_course_audience" rows="4"><?php echo esc_textarea($audience); ?></textarea>
     </p>
     <?php
     $delivery = nasim_course_delivery($post->ID);
@@ -48,6 +88,15 @@ function nasim_render_course_details_meta_box($post) {
             <option value="purchase" <?php selected($access !== 'free', true); ?>><?php esc_html_e('پولی — نیاز به خرید', 'niloo-web'); ?></option>
         </select>
         <span class="description"><?php esc_html_e('دوره رایگان بعد از ورود به حساب در LMS باز می‌شود. دوره‌های پولی بعد از پرداخت در پنل و اسپات‌پلیر در دسترسند.', 'niloo-web'); ?></span>
+    </p>
+    <?php
+    $linked_plan_id = (int) get_post_meta($post->ID, '_nasim_linked_plan_id', true);
+    $course_price   = $linked_plan_id ? (int) get_post_meta($linked_plan_id, '_nasim_plan_price', true) : 0;
+    ?>
+    <p class="nasim-course-price-field">
+        <label for="nasim_course_price"><strong><?php esc_html_e('قیمت دوره (تومان)', 'niloo-web'); ?></strong></label>
+        <input type="number" min="0" step="1000" class="widefat" dir="ltr" id="nasim_course_price" name="nasim_course_price" value="<?php echo esc_attr($course_price ?: ''); ?>" placeholder="1490000">
+        <span class="description"><?php esc_html_e('فقط برای دوره‌های پولی. پلن خرید این دوره خودکار ساخته/به‌روز می‌شود.', 'niloo-web'); ?></span>
     </p>
     <p>
         <label for="nasim_course_delivery"><strong><?php esc_html_e('نوع تحویل', 'niloo-web'); ?></strong></label>
@@ -260,6 +309,24 @@ function nasim_save_course_meta($post_id) {
         update_post_meta($post_id, '_nasim_course_outcomes', sanitize_textarea_field(wp_unslash($_POST['nasim_course_outcomes'])));
     }
 
+    $text_meta_map = [
+        'nasim_course_tagline'        => '_nasim_course_tagline',
+        'nasim_course_badge'          => '_nasim_course_badge',
+        'nasim_course_projects'       => '_nasim_course_projects',
+        'nasim_course_students'       => '_nasim_course_students',
+        'nasim_course_duration_label' => '_nasim_course_duration_label',
+        'nasim_course_status_label'   => '_nasim_course_status_label',
+        'nasim_course_prereq'         => '_nasim_course_prereq',
+    ];
+    foreach ($text_meta_map as $field => $meta_key) {
+        if (isset($_POST[$field])) {
+            update_post_meta($post_id, $meta_key, sanitize_text_field(wp_unslash($_POST[$field])));
+        }
+    }
+    if (isset($_POST['nasim_course_audience'])) {
+        update_post_meta($post_id, '_nasim_course_audience', sanitize_textarea_field(wp_unslash($_POST['nasim_course_audience'])));
+    }
+
     if (isset($_POST['nasim_course_preview_embed'])) {
         $preview_raw = wp_unslash((string) $_POST['nasim_course_preview_embed']);
         $preview     = function_exists('nasim_normalize_lesson_embed')
@@ -282,6 +349,10 @@ function nasim_save_course_meta($post_id) {
         }
     }
 
+    if (isset($_POST['nasim_course_price']) && '' !== trim((string) $_POST['nasim_course_price'])) {
+        nasim_course_sync_purchase_plan($post_id, absint(nasim_latin_digits(wp_unslash($_POST['nasim_course_price']))));
+    }
+
     if (isset($_POST['nasim_spotplayer_course'])) {
         $raw = sanitize_textarea_field(wp_unslash($_POST['nasim_spotplayer_course']));
         $ids = array_filter(array_map('trim', explode(',', $raw)), function ($id) {
@@ -291,6 +362,58 @@ function nasim_save_course_meta($post_id) {
     }
 }
 add_action('save_post_nasim_course', 'nasim_save_course_meta');
+
+
+/**
+ * Create or update the purchase plan behind a paid course, so admins set the price on the course itself
+ */
+function nasim_course_sync_purchase_plan($course_id, $price) {
+
+    $course  = get_post($course_id);
+    $plan_id = (int) get_post_meta($course_id, '_nasim_linked_plan_id', true);
+
+    if (!$course) {
+        return 0;
+    }
+
+    if ($plan_id && 'nasim_plan' !== get_post_type($plan_id)) {
+        $plan_id = 0;
+    }
+
+    if (!$plan_id && $price <= 0) {
+        return 0;
+    }
+
+    $postarr = [
+        'post_type'   => 'nasim_plan',
+        'post_status' => 'publish',
+        'post_title'  => $course->post_title,
+    ];
+
+    if ($plan_id) {
+        $postarr['ID'] = $plan_id;
+        unset($postarr['post_title']);
+        wp_update_post(wp_slash($postarr));
+    } else {
+        $plan_id = (int) wp_insert_post(wp_slash($postarr));
+        if (!$plan_id) {
+            return 0;
+        }
+        update_post_meta($course_id, '_nasim_linked_plan_id', $plan_id);
+    }
+
+    $type = (string) get_post_meta($plan_id, '_nasim_plan_type', true);
+    if (!in_array($type, ['course', 'spot_course'], true)) {
+        $type = 'spot' === nasim_course_delivery($course_id) ? 'spot_course' : 'course';
+    }
+
+    update_post_meta($plan_id, '_nasim_plan_type', $type);
+    update_post_meta($plan_id, '_nasim_plan_price', (int) $price);
+    update_post_meta($plan_id, '_nasim_plan_days', 0);
+    update_post_meta($plan_id, '_nasim_plan_course_id', (int) $course_id);
+
+    return $plan_id;
+}
 
 
 /**

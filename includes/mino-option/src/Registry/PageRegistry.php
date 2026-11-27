@@ -159,6 +159,27 @@ final class PageRegistry {
 	}
 
 	/**
+	 * Flat map of field_id => field config for a single tab.
+	 *
+	 * @param string $page_id Page ID.
+	 * @param string $tab_id  Tab ID.
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function get_tab_fields( string $page_id, string $tab_id ): array {
+		$tabs = $this->get_tabs( $page_id );
+		if ( ! isset( $tabs[ $tab_id ] ) || empty( $tabs[ $tab_id ]['fields'] ) ) {
+			return array();
+		}
+
+		$fields = array();
+		foreach ( $tabs[ $tab_id ]['fields'] as $field ) {
+			$fields[ $field['id'] ] = $field;
+		}
+
+		return $fields;
+	}
+
+	/**
 	 * Flat map of field_id => field config for a page.
 	 *
 	 * @param string $page_id Page ID.
@@ -345,6 +366,8 @@ final class PageRegistry {
 			'renderer'    => $field['renderer'] ?? null,
 			'library'     => (string) ( $field['library'] ?? 'image' ),
 			'multiple'    => ! empty( $field['multiple'] ),
+			'content'     => (string) ( $field['content'] ?? '' ),
+			'trusted'     => ! empty( $field['trusted'] ),
 		);
 
 		if ( 'repeater' === $type && ! empty( $normalized['fields'] ) ) {

@@ -1,50 +1,64 @@
 <?php
 
-if(!defined('ABSPATH')) exit;
-
-
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 /**
- * Asset version based on file modification time, so browsers pick up rebuilt files
+ * Asset version based on file modification time, so browsers pick up rebuilt files.
  */
-function nasim_asset_version($relative_path) {
-
+function nasim_asset_version($relative_path)
+{
     $file = THEME_DIR . $relative_path;
 
     return file_exists($file) ? (string) filemtime($file) : wp_get_theme()->get('Version');
 }
 
-
 /**
- * Enqueue theme styles and scripts
+ * Enqueue theme styles and scripts (Tailwind CSS v4 unified design system).
  */
-function nasim_enqueue_assets() {
+function nasim_enqueue_assets()
+{
+    // Compiled Tailwind CSS v4 stylesheet: npm run build:css
+    wp_enqueue_style(
+        'nasim-theme',
+        THEME_URL . '/assets/css/theme.css',
+        [],
+        nasim_asset_version('/assets/css/theme.css')
+    );
 
-    // Built by the Tailwind CLI: npm run build:css
-    wp_enqueue_style('nasim-tailwind', THEME_URL . '/assets/css/app.css', [], nasim_asset_version('/assets/css/app.css'));
+    // Keep legacy style handles registered as lightweight aliases for Elementor widgets compatibility.
+    wp_register_style('nasim-design', false, ['nasim-theme']);
+    wp_register_style('nasim-home', false, ['nasim-theme']);
 
-    wp_enqueue_style('nasim-main', THEME_URL . '/assets/css/tailwind.css', ['nasim-tailwind'], nasim_asset_version('/assets/css/tailwind.css'));
-
-    wp_enqueue_script('nasim-main', THEME_URL . '/assets/js/script.js', [], nasim_asset_version('/assets/js/script.js'), true);
+    wp_enqueue_script(
+        'nasim-main',
+        THEME_URL . '/assets/js/script.js',
+        [],
+        nasim_asset_version('/assets/js/script.js'),
+        true
+    );
 
     if (is_singular() && comments_open() && get_option('thread_comments')) {
         wp_enqueue_script('comment-reply');
     }
 
-    $is_courses_catalog = is_page('courses')
-        || is_page_template('page-courses.php')
-        || is_post_type_archive('nasim_course')
-        || is_tax('nasim_course_cat');
-
-    if (
-        is_singular('nasim_course')
-        || $is_courses_catalog
-        || (nasim_store_enabled() && is_singular('nasim_product'))
-        || (nasim_store_enabled() && is_post_type_archive('nasim_product'))
-        || (nasim_store_enabled() && is_tax('nasim_product_cat'))
-        || nasim_is_subscription_page()
-    ) {
-        wp_enqueue_style('nasim-lms', THEME_URL . '/assets/css/lms.css', ['nasim-main'], nasim_asset_version('/assets/css/lms.css'));
+    if (is_singular('nasim_bundle')) {
+        wp_enqueue_script(
+            'nasim-express-checkout',
+            THEME_URL . '/assets/js/express-checkout.js',
+            [],
+            nasim_asset_version('/assets/js/express-checkout.js'),
+            true
+        );
+        wp_localize_script('nasim-express-checkout', 'nasimExpress', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('nasim_express_checkout'),
+            'i18n'    => [
+                'error'  => 'خطایی رخ داد؛ دوباره تلاش کن.',
+                'paying' => 'در حال انتقال به درگاه پرداخت…',
+            ],
+        ]);
     }
 
     if (is_singular('nasim_course') && !nasim_is_course_player()) {
@@ -86,30 +100,38 @@ function nasim_enqueue_assets() {
         ]);
     }
 
-    if ($is_courses_catalog) {
+    if (nasim_is_auth_page()) {
         wp_enqueue_script(
-            'nasim-course-catalog',
-            THEME_URL . '/assets/js/course-catalog.js',
+            'nasim-auth',
+            THEME_URL . '/assets/js/auth.js',
             [],
-            nasim_asset_version('/assets/js/course-catalog.js'),
+            nasim_asset_version('/assets/js/auth.js'),
             true
         );
-    }
-
-    if (nasim_is_auth_page()) {
-        wp_enqueue_style('nasim-auth', THEME_URL . '/assets/css/auth.css', ['nasim-main'], nasim_asset_version('/assets/css/auth.css'));
-        wp_enqueue_script('nasim-auth', THEME_URL . '/assets/js/auth.js', [], nasim_asset_version('/assets/js/auth.js'), true);
         wp_localize_script('nasim-auth', 'nasimAuth', [
             'ajaxUrl'    => admin_url('admin-ajax.php'),
             'nonce'      => wp_create_nonce('nasim_auth'),
             'codeLength' => (int) nasim_setting('otp_length'),
             'urls'       => ['login' => nasim_auth_url('login'), 'register' => nasim_auth_url('register')],
             'i18n'       => [
-                'error'    => 'خطایی رخ داد؛ دوباره تلاش کن.',
-                'resendIn' => 'ارسال دوباره تا %s',
-                'register' => 'ثبت‌نام کن',
-                'show'     => 'نمایش رمز عبور',
-                'hide'     => 'پنهان کردن رمز عبور',
+                'error'            => 'خطایی رخ داد؛ دوباره تلاش کن.',
+                'network'          => 'اتصال اینترنت را بررسی کن و دوباره تلاش کن.',
+                'resendIn'         => 'ارسال دوباره کد تا %s',
+                'show'             => 'نمایش رمز عبور',
+                'hide'             => 'پنهان کردن رمز عبور',
+                'badMobile'        => 'شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود.',
+                'needName'         => 'نام و نام خانوادگی‌ات را بنویس.',
+                'needCode'         => 'کد تأیید را کامل وارد کن.',
+                'login'            => 'تأیید',
+                'createAccount'    => 'تأیید و ساخت حساب',
+                'usePassword'      => 'ورود با رمز عبور',
+                'success'          => 'در حال ورود به پنل...',
+                'codeTitle'        => 'ورود کد تأیید',
+                'codeSubtitle'     => '',
+                'newTitle'         => 'تکمیل ثبت‌نام',
+                'newSubtitle'      => '',
+                'passwordTitle'    => 'ورود با رمز عبور',
+                'passwordSubtitle' => 'لطفاً برای ورود، موبایل یا ایمیل و رمز خود را وارد کنید',
             ],
         ]);
     }
@@ -161,12 +183,12 @@ function nasim_enqueue_assets() {
 }
 add_action('wp_enqueue_scripts', 'nasim_enqueue_assets');
 
-
 /**
- * Preload the local IRANYekanX font to avoid a late font swap
+ * Add `js` class to <html> immediately and preload local IRANYekanX variable font.
  */
-function nasim_preload_font() {
-
+function nasim_preload_font()
+{
+    echo '<script>document.documentElement.classList.add("js");</script>' . "\n";
     printf(
         '<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n",
         esc_url(THEME_URL . '/assets/fonts/IRANYekanX/IRANYekanXVF.woff2')

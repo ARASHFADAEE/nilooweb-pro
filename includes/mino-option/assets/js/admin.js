@@ -513,7 +513,7 @@
 		window.clearTimeout(toast._asfTimer);
 		toast._asfTimer = window.setTimeout(function () {
 			toast.hidden = true;
-		}, 3200);
+		}, type === 'error' ? 6000 : 3200);
 	}
 
 	function syncEditors(form) {
@@ -572,9 +572,25 @@
 			showToast(root, message, ok ? 'success' : 'error');
 
 			var flash = q(root, '.mino-flash');
-			if (flash && ok) {
-				flash.className = 'notice notice-success is-dismissible mino-flash';
-				flash.innerHTML = '<p>' + message.replace(/</g, '&lt;') + '</p>';
+			if (!flash && !ok) {
+				flash = document.createElement('div');
+				var header = q(root, '.mino-header');
+				if (header && header.parentNode) {
+					header.parentNode.insertBefore(flash, header.nextSibling);
+				} else {
+					root.insertBefore(flash, root.firstChild);
+				}
+			}
+			if (flash) {
+				flash.className = 'notice ' + (ok ? 'notice-success' : 'notice-error') + ' is-dismissible mino-flash';
+				flash.setAttribute('role', ok ? 'status' : 'alert');
+				flash.innerHTML = '<p>' + String(message).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</p>';
+			}
+
+			if (ok && action === 'reset') {
+				window.setTimeout(function () {
+					window.location.reload();
+				}, 400);
 			}
 		}
 

@@ -124,6 +124,7 @@
     const name = qs('input[name="name"]')?.value?.trim() || '';
     const mobile = qs('input[name="mobile"]')?.value?.trim() || '';
     const code = qs('input[name="code"]')?.value?.trim() || '';
+    const gateway = qs('input[name="gateway"]:checked')?.value || qs('input[name="gateway"][type="hidden"]')?.value || '';
     const loggedIn = form.dataset.loggedIn === '1';
 
     if (step === 'identity') {
@@ -142,6 +143,7 @@
           plan_id: form.dataset.planId || '',
           course_id: form.dataset.courseId || '',
           return_url: form.dataset.returnUrl || '',
+          gateway,
           name,
           mobile,
         });
@@ -182,6 +184,7 @@
       plan_id: form.dataset.planId || '',
       course_id: form.dataset.courseId || '',
       return_url: form.dataset.returnUrl || '',
+      gateway,
       name,
       mobile,
       code,

@@ -78,7 +78,8 @@ final class FieldRenderer {
 			<?php endif; ?>
 		>
 			<?php if ( ! in_array( $type, self::$display_types, true ) && 'checkbox' !== $type ) : ?>
-				<label class="mino-field-label" for="<?php echo esc_attr( (string) $field['id'] ); ?>" id="<?php echo esc_attr( (string) $field['id'] ); ?>-label">
+				<?php $label_for = 'switch' === $type ? ( (string) $field['id'] ) . '-btn' : (string) $field['id']; ?>
+				<label class="mino-field-label" for="<?php echo esc_attr( $label_for ); ?>" id="<?php echo esc_attr( (string) $field['id'] ); ?>-label">
 					<?php echo esc_html( (string) $field['title'] ); ?>
 					<?php if ( ! empty( $field['required'] ) ) : ?>
 						<span class="mino-required" aria-hidden="true">*</span>

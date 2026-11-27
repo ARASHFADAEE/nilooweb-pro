@@ -2,10 +2,11 @@
   "name": "niloo-web-theme",
   "private": true,
   "scripts": {
-    "build:css": "tailwindcss -i ./assets/src/app.css -o ./assets/css/app.css --minify",
-    "watch:css": "tailwindcss -i ./assets/src/app.css -o ./assets/css/app.css --watch"
+    "build:css": "tailwindcss -i ./assets/src/input.css -o ./assets/css/theme.css --minify",
+    "watch:css": "tailwindcss -i ./assets/src/input.css -o ./assets/css/theme.css --watch"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.17"
+    "@tailwindcss/cli": "^4.1.0",
+    "tailwindcss": "^4.1.0"
   }
 }

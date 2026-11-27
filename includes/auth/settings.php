@@ -119,7 +119,7 @@ function nasim_handle_sms_test()
 
     nasim_flush_smsir_credit();
 
-    $redirect = admin_url('admin.php?page=niloo_theme_settings&tab=tools');
+    $redirect = admin_url('admin.php?page=niloo_theme_settings&mino_tab=tools');
     wp_safe_redirect($redirect);
     exit;
 }

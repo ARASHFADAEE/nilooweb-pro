@@ -83,6 +83,11 @@ function nasim_mod($key) {
         return nasim_content_source();
     }
 
+    // Per-render overrides (Elementor widget settings) always win over defaults and Customizer.
+    if (!empty($GLOBALS['nasim_mod_overrides']) && array_key_exists($key, $GLOBALS['nasim_mod_overrides'])) {
+        return $GLOBALS['nasim_mod_overrides'][$key];
+    }
+
     $use_custom = ('custom' === nasim_content_source())
         || in_array($key, nasim_mod_always_custom_keys(), true);
 

@@ -12,6 +12,8 @@ namespace Mino\Option\Validation;
 defined( 'ABSPATH' ) || exit;
 
 use Mino\Option\Registry\PageRegistry;
+use Mino\Option\Storage\OptionStore;
+use Mino\Option\Support\ConditionalEvaluator;
 
 /**
  * Collects validation errors without throwing.
@@ -21,13 +23,25 @@ final class Validator {
 	/**
 	 * @param string               $page_id Page ID.
 	 * @param array<string, mixed> $values  Sanitized values.
+	 * @param string|null          $tab_id  Optional tab ID to scope validation.
 	 * @return array<string, string> Field ID => error message.
 	 */
-	public static function validate_page( string $page_id, array $values ): array {
-		$errors = array();
-		$fields = PageRegistry::instance()->get_fields( $page_id );
+	public static function validate_page( string $page_id, array $values, ?string $tab_id = null ): array {
+		$errors   = array();
+		$registry = PageRegistry::instance();
+		$tabs     = $registry->get_tabs( $page_id );
+		$fields   = ( null !== $tab_id && '' !== $tab_id && isset( $tabs[ $tab_id ] ) )
+			? $registry->get_tab_fields( $page_id, $tab_id )
+			: $registry->get_fields( $page_id );
+
+		$effective = array_merge( OptionStore::instance()->all( $page_id ), $values );
 
 		foreach ( $fields as $field_id => $field ) {
+			$dep = ! empty( $field['require'] ) ? $field['require'] : ( $field['dependency'] ?? array() );
+			if ( ! empty( $dep ) && ! ConditionalEvaluator::passes( $dep, $effective ) ) {
+				continue;
+			}
+
 			$value = $values[ $field_id ] ?? null;
 
 			if ( ! empty( $field['required'] ) && self::is_empty( $value ) ) {

@@ -32,7 +32,9 @@ final class AssetManager {
 
 		$fields  = PageRegistry::instance()->get_fields( $page_id );
 		$needed  = FieldTypeRegistry::instance()->collect_assets( $fields );
-		$version = defined( 'MINO_VERSION' ) ? MINO_VERSION : '1.0.0';
+		$version    = defined( 'MINO_VERSION' ) ? MINO_VERSION : '1.0.0';
+		$css_ver    = file_exists( MINO_PATH . 'assets/css/admin.css' ) ? (string) filemtime( MINO_PATH . 'assets/css/admin.css' ) : $version;
+		$js_ver     = file_exists( MINO_PATH . 'assets/js/admin.js' ) ? (string) filemtime( MINO_PATH . 'assets/js/admin.js' ) : $version;
 
 		wp_enqueue_style(
 			'mino-peyda',
@@ -45,7 +47,7 @@ final class AssetManager {
 			'mino-admin',
 			MINO_URL . 'assets/css/admin.css',
 			array( 'dashicons', 'mino-peyda' ),
-			$version
+			$css_ver
 		);
 
 		$deps = array();
@@ -67,7 +69,7 @@ final class AssetManager {
 			'mino-admin',
 			MINO_URL . 'assets/js/admin.js',
 			$deps,
-			$version,
+			$js_ver,
 			true
 		);
 

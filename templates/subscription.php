@@ -4,25 +4,27 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$user_id   = get_current_user_id();
-$user      = $user_id ? wp_get_current_user() : null;
-$statuses  = nasim_payment_statuses();
-$history   = $user_id ? nasim_get_user_payments($user_id, 20) : [];
-$owned     = $user_id && function_exists('nasim_user_owned_courses') ? nasim_user_owned_courses($user_id) : [];
-$spot_n    = 0;
-if ($user_id && function_exists('nasim_user_spot_licenses')) {
-    $spot_n = count(nasim_user_spot_licenses($user_id));
-}
+/**
+ * Student Account Panel (/subscription/) + One-off Course/Bundle Checkout
+ * Redesigned with Tailwind v4 brand system, preserving 100% of WP LMS/SpotPlayer/Tickets/Payments/Profile logic.
+ */
 
-// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only notices after redirects.
+$user_id  = get_current_user_id();
+$user     = $user_id ? wp_get_current_user() : null;
+$statuses = nasim_payment_statuses();
+
+// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen state after redirects.
 $payment       = isset($_GET['payment']) ? nasim_get_payment(absint($_GET['payment'])) : null;
 $error         = sanitize_key(wp_unslash($_GET['nasim_error'] ?? ''));
 $tab           = sanitize_key(wp_unslash($_GET['tab'] ?? ''));
 $highlight     = absint(wp_unslash($_GET['highlight'] ?? 0));
 $course_buy_id = absint(wp_unslash($_GET['course'] ?? 0));
 $buy_mode      = sanitize_key(wp_unslash($_GET['buy'] ?? ''));
+$welcome       = !empty($_GET['welcome']);
+$profile_msg   = sanitize_key(wp_unslash($_GET['profile'] ?? ''));
 // phpcs:enable
 
+/* ---------- checkout context ---------- */
 $plans              = [];
 $is_course_checkout = false;
 $purchase_course    = null;
@@ -37,26 +39,26 @@ if (!$highlight && $course_buy_id) {
 if ($highlight) {
     $highlighted = nasim_get_plan($highlight);
     if ($highlighted && $highlighted['price'] > 0) {
-        $is_purchase_plan = in_array($highlighted['type'] ?? '', ['course', 'spot_course'], true);
+        $is_purchase_plan = in_array($highlighted['type'] ?? '', ['course', 'spot_course', 'bundle'], true);
         if ($is_purchase_plan || 'course' === $buy_mode || $course_buy_id) {
             $is_course_checkout = true;
             $plans              = [$highlighted];
             $course_buy_id      = $course_buy_id ?: (int) ($highlighted['course_id'] ?? 0);
             if ($course_buy_id) {
                 $purchase_course = get_post($course_buy_id);
+            } elseif (!empty($highlighted['bundle_id'])) {
+                $purchase_course = get_post((int) $highlighted['bundle_id']);
             }
         }
     }
 }
 
-$checkout_return = $is_course_checkout
-    ? nasim_subscription_url(array_filter([
-        'tab'       => 'plans',
-        'highlight' => $highlight,
-        'course'    => $course_buy_id ?: null,
-        'buy'       => 'course',
-    ]))
-    : nasim_subscription_url(['tab' => 'overview']);
+$checkout_return = nasim_subscription_url(array_filter([
+    'tab'       => 'plans',
+    'highlight' => $highlight ?: null,
+    'course'    => $course_buy_id ?: null,
+    'buy'       => 'course',
+]));
 
 if ($payment && (int) $payment->user_id !== $user_id) {
     $payment = null;
@@ -69,318 +71,428 @@ $errors = [
 ];
 
 $courses_url = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : home_url('/courses/');
-$course_count = (int) (wp_count_posts('nasim_course')->publish ?? 0);
+
+/* ---------- panel data ---------- */
+$tabs = $user_id ? nasim_panel_tabs($user_id) : [];
 
 if ($user_id) {
-    $allowed_tabs = ['overview', 'courses', 'spot', 'tickets', 'plans', 'payments'];
     if ($is_course_checkout) {
         $tab = 'plans';
-    } elseif (!$tab || !in_array($tab, $allowed_tabs, true) || 'license' === $tab) {
+    } elseif (!isset($tabs[$tab])) {
         $tab = 'overview';
     }
 } else {
     $tab = $is_course_checkout ? 'plans' : 'overview';
 }
 
-$initial = $user ? mb_substr($user->display_name ?: $user->user_login, 0, 1) : '؟';
-$ticket_counts   = ($user_id && function_exists('nasim_ticket_counts')) ? nasim_ticket_counts($user_id) : [];
-$ticket_answered = (int) ($ticket_counts['answered'] ?? 0);
+$learning        = $user_id ? nasim_panel_learning_courses($user_id) : [];
+$in_progress     = array_values(array_filter($learning, static function ($i) { return $i['progress']['percent'] > 0 && $i['progress']['percent'] < 100; }));
+$completed       = array_values(array_filter($learning, static function ($i) { return $i['progress']['percent'] >= 100; }));
+$done_lessons    = array_sum(array_map(static function ($i) { return $i['progress']['completed']; }, $learning));
+$history         = $user_id ? nasim_get_user_payments($user_id, 30) : [];
+$paid_count      = count(array_filter($history, static function ($row) { return 'paid' === $row->status; }));
+$ticket_answered = (int) ($tabs['tickets']['badge'] ?? 0);
+$mobile          = $user_id ? nasim_get_user_mobile($user_id) : '';
+$display         = $user ? ($user->display_name ?: $user->user_login) : '';
+$initial         = $display ? mb_substr($display, 0, 1) : '؟';
+
+$render_course_card = static function ($item) {
+    $post     = $item['post'];
+    $cid      = (int) $post->ID;
+    $pct      = (int) $item['progress']['percent'];
+    $next     = $item['next'];
+    $url      = $next ? nasim_lesson_url($cid, $next['id']) : get_permalink($cid);
+    $thumb    = function_exists('nasim_niloo_course_image_url') ? nasim_niloo_course_image_url($cid, 'medium_large') : get_the_post_thumbnail_url($cid, 'medium_large');
+    $delivery = function_exists('nasim_course_delivery') ? nasim_course_delivery($cid) : 'lms';
+    $has_spot = in_array($delivery, ['spot', 'hybrid'], true);
+    $label    = $pct >= 100 ? 'مرور دوره' : ($pct > 0 ? 'ادامه یادگیری' : 'شروع دوره');
+    ?>
+    <article class="rounded-3xl border border-border bg-card p-5 md:p-6 shadow-soft">
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="<?php echo esc_url(get_permalink($cid)); ?>" class="w-full sm:w-44 aspect-video rounded-2xl overflow-hidden bg-ink-900 shrink-0 block">
+          <?php if ($thumb) : ?>
+          <img src="<?php echo esc_url($thumb); ?>" alt="<?php echo esc_attr($post->post_title); ?>" loading="lazy" class="w-full h-full object-cover" />
+          <?php else : ?>
+          <div class="w-full h-full grid place-items-center text-cream font-black text-xl"><?php echo esc_html(mb_substr($post->post_title, 0, 1)); ?></div>
+          <?php endif; ?>
+        </a>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-[15.5px] font-extrabold leading-6">
+            <a href="<?php echo esc_url(get_permalink($cid)); ?>" class="hover:text-violet-700 transition-colors"><?php echo esc_html($post->post_title); ?></a>
+          </h3>
+          <p class="mt-1.5 text-xs font-bold text-muted-foreground">
+            <?php echo esc_html($has_spot ? 'مجازی - ویدیویی (لایسنس اسپات‌پلیر)' : 'مجازی - ویدیویی (پلیر آنلاین آکادمی)'); ?>
+          </p>
+
+          <?php if ($item['progress']['total'] > 0) : ?>
+          <div class="mt-3.5">
+            <div class="flex items-center justify-between text-xs font-bold">
+              <span class="text-muted-foreground truncate"><?php echo $next && $pct < 100 ? esc_html('جلسه بعدی: ' . $next['title']) : ($pct >= 100 ? 'تکمیل شده' : esc_html(nasim_fa_digits($item['progress']['completed']) . ' از ' . nasim_fa_digits($item['progress']['total']) . ' جلسه')); ?></span>
+              <span class="text-ink-800 shrink-0 ms-2"><?php echo esc_html(nasim_fa_digits($pct)); ?>٪</span>
+            </div>
+            <div class="meter mt-1.5"><span style="width:<?php echo esc_attr($pct); ?>%"></span></div>
+          </div>
+          <?php endif; ?>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <?php if ('spot' !== $delivery) : ?>
+            <a href="<?php echo esc_url($url); ?>" class="btn btn-violet btn-sm rounded-full font-bold"><?php echo esc_html($label); ?></a>
+            <?php endif; ?>
+            <?php if ($has_spot) : ?>
+            <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'spot'])); ?>" class="btn btn-outline btn-sm rounded-full font-bold">دریافت لایسنس اسپات‌پلیر</a>
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+    </article>
+    <?php
+};
 
 get_header();
 ?>
 
-  <main class="container-wide account-page<?php echo $user_id ? ' is-dashboard' : ' is-guest'; ?> is-tab-<?php echo esc_attr($tab); ?>">
+<main id="main-content" class="flex-1">
+  <div class="container-site py-10 md:py-14">
 
-    <?php if ($user_id) : ?>
-    <section class="account-hero">
-      <div class="account-hero-glow" aria-hidden="true"></div>
-      <div class="account-hero-main">
-        <div class="account-avatar" aria-hidden="true"><?php echo esc_html($initial); ?></div>
-        <div class="account-hero-copy">
-          <span class="eyebrow"><span class="eyebrow-line"></span> پنل کاربری آکادمی</span>
-          <h1>سلام <?php echo esc_html($user->display_name); ?></h1>
-          <p>دوره‌های خریداری‌شده، توکن اسپات‌پلیر، پشتیبانی و سوابق پرداختت اینجاست.</p>
-        </div>
-        <div class="account-hero-actions">
-          <span class="account-pill is-live"><?php echo esc_html(nasim_fa_digits(count($owned))); ?> دوره فعال</span>
-          <a class="button button-outline button-small" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a>
-        </div>
-      </div>
+  <?php if (!$user_id) : ?>
+    <!-- مهمان (چک‌اوت) -->
+    <div class="max-w-lg mx-auto rounded-3xl border border-border bg-card p-7 md:p-9 shadow-lift text-center">
+      <span class="inline-flex rounded-full bg-violet-100 text-violet-800 border border-violet-300 px-3.5 py-1 text-xs font-black">تکمیل ثبت‌نام</span>
+      <h1 class="mt-4 text-xl md:text-2xl font-black"><?php echo $purchase_course ? esc_html(get_the_title($purchase_course)) : 'ورود به پنل کاربری'; ?></h1>
+      <p class="mt-3 fa-line text-sm text-muted-foreground">برای خرید، وارد حسابت شو یا با شماره موبایل در چند ثانیه حساب بساز؛ بعد از پرداخت دسترسی دائمی می‌گیری.</p>
 
-      <div class="account-stats">
-        <article class="account-stat">
-          <span class="account-stat-label">دوره‌های من</span>
-          <strong><?php echo esc_html(nasim_fa_digits(count($owned))); ?></strong>
-          <small>خریداری‌شده و فعال</small>
-        </article>
-        <article class="account-stat">
-          <span class="account-stat-label">لایسنس اسپات</span>
-          <strong><?php echo esc_html(nasim_fa_digits($spot_n)); ?></strong>
-          <small>توکن آماده در پنل</small>
-        </article>
-        <article class="account-stat">
-          <span class="account-stat-label">پشتیبانی</span>
-          <strong><?php echo $ticket_answered ? esc_html(nasim_fa_digits($ticket_answered)) . ' پاسخ' : '—'; ?></strong>
-          <small><?php echo $ticket_answered ? 'پاسخ جدید داری' : 'تیکت بساز'; ?></small>
-        </article>
-        <article class="account-stat">
-          <span class="account-stat-label">کاتالوگ آکادمی</span>
-          <strong><?php echo esc_html(nasim_fa_digits($course_count)); ?></strong>
-          <small>دوره منتشرشده</small>
-        </article>
-      </div>
-    </section>
-
-    <nav class="account-tabs" aria-label="بخش‌های پنل">
-      <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'overview'])); ?>" class="<?php echo 'overview' === $tab ? 'is-active' : ''; ?>">خلاصه</a>
-      <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'courses'])); ?>" class="<?php echo 'courses' === $tab ? 'is-active' : ''; ?>">دوره‌های من</a>
-      <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'spot'])); ?>" class="<?php echo 'spot' === $tab ? 'is-active' : ''; ?>">اسپات پلیر</a>
-      <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'tickets'])); ?>" class="<?php echo 'tickets' === $tab ? 'is-active' : ''; ?>">پشتیبانی<?php if ($ticket_answered) : ?> <b class="account-tab-badge" title="پاسخ جدید"><?php echo esc_html(nasim_fa_digits($ticket_answered)); ?></b><?php endif; ?></a>
-      <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'payments'])); ?>" class="<?php echo 'payments' === $tab ? 'is-active' : ''; ?>">تراکنش‌ها</a>
-      <?php if ($is_course_checkout) : ?>
-      <a href="<?php echo esc_url($checkout_return); ?>" class="<?php echo 'plans' === $tab ? 'is-active' : ''; ?>">خرید دوره</a>
+      <?php if ($error && isset($errors[$error])) : ?>
+      <div class="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-700" role="alert"><?php echo esc_html($errors[$error]); ?></div>
       <?php endif; ?>
-    </nav>
-    <?php else : ?>
-    <section class="account-guest-hero">
-      <div class="account-guest-copy">
-        <?php if ($is_course_checkout) : ?>
-        <span class="eyebrow"><span class="eyebrow-line"></span> خرید دوره</span>
-        <h1>خرید دوره<?php echo $purchase_course ? ': <span>' . esc_html(get_the_title($purchase_course)) . '</span>' : ''; ?></h1>
-        <p>بعد از ورود، همین دوره را یک‌بار می‌خری و دسترسی دائمی می‌گیری.</p>
-        <div class="account-guest-actions">
-          <a class="button button-primary button-large" href="<?php echo esc_url(nasim_auth_url('login', $checkout_return)); ?>">ورود و خرید دوره <span>←</span></a>
-          <a class="button button-outline button-large" href="<?php echo esc_url(nasim_auth_url('register', $checkout_return)); ?>">ثبت‌نام و خرید</a>
-        </div>
-        <?php else : ?>
-        <span class="eyebrow"><span class="eyebrow-line"></span> پنل کاربری</span>
-        <h1>دوره‌ها و لایسنس اسپات‌پلیرت اینجاست</h1>
-        <p>وارد شو تا دوره‌های خریداری‌شده، توکن اسپات و پشتیبانی را ببینی.</p>
-        <div class="account-guest-actions">
-          <a class="button button-primary button-large" href="<?php echo esc_url(nasim_auth_url('login', nasim_subscription_url())); ?>">ورود به پنل <span>←</span></a>
-          <a class="button button-outline button-large" href="<?php echo esc_url($courses_url); ?>">مشاهده دوره‌ها</a>
-        </div>
-        <?php endif; ?>
-      </div>
-      <ul class="account-benefit-list">
-        <li><span>▶</span><div><strong>دسترسی دائمی</strong><small>یک‌بار خرید برای هر دوره</small></div></li>
-        <li><span>◈</span><div><strong>توکن اسپات‌پلیر</strong><small>کلید لایسنس داخل پنل</small></div></li>
-        <li><span>✓</span><div><strong>دانلود اپ اسپات</strong><small>لینک رسمی برنامه</small></div></li>
-        <li><span>↻</span><div><strong>پرداخت امن</strong><small>از طریق درگاه زیبال</small></div></li>
-      </ul>
-    </section>
-    <?php endif; ?>
 
-    <?php if ($payment && 'paid' === $payment->status) : ?>
-      <div class="lms-notice is-success" role="status">
-        <strong>پرداخت موفق بود</strong>
-        <span>دوره‌ات فعال شد<?php echo $payment->ref_number ? ' · کد: ' . esc_html($payment->ref_number) : ''; ?></span>
-        <a class="button button-primary button-small" href="<?php echo esc_url(nasim_subscription_url(['tab' => 'courses'])); ?>">دوره‌های من</a>
-        <a class="button button-outline button-small" href="<?php echo esc_url(nasim_subscription_url(['tab' => 'spot'])); ?>">اسپات پلیر</a>
+      <?php if ($plans) : $plan = $plans[0]; ?>
+      <div class="mt-6 rounded-2xl bg-sand p-4 flex items-center justify-between">
+        <span class="text-xs font-bold text-muted-foreground">مبلغ قابل پرداخت</span>
+        <strong class="text-lg font-black text-ink-900"><?php echo esc_html(nasim_format_price($plan['price'])); ?></strong>
       </div>
-    <?php elseif ($payment && 'failed' === $payment->status) : ?>
-      <div class="lms-notice is-error" role="alert">
-        <strong>پرداخت ناموفق بود</strong>
-        <span><?php echo esc_html($payment->note ?: 'در صورت کسر وجه، مبلغ حداکثر تا ۷۲ ساعت برمی‌گردد.'); ?></span>
-      </div>
-    <?php elseif ($error && isset($errors[$error])) : ?>
-      <div class="lms-notice is-error" role="alert"><strong><?php echo esc_html($errors[$error]); ?></strong></div>
-    <?php endif; ?>
+      <?php endif; ?>
 
-    <?php if ($user_id && 'overview' === $tab) : ?>
-    <section class="account-panel" id="overview">
-      <div class="account-panel-grid">
-        <div class="account-card account-status-card<?php echo $owned ? ' is-active' : ''; ?>">
-          <div class="account-card-head">
-            <h2>وضعیت یادگیری</h2>
-            <?php if ($owned) : ?><span class="account-tag is-live">فعال</span><?php endif; ?>
-          </div>
-          <?php if ($owned) : ?>
-          <p class="account-lead"><?php echo esc_html(nasim_fa_digits(count($owned))); ?> دوره خریداری‌شده داری. از «دوره‌های من» ادامه بده یا توکن اسپات را بردار.</p>
-          <div class="account-card-actions">
-            <a class="button button-primary" href="<?php echo esc_url(nasim_subscription_url(['tab' => 'courses'])); ?>">دوره‌های من <span>←</span></a>
-            <a class="button button-outline" href="<?php echo esc_url(nasim_subscription_url(['tab' => 'spot'])); ?>">اسپات پلیر</a>
-          </div>
-          <?php else : ?>
-          <p class="account-lead">هنوز دوره‌ای نخریده‌ای. از کاتالوگ شروع کن.</p>
-          <div class="account-card-actions">
-            <a class="button button-primary" href="<?php echo esc_url($courses_url); ?>">مشاهده دوره‌ها <span>←</span></a>
-          </div>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3">
+        <a class="btn btn-violet btn-lg flex-1 rounded-2xl font-black" href="<?php echo esc_url(nasim_auth_url('login', $checkout_return)); ?>">ورود یا ثبت‌نام و ادامه خرید ←</a>
+        <a class="btn btn-outline btn-lg rounded-2xl font-bold" href="<?php echo esc_url($purchase_course ? get_permalink($purchase_course) : $courses_url); ?>">بازگشت</a>
+      </div>
+    </div>
+
+  <?php else : ?>
+
+    <!-- هدر تیره پنل دانشجو -->
+    <div class="flex flex-col md:flex-row md:items-center gap-5 justify-between rounded-3xl bg-ink-900 text-cream p-6 md:p-8 relative overflow-hidden">
+      <div class="absolute inset-0 dot-grid-light opacity-30" aria-hidden="true"></div>
+      <div class="relative flex items-center gap-4">
+        <span class="grid place-items-center size-14 rounded-2xl bg-violet-400 text-ink-950 text-xl font-black shrink-0" aria-hidden="true"><?php echo esc_html($initial); ?></span>
+        <div class="min-w-0">
+          <p class="text-xs font-bold text-ink-300">پنل کاربری دانشجو</p>
+          <h1 class="mt-1 text-xl font-extrabold truncate">سلام، <?php echo esc_html($display); ?></h1>
+          <?php if ($mobile || $user->user_email) : ?>
+          <p class="mt-1 text-xs font-semibold text-violet-300" dir="ltr"><?php echo esc_html($mobile ?: $user->user_email); ?></p>
           <?php endif; ?>
         </div>
+      </div>
+      <div class="relative flex flex-wrap gap-2.5">
+        <?php if (isset($tabs['tickets'])) : ?>
+        <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'tickets', 'ticket' => 'new'])); ?>" class="btn btn-violet btn-sm rounded-full font-bold">+ ثبت تیکت پشتیبانی</a>
+        <?php endif; ?>
+        <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="btn btn-ghost btn-sm rounded-full font-bold text-cream border border-ink-700 hover:bg-ink-800 hover:text-cream">خروج</a>
+      </div>
+    </div>
 
-        <div class="account-card">
-          <div class="account-card-head"><h2>میانبرها</h2></div>
-          <div class="account-quick-links">
-            <a href="<?php echo esc_url($courses_url); ?>"><span>▶</span><strong>کاتالوگ دوره‌ها</strong><small>خرید دوره جدید</small></a>
-            <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'spot'])); ?>"><span>◈</span><strong>اسپات پلیر</strong><small>توکن و دانلود اپ</small></a>
-            <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'tickets'])); ?>"><span>✉</span><strong>پشتیبانی</strong><small><?php echo $ticket_answered ? esc_html(nasim_fa_digits($ticket_answered)) . ' پاسخ جدید' : 'ثبت تیکت'; ?></small></a>
-            <a href="<?php echo esc_url(nasim_subscription_url(['tab' => 'payments'])); ?>"><span>✓</span><strong>تراکنش‌ها</strong><small>سوابق پرداخت</small></a>
-          </div>
-        </div>
+    <!-- نوار تب افقی برای موبایل (UX بهبودیافته) -->
+    <nav aria-label="تب‌های پنل در موبایل" class="lg:hidden mt-5 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+      <?php foreach ($tabs as $key => $item) : ?>
+      <a href="<?php echo esc_url(nasim_subscription_url(['tab' => $key])); ?>" class="shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-extrabold transition-colors <?php echo $key === $tab ? 'bg-ink-900 text-cream' : 'bg-card border border-border text-foreground/80'; ?>">
+        <span><?php echo esc_html($item['label']); ?></span>
+        <?php if (!empty($item['badge'])) : ?>
+        <span class="rounded-full bg-violet-400 text-ink-950 px-1.5 py-0.5 text-[10px] font-black"><?php echo esc_html(nasim_fa_digits($item['badge'])); ?></span>
+        <?php endif; ?>
+      </a>
+      <?php endforeach; ?>
+    </nav>
 
-        <?php if ($owned) : ?>
-        <div class="account-card account-downloads-preview">
-          <div class="account-card-head">
-            <h2>آخرین دوره‌ها</h2>
-            <a class="text-link" href="<?php echo esc_url(nasim_subscription_url(['tab' => 'courses'])); ?>">همه ←</a>
-          </div>
-          <ul class="account-mini-list">
-            <?php foreach (array_slice($owned, 0, 4) as $course) :
-                $cid = (int) $course->ID;
-                $next = function_exists('nasim_next_lesson_to_watch') ? nasim_next_lesson_to_watch($cid) : null;
-                $url  = $next && function_exists('nasim_lesson_url')
-                    ? nasim_lesson_url($cid, $next['id'])
-                    : get_permalink($cid);
-                ?>
+    <!-- اعلان‌ها -->
+    <?php if ($welcome) : ?>
+    <div class="mt-5 rounded-2xl border border-mint-200 bg-mint-100 p-4 text-sm font-bold text-mint-700" role="status">
+      حسابت با موفقیت ساخته شد! از کاتالوگ دوره‌ها مسیرت را شروع کن.
+    </div>
+    <?php endif; ?>
+    <?php if ($payment && 'paid' === $payment->status) : ?>
+    <div class="mt-5 rounded-2xl border border-mint-200 bg-mint-100 p-4 flex flex-wrap items-center justify-between gap-3 text-sm text-mint-700" role="status">
+      <div><strong>پرداخت موفق بود.</strong> «<?php echo esc_html($payment->plan_title); ?>» فعال شد<?php echo $payment->ref_number ? ' · کد پیگیری: <bdi dir="ltr">' . esc_html($payment->ref_number) . '</bdi>' : ''; ?></div>
+      <a class="btn btn-default btn-sm rounded-full" href="<?php echo esc_url(nasim_subscription_url(['tab' => 'courses'])); ?>">مشاهده دوره‌ها ←</a>
+    </div>
+    <?php elseif ($payment && 'failed' === $payment->status) : ?>
+    <div class="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">
+      <strong>پرداخت ناموفق بود:</strong> <?php echo esc_html($payment->note ?: 'اگر مبلغی کسر شده، حداکثر تا ۷۲ ساعت به حسابت برمی‌گردد.'); ?>
+    </div>
+    <?php elseif ($error && isset($errors[$error])) : ?>
+    <div class="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700" role="alert"><?php echo esc_html($errors[$error]); ?></div>
+    <?php endif; ?>
+
+    <!-- گرید اصلی: محتوا + منوی دسکتاپ -->
+    <div class="mt-7 grid lg:grid-cols-12 gap-6 items-start">
+
+      <!-- سایدبار منوی پنل (دسکتاپ) -->
+      <aside class="hidden lg:block lg:col-span-3 space-y-4">
+        <nav aria-label="منوی پنل کاربری" class="rounded-3xl border border-border bg-card p-3 shadow-soft">
+          <ul class="space-y-1">
+            <?php foreach ($tabs as $key => $item) : ?>
             <li>
-              <div>
-                <strong><a href="<?php echo esc_url(get_permalink($cid)); ?>"><?php echo esc_html(get_the_title($cid)); ?></a></strong>
-                <small><?php echo $next ? 'ادامه: ' . esc_html($next['title']) : 'مشاهده دوره'; ?></small>
-              </div>
-              <a class="button button-primary button-small" href="<?php echo esc_url($url); ?>">ادامه</a>
+              <a href="<?php echo esc_url(nasim_subscription_url(['tab' => $key])); ?>"
+                 class="flex items-center justify-between gap-2 rounded-xl px-3.5 py-3 text-[13.5px] font-bold transition-colors <?php echo $key === $tab ? 'bg-secondary text-ink-900' : 'text-foreground/80 hover:bg-sand'; ?>"
+                 <?php echo $key === $tab ? 'aria-current="page"' : ''; ?>>
+                <span class="flex items-center gap-2.5 [&_svg]:size-4.5">
+                  <?php echo nasim_icon($item['icon']); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+                  <span><?php echo esc_html($item['label']); ?></span>
+                </span>
+                <?php if (!empty($item['badge'])) : ?>
+                <span class="rounded-full bg-violet-400 text-ink-950 px-2 py-0.5 text-[11px] font-black"><?php echo esc_html(nasim_fa_digits($item['badge'])); ?></span>
+                <?php endif; ?>
+              </a>
             </li>
             <?php endforeach; ?>
+            <li class="pt-2 mt-2 border-t border-border">
+              <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="flex items-center gap-2.5 rounded-xl px-3.5 py-3 text-[13.5px] font-bold text-destructive hover:bg-red-50 transition-colors">
+                <span>خروج از حساب</span>
+              </a>
+            </li>
           </ul>
+        </nav>
+      </aside>
+
+      <!-- محتوای تب فعال -->
+      <div class="lg:col-span-9 space-y-6 min-w-0">
+
+        <?php /* ================= OVERVIEW ================= */ ?>
+        <?php if ('overview' === $tab) : ?>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          <div class="rounded-2xl border border-border bg-card p-5 shadow-soft">
+            <p class="font-black text-xl text-ink-900"><?php echo esc_html(nasim_fa_digits(count($learning))); ?></p>
+            <p class="text-xs font-bold text-muted-foreground mt-1">دوره فعال</p>
+          </div>
+          <div class="rounded-2xl border border-border bg-card p-5 shadow-soft">
+            <p class="font-black text-xl text-ink-900"><?php echo esc_html(nasim_fa_digits($done_lessons)); ?></p>
+            <p class="text-xs font-bold text-muted-foreground mt-1">جلسه دیده‌شده</p>
+          </div>
+          <div class="rounded-2xl border border-border bg-card p-5 shadow-soft">
+            <p class="font-black text-xl text-ink-900"><?php echo esc_html(nasim_fa_digits(count($completed))); ?></p>
+            <p class="text-xs font-bold text-muted-foreground mt-1">دوره تکمیل‌شده</p>
+          </div>
+          <div class="rounded-2xl border border-border bg-card p-5 shadow-soft">
+            <p class="font-black text-xl text-ink-900"><?php echo esc_html(nasim_fa_digits($ticket_answered)); ?></p>
+            <p class="text-xs font-bold text-muted-foreground mt-1">پاسخ جدید پشتیبانی</p>
+          </div>
+        </div>
+
+        <section class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-extrabold">دوره‌های من</h2>
+            <a href="<?php echo esc_url($courses_url); ?>" class="btn btn-outline btn-sm rounded-full font-bold">کاتالوگ دوره‌ها</a>
+          </div>
+
+          <?php if ($learning) : ?>
+            <?php foreach (array_slice($learning, 0, 4) as $item) { $render_course_card($item); } ?>
+          <?php else : ?>
+          <div class="rounded-3xl border border-dashed border-border bg-card p-10 text-center">
+            <p class="font-extrabold text-base">هنوز دوره‌ای شروع نکرده‌ای</p>
+            <p class="mt-1.5 text-sm text-muted-foreground">از کاتالوگ دوره‌ها یک دوره انتخاب کن؛ دوره‌های رایگان بلافاصله باز می‌شوند.</p>
+            <a class="btn btn-violet rounded-full mt-5 font-bold" href="<?php echo esc_url($courses_url); ?>">مشاهده دوره‌ها</a>
+          </div>
+          <?php endif; ?>
+        </section>
+        <?php endif; ?>
+
+        <?php /* ================= COURSES ================= */ ?>
+        <?php if ('courses' === $tab) : ?>
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-extrabold">همه دوره‌های من (<?php echo esc_html(nasim_fa_digits(count($learning))); ?>)</h2>
+            <a href="<?php echo esc_url($courses_url); ?>" class="btn btn-outline btn-sm rounded-full font-bold">افزودن دوره جدید</a>
+          </div>
+          <?php if ($learning) : ?>
+          <div class="space-y-4">
+            <?php foreach ($learning as $item) { $render_course_card($item); } ?>
+          </div>
+          <?php else : ?>
+          <div class="rounded-3xl border border-dashed border-border bg-card p-10 text-center">
+            <p class="font-extrabold text-base">هنوز دوره‌ای در حسابت فعال نیست</p>
+            <a class="btn btn-violet rounded-full mt-5 font-bold" href="<?php echo esc_url($courses_url); ?>">مشاهده دوره‌ها</a>
+          </div>
+          <?php endif; ?>
+        <?php endif; ?>
+
+        <?php /* ================= SPOTPLAYER ================= */ ?>
+        <?php if ('spot' === $tab && function_exists('nasim_spot_render_account_tab')) : ?>
+        <div class="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-soft">
+          <?php nasim_spot_render_account_tab(); ?>
         </div>
         <?php endif; ?>
-      </div>
-    </section>
-    <?php endif; ?>
 
-    <?php if ($user_id && 'courses' === $tab) : ?>
-    <section class="account-panel" id="courses">
-      <div class="account-section-intro">
-        <div>
-          <span class="eyebrow">یادگیری</span>
-          <h2>دوره‌های من</h2>
+        <?php /* ================= TICKETS ================= */ ?>
+        <?php if ('tickets' === $tab && function_exists('nasim_ticket_counts')) : ?>
+        <div class="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-soft">
+          <?php get_template_part('template-parts/account/tickets', null, ['user_id' => $user_id, 'is_active' => true]); ?>
         </div>
-        <p>دوره‌هایی که خریدی یا به حسابت اضافه شده‌اند.</p>
-      </div>
-      <?php if ($owned) : ?>
-      <div class="home-course-grid account-course-grid">
-        <?php
-        global $post;
-        foreach ($owned as $post) :
-            setup_postdata($post);
-            get_template_part('template-parts/course/card-catalog');
-        endforeach;
-        wp_reset_postdata();
-        ?>
-      </div>
-      <?php else : ?>
-      <div class="account-empty">
-        <strong>هنوز دوره‌ای نداری</strong>
-        <p>از کاتالوگ یک دوره بخر تا اینجا نمایش داده شود.</p>
-        <a class="button button-primary" href="<?php echo esc_url($courses_url); ?>">مشاهده دوره‌ها <span>←</span></a>
-      </div>
-      <?php endif; ?>
-    </section>
-    <?php endif; ?>
+        <?php endif; ?>
 
-    <?php if ($user_id && 'tickets' === $tab && function_exists('nasim_ticket_counts')) : ?>
-      <?php get_template_part('template-parts/account/tickets', null, ['user_id' => $user_id, 'is_active' => true]); ?>
-    <?php endif; ?>
-
-    <?php if ($is_course_checkout && ((!$user_id) || 'plans' === $tab)) : ?>
-    <section class="account-panel" id="plans">
-      <?php if ($user_id) : ?>
-      <div class="account-section-intro">
-        <div>
-          <span class="eyebrow">خرید دوره</span>
-          <h2>تکمیل خرید</h2>
-        </div>
-        <p>این پرداخت فقط همین دوره را باز می‌کند و دسترسی دائمی می‌دهد.</p>
-      </div>
-      <?php endif; ?>
-
-      <?php if ($plans) : ?>
-      <div class="plan-grid plan-grid--purchase">
-        <?php foreach ($plans as $plan) :
-            $features = $plan['features'] ?: [
-                'دسترسی دائمی به همین دوره',
-                'پشتیبانی آکادمی',
-                'توکن اسپات‌پلیر در صورت نیاز',
-            ];
-            $login_return = nasim_subscription_url(array_filter([
-                'tab'       => 'plans',
-                'highlight' => $plan['id'],
-                'course'    => (int) ($plan['course_id'] ?? 0) ?: null,
-                'buy'       => 'course',
-            ]));
-            ?>
-        <article class="plan-card is-course-purchase<?php echo $plan['featured'] ? ' is-featured' : ''; ?>">
-          <?php if ($plan['featured']) : ?><span class="plan-badge">پیشنهاد ویژه</span><?php endif; ?>
-          <span class="plan-duration">خرید یک‌باره</span>
-          <h3><?php echo esc_html($plan['title']); ?></h3>
-          <div class="plan-price">
-            <strong><?php echo esc_html(nasim_fa_digits(number_format($plan['price']))); ?></strong>
-            <small>تومان</small>
+        <?php /* ================= PAYMENTS ================= */ ?>
+        <?php if ('payments' === $tab) : ?>
+          <h2 class="text-lg font-extrabold">سوابق تراکنش‌ها</h2>
+          <?php if ($history) : ?>
+          <div class="rounded-3xl border border-border bg-card overflow-hidden shadow-soft">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-start">
+                <thead class="bg-sand text-xs font-extrabold text-muted-foreground border-b border-border">
+                  <tr>
+                    <th class="px-5 py-3.5 text-start">شرح</th>
+                    <th class="px-5 py-3.5 text-start">تاریخ</th>
+                    <th class="px-5 py-3.5 text-start">مبلغ</th>
+                    <th class="px-5 py-3.5 text-start">وضعیت</th>
+                    <th class="px-5 py-3.5 text-start">کد پیگیری</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                  <?php foreach ($history as $row) :
+                      $tone = nasim_panel_status_tone($row->status);
+                      $badge_cls = 'ok' === $tone ? 'bg-mint-100 text-mint-700' : ('err' === $tone ? 'bg-red-100 text-red-700' : 'bg-violet-100 text-violet-800');
+                  ?>
+                  <tr>
+                    <td class="px-5 py-4 font-bold"><?php echo esc_html($row->plan_title); ?></td>
+                    <td class="px-5 py-4 text-xs text-muted-foreground"><?php echo esc_html(nasim_jdate(nasim_payment_time($row->created_at), true)); ?></td>
+                    <td class="px-5 py-4 font-bold"><?php echo (int) $row->amount ? esc_html(nasim_format_price((int) $row->amount / 10)) : '—'; ?></td>
+                    <td class="px-5 py-4"><span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold <?php echo esc_attr($badge_cls); ?>"><?php echo esc_html($statuses[$row->status] ?? $row->status); ?></span></td>
+                    <td class="px-5 py-4 font-mono text-xs" dir="ltr"><?php echo esc_html($row->ref_number ?: '—'); ?></td>
+                  </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <ul>
-            <?php foreach ($features as $feature) : ?>
-            <li><span>✓</span><?php echo esc_html($feature); ?></li>
-            <?php endforeach; ?>
-          </ul>
-          <?php if ($user_id) : ?>
-          <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-            <input type="hidden" name="action" value="nasim_subscribe">
-            <input type="hidden" name="plan_id" value="<?php echo esc_attr($plan['id']); ?>">
-            <?php wp_nonce_field('nasim_subscribe'); ?>
-            <button type="submit" class="button button-primary">پرداخت و خرید دوره <span>←</span></button>
-          </form>
+          <p class="text-xs font-semibold text-muted-foreground">تراکنش‌های موفق: <?php echo esc_html(nasim_fa_digits($paid_count)); ?></p>
           <?php else : ?>
-          <a class="button button-primary" href="<?php echo esc_url(nasim_auth_url('login', $login_return)); ?>">ورود و خرید دوره <span>←</span></a>
+          <div class="rounded-3xl border border-dashed border-border bg-card p-10 text-center">
+            <p class="font-extrabold text-base">هنوز تراکنشی ثبت نشده است.</p>
+          </div>
           <?php endif; ?>
-        </article>
-        <?php endforeach; ?>
-      </div>
-      <p class="plan-note">پرداخت امن با زیبال · یک‌بار خرید · دسترسی دائمی به همین دوره</p>
-      <?php else : ?>
-      <p class="course-empty">پلن خرید این دوره پیدا نشد.</p>
-      <?php endif; ?>
-    </section>
-    <?php endif; ?>
+        <?php endif; ?>
 
-    <?php if ($user_id && 'payments' === $tab) : ?>
-    <section class="account-panel" id="payments">
-      <div class="account-section-intro">
-        <div>
-          <span class="eyebrow">مالی</span>
-          <h2>سوابق پرداخت</h2>
-        </div>
-        <p>تراکنش‌های خرید دوره.</p>
-      </div>
-      <?php if ($history) : ?>
-      <div class="payment-table-wrap">
-        <table class="payment-table">
-          <thead><tr><th>تاریخ</th><th>شرح</th><th>مبلغ</th><th>وضعیت</th><th>کد پیگیری</th></tr></thead>
-          <tbody>
-          <?php foreach ($history as $row) : ?>
-            <tr>
-              <td><?php echo esc_html(nasim_jdate(nasim_payment_time($row->created_at), true)); ?></td>
-              <td><?php echo esc_html($row->plan_title); ?></td>
-              <td><?php echo esc_html(nasim_format_price((int) $row->amount / 10)); ?></td>
-              <td><span class="payment-status is-<?php echo esc_attr($row->status); ?>"><?php echo esc_html($statuses[$row->status] ?? $row->status); ?></span></td>
-              <td dir="ltr"><?php echo esc_html($row->ref_number ?: '—'); ?></td>
-            </tr>
-          <?php endforeach; ?>
-          </tbody>
-        </table>
-      </div>
-      <?php else : ?>
-      <div class="account-empty">
-        <strong>هنوز تراکنشی نداری</strong>
-        <p>بعد از خرید دوره، اینجا ثبت می‌شود.</p>
-        <a class="button button-primary" href="<?php echo esc_url($courses_url); ?>">رفتن به دوره‌ها <span>←</span></a>
-      </div>
-      <?php endif; ?>
-    </section>
-    <?php endif; ?>
+        <?php /* ================= PROFILE ================= */ ?>
+        <?php if ('profile' === $tab) :
+            $messages = nasim_panel_profile_messages();
+        ?>
+          <?php if (isset($messages[$profile_msg])) : ?>
+          <div class="rounded-2xl border p-4 text-sm font-bold <?php echo 'ok' === $messages[$profile_msg][0] ? 'border-mint-200 bg-mint-100 text-mint-700' : 'border-red-200 bg-red-50 text-red-700'; ?>" role="status">
+            <?php echo esc_html($messages[$profile_msg][1]); ?>
+          </div>
+          <?php endif; ?>
 
-    <?php do_action('nasim_account_tab_content'); ?>
+          <div class="grid md:grid-cols-2 gap-6">
+            <form class="rounded-3xl border border-border bg-card p-6 shadow-soft space-y-4" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+              <h2 class="text-base font-extrabold">اطلاعات شخصی</h2>
+              <input type="hidden" name="action" value="nasim_profile_update" />
+              <input type="hidden" name="section" value="info" />
+              <?php wp_nonce_field('nasim_profile_update'); ?>
 
-  </main>
+              <div>
+                <label for="profName" class="field-label">نام و نام خانوادگی</label>
+                <input id="profName" type="text" name="display_name" value="<?php echo esc_attr($user->display_name); ?>" autocomplete="name" required maxlength="60" class="field" />
+              </div>
+              <div>
+                <label for="profMobile" class="field-label">شماره موبایل</label>
+                <input id="profMobile" type="tel" value="<?php echo esc_attr($mobile ?: '—'); ?>" dir="ltr" readonly class="field bg-sand/70" />
+                <p class="mt-1 text-[11.5px] text-muted-foreground">برای تغییر شماره موبایل، یک تیکت پشتیبانی ثبت کن.</p>
+              </div>
+              <div>
+                <label for="profEmail" class="field-label">ایمیل (اختیاری)</label>
+                <input id="profEmail" type="email" name="email" value="<?php echo esc_attr($user->user_email); ?>" dir="ltr" autocomplete="email" placeholder="you@example.com" class="field" />
+              </div>
+              <button type="submit" class="btn btn-violet rounded-xl font-bold w-full">ذخیره تغییرات</button>
+            </form>
+
+            <form class="rounded-3xl border border-border bg-card p-6 shadow-soft space-y-4" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+              <h2 class="text-base font-extrabold">تنظیم یا تغییر رمز عبور</h2>
+              <p class="text-xs text-muted-foreground fa-line">ورود با کد پیامکی همیشه فعال است؛ اگر می‌خواهی با رمز عبور هم وارد شوی اینجا رمز بساز.</p>
+              <input type="hidden" name="action" value="nasim_profile_update" />
+              <input type="hidden" name="section" value="password" />
+              <?php wp_nonce_field('nasim_profile_update'); ?>
+
+              <div>
+                <label for="profPass1" class="field-label">رمز عبور جدید (حداقل ۸ کاراکتر)</label>
+                <input id="profPass1" type="password" name="new_password" minlength="8" autocomplete="new-password" dir="ltr" required class="field" />
+              </div>
+              <div>
+                <label for="profPass2" class="field-label">تکرار رمز عبور جدید</label>
+                <input id="profPass2" type="password" name="confirm_password" minlength="8" autocomplete="new-password" dir="ltr" required class="field" />
+              </div>
+              <button type="submit" class="btn btn-outline rounded-xl font-bold w-full">ذخیره رمز عبور</button>
+            </form>
+          </div>
+        <?php endif; ?>
+
+        <?php /* ================= CHECKOUT ================= */ ?>
+        <?php if ($is_course_checkout && 'plans' === $tab) : ?>
+          <?php if ($plans) : $plan = $plans[0];
+              $is_bundle = 'bundle' === ($plan['type'] ?? '');
+              $features  = $plan['features'] ?: ($is_bundle
+                  ? ['دسترسی دائمی به همه دوره‌های پکیج', 'فعال‌سازی فوری بعد از پرداخت', 'پشتیبانی مستقیم در پنل کاربری']
+                  : ['دسترسی دائمی به دوره', 'پشتیبانی مستقیم آکادمی', 'صدور فوری لایسنس اسپات‌پلیر در صورت نیاز']);
+          ?>
+          <div class="grid md:grid-cols-12 gap-6 items-start">
+            <div class="md:col-span-7 rounded-3xl border border-border bg-card p-6 md:p-7 shadow-soft">
+              <span class="inline-flex rounded-full bg-violet-100 text-violet-800 px-3 py-1 text-xs font-bold"><?php echo $is_bundle ? 'پکیج آموزشی' : 'دوره آموزشی'; ?></span>
+              <h2 class="mt-3 text-xl font-black"><?php echo esc_html($purchase_course ? get_the_title($purchase_course) : $plan['title']); ?></h2>
+              <ul class="mt-5 space-y-2.5 text-sm font-semibold text-foreground/85">
+                <?php foreach ($features as $feature) : ?>
+                <li class="flex items-start gap-2">
+                  <svg class="size-4.5 text-violet-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                  <span><?php echo esc_html($feature); ?></span>
+                </li>
+                <?php endforeach; ?>
+              </ul>
+            </div>
+
+            <div class="md:col-span-5 rounded-3xl border border-ink-800 bg-ink-900 text-cream p-6 md:p-7 shadow-lift">
+              <div class="flex items-center justify-between text-sm text-ink-300">
+                <span>مبلغ دوره</span>
+                <span><?php echo esc_html(nasim_format_price($plan['price'])); ?></span>
+              </div>
+              <div class="mt-3 pt-3 border-t border-ink-800 flex items-center justify-between">
+                <span class="text-sm font-bold">قابل پرداخت</span>
+                <strong class="text-xl font-black text-violet-300"><?php echo esc_html(nasim_format_price($plan['price'])); ?></strong>
+              </div>
+
+              <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="mt-6 space-y-4">
+                <input type="hidden" name="action" value="nasim_subscribe" />
+                <input type="hidden" name="plan_id" value="<?php echo esc_attr($plan['id']); ?>" />
+                <?php wp_nonce_field('nasim_subscribe'); ?>
+                <?php get_template_part('template-parts/checkout/gateway-selector', null, ['amount' => (int) $plan['price'], 'theme' => 'dark']); ?>
+                <button type="submit" class="btn btn-violet btn-lg w-full rounded-2xl font-black">پرداخت و فعال‌سازی فوری ←</button>
+              </form>
+              <p class="mt-3 text-[11.5px] text-ink-300 text-center">
+                <?php if (function_exists('nasim_has_installment_gateways') && nasim_has_installment_gateways()) : ?>
+                  پرداخت امن آنلاین و اقساطی با فعال‌سازی فوری دوره
+                <?php else : ?>
+                  پرداخت امن از درگاه <?php echo esc_html(nasim_payment_gateway_labels()[nasim_payment_gateway_id()] ?? 'بانکی'); ?>
+                <?php endif; ?>
+              </p>
+            </div>
+          </div>
+          <?php else : ?>
+          <div class="rounded-3xl border border-dashed border-border bg-card p-10 text-center">
+            <strong>پلن خرید پیدا نشد.</strong>
+          </div>
+          <?php endif; ?>
+        <?php endif; ?>
+
+        <?php do_action('nasim_account_tab_content'); ?>
+      </div>
+    </div>
+
+  <?php endif; ?>
+  </div>
+</main>
 
 <?php
 get_footer();

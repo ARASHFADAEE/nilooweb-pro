@@ -1,152 +1,243 @@
 <?php
 
-if(!defined('ABSPATH')) exit;
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 $otp_login    = nasim_otp_login_enabled();
 $registration = nasim_registration_enabled();
-$tab          = 'register' === get_query_var('nasim_page') && $registration ? 'register' : 'login';
+$otp_flow     = $otp_login || $registration;
+$is_register  = 'register' === get_query_var('nasim_page');
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- redirect target, validated on login.
 $redirect_to  = isset($_GET['redirect_to']) ? esc_url_raw(wp_unslash($_GET['redirect_to'])) : '';
-$code_length  = (int) nasim_setting('otp_length');
+$code_length  = max(4, (int) nasim_setting('otp_length'));
+$site_name    = get_bloginfo('name') ?: 'نیلوفر وفایی';
+$site_tagline = get_bloginfo('description') ?: 'آکادمی طراحی سایت';
+$terms_url    = function_exists('nasim_default_page_url') ? nasim_default_page_url('terms', home_url('/terms/')) : home_url('/terms/');
+$privacy_url  = function_exists('get_privacy_policy_url') && get_privacy_policy_url() ? get_privacy_policy_url() : $terms_url;
 
-get_header();
-?>
+if ($is_register && $otp_flow) {
+    $title    = 'ورود و ثبت‌نام';
+    $subtitle = 'لطفاً برای ساخت حساب، شماره موبایل خود را وارد کنید';
+} elseif ($otp_flow) {
+    $title    = 'ورود و ثبت‌نام';
+    $subtitle = 'لطفاً برای ورود، شماره موبایل خود را وارد کنید';
+} else {
+    $title    = 'ورود با رمز عبور';
+    $subtitle = 'لطفاً برای ورود، موبایل یا ایمیل و رمز خود را وارد کنید';
+}
+?><!DOCTYPE html>
+<html <?php language_attributes(); ?> dir="rtl">
+<head>
+  <meta charset="<?php bloginfo('charset'); ?>">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#281e45">
+  <?php wp_head(); ?>
+</head>
+<body <?php body_class('bg-[#efedf6] text-foreground antialiased min-h-screen flex flex-col'); ?>>
+<?php wp_body_open(); ?>
 
-  <main class="auth-page">
-    <div class="container-wide auth-shell">
-      <section class="auth-card" data-tab-active="<?php echo esc_attr($tab); ?>">
-        <div class="auth-card-head">
-          <h1 data-title-login="ورود به حساب" data-title-register="ساخت حساب کاربری"><?php echo 'register' === $tab ? 'ساخت حساب کاربری' : 'ورود به حساب'; ?></h1>
-          <p data-title-login="برای دسترسی به دوره‌ها و پیشرفتت وارد شو." data-title-register="چند ثانیه تا شروع؛ شماره موبایلت با یک پیامک تأیید می‌شود."><?php echo 'register' === $tab ? 'چند ثانیه تا شروع؛ شماره موبایلت با یک پیامک تأیید می‌شود.' : 'برای دسترسی به دوره‌ها و پیشرفتت وارد شو.'; ?></p>
-        </div>
+  <main id="main-content" class="flex-1 flex flex-col items-center justify-center px-4 py-6 sm:py-10">
 
-        <?php if ($registration) : ?>
-        <div class="auth-tabs" role="tablist" aria-label="ورود یا ثبت‌نام">
-          <button type="button" role="tab" id="auth-tab-login" aria-controls="auth-panel-login" aria-selected="<?php echo 'login' === $tab ? 'true' : 'false'; ?>" data-tab="login">ورود</button>
-          <button type="button" role="tab" id="auth-tab-register" aria-controls="auth-panel-register" aria-selected="<?php echo 'register' === $tab ? 'true' : 'false'; ?>" data-tab="register">ثبت‌نام</button>
-        </div>
-        <?php endif; ?>
+    <!-- لوگو بالای کارت (الهام از طراحی مینیمال سون‌لرن) -->
+    <a href="<?php echo esc_url(home_url('/')); ?>" data-auth-brand class="mb-5 inline-flex items-center gap-3 select-none group" aria-label="<?php echo esc_attr($site_name); ?>">
+      <span class="relative grid place-items-center size-11 rounded-2xl bg-ink-900 overflow-hidden shadow-soft group-hover:scale-105 transition-transform">
+        <span class="absolute -bottom-2 -left-2 size-6 rounded-full bg-violet-400/90" aria-hidden="true"></span>
+        <span class="relative font-black text-xl text-cream"><?php echo esc_html(mb_substr($site_name, 0, 1)); ?></span>
+      </span>
+      <span class="flex flex-col leading-none">
+        <span class="font-black text-xl text-ink-950"><?php echo esc_html($site_name); ?></span>
+        <span class="mt-1 text-[11px] font-semibold text-muted-foreground"><?php echo esc_html(mb_strimwidth($site_tagline, 0, 32, '…')); ?></span>
+      </span>
+    </a>
 
-        <div class="auth-panel" id="auth-panel-login" role="tabpanel" aria-labelledby="auth-tab-login" <?php echo 'login' === $tab ? '' : 'hidden'; ?>>
-          <?php if ($otp_login) : ?>
-          <div class="auth-methods" role="group" aria-label="روش ورود">
-            <button type="button" class="is-active" data-method="otp" aria-pressed="true">کد یک‌بارمصرف</button>
-            <button type="button" data-method="password" aria-pressed="false">رمز عبور</button>
+    <!-- کارت اصلی احراز هویت -->
+    <section class="auth-card relative w-full max-w-[460px] rounded-[28px] bg-white border border-border/70 shadow-lift px-6 py-7 sm:px-10 sm:py-9 overflow-hidden" aria-labelledby="authTitle">
+
+      <!-- لایه لودینگ بلور (حالت بررسی اطلاعات / ارسال کد) -->
+      <div class="auth-loading" data-auth-loading aria-live="polite" aria-busy="false" hidden>
+        <span class="auth-loading-ring" aria-hidden="true"></span>
+        <p class="auth-loading-text" data-auth-loading-text>در حال بررسی اطلاعات...</p>
+      </div>
+
+      <!-- آیکون مرحله کد تأیید -->
+      <div class="auth-step-icon mx-auto mb-5 size-14 rounded-2xl bg-sand border border-border/60 grid place-items-center" data-step-icon hidden>
+        <span class="relative grid place-items-center size-9 rounded-xl bg-ink-900 overflow-hidden">
+          <span class="absolute -bottom-1.5 -left-1.5 size-4 rounded-full bg-violet-400/90" aria-hidden="true"></span>
+          <span class="relative font-black text-sm text-cream"><?php echo esc_html(mb_substr($site_name, 0, 1)); ?></span>
+        </span>
+      </div>
+
+      <!-- عنوان و زیرعنوان پویا -->
+      <header class="text-center mb-7">
+        <h1 id="authTitle" data-auth-title class="text-2xl sm:text-[26px] font-black text-ink-950 tracking-tight"><?php echo esc_html($title); ?></h1>
+        <p data-auth-subtitle class="mt-2.5 text-sm font-medium text-muted-foreground leading-7"><?php echo esc_html($subtitle); ?></p>
+      </header>
+
+      <?php if ($otp_flow) : ?>
+      <form class="auth-form" data-view="otp" novalidate>
+
+        <!-- مرحله ۱: ورود شماره موبایل -->
+        <div class="auth-step space-y-4" data-step="mobile">
+          <div>
+            <label for="authMobile" class="sr-only">شماره موبایل</label>
+            <input
+              id="authMobile"
+              type="tel"
+              name="mobile"
+              inputmode="numeric"
+              autocomplete="tel"
+              dir="ltr"
+              placeholder="شماره موبایل"
+              maxlength="16"
+              required
+              autofocus
+              class="auth-input"
+            />
           </div>
 
-          <form class="auth-form" data-form="otp-login" data-method-panel="otp" novalidate>
-            <div class="auth-step" data-step="details">
-              <label class="auth-field">
-                <span>شماره موبایل</span>
-                <input type="tel" name="mobile" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="09123456789" required>
-              </label>
-              <button type="submit" class="button button-primary auth-submit">دریافت کد ورود <span>←</span></button>
-            </div>
-
-            <div class="auth-step" data-step="code" hidden>
-              <p class="auth-code-hint">کد <?php echo esc_html(nasim_fa_digits($code_length)); ?> رقمی ارسال‌شده به <bdi dir="ltr" data-masked-mobile></bdi> را وارد کن. <button type="button" class="auth-link" data-edit>ویرایش شماره</button></p>
-              <label class="auth-field">
-                <span>کد تأیید</span>
-                <input type="text" name="code" class="auth-code-input" inputmode="numeric" autocomplete="one-time-code" dir="ltr" maxlength="<?php echo esc_attr($code_length); ?>" placeholder="<?php echo esc_attr(str_repeat('•', $code_length)); ?>">
-              </label>
-              <button type="submit" class="button button-primary auth-submit">ورود <span>←</span></button>
-              <div class="auth-resend"><span data-countdown></span><button type="button" class="auth-link" data-resend hidden>ارسال دوباره کد</button></div>
-            </div>
-
-            <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirect_to); ?>">
-            <p class="auth-message" role="alert" aria-live="polite"></p>
-          </form>
-          <?php endif; ?>
-
-          <form class="auth-form" data-form="password" data-method-panel="password" novalidate <?php echo $otp_login ? 'hidden' : ''; ?>>
-            <label class="auth-field">
-              <span>نام کاربری، موبایل یا ایمیل</span>
-              <input type="text" name="identifier" autocomplete="username" dir="auto" required>
-            </label>
-            <label class="auth-field">
-              <span>رمز عبور</span>
-              <span class="auth-password">
-                <input type="password" name="password" autocomplete="current-password" dir="ltr" required>
-                <button type="button" class="auth-password-toggle" data-toggle-password aria-label="نمایش رمز عبور"><?php echo nasim_icon('eye'); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?></button>
-              </span>
-            </label>
-            <div class="auth-row">
-              <label class="auth-check"><input type="checkbox" name="remember" value="1" checked> مرا به خاطر بسپار</label>
-              <?php if ($otp_login) : ?>
-              <button type="button" class="auth-link" data-method="otp">رمز را فراموش کرده‌ای؟</button>
-              <?php else : ?>
-              <a class="auth-link" href="<?php echo esc_url(wp_lostpassword_url()); ?>">رمز را فراموش کرده‌ای؟</a>
-              <?php endif; ?>
-            </div>
-            <button type="submit" class="button button-primary auth-submit">ورود <span>←</span></button>
-            <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirect_to); ?>">
-            <p class="auth-message" role="alert" aria-live="polite"></p>
-          </form>
+          <button type="submit" class="auth-submit auth-submit-btn" data-mobile-submit disabled>
+            <span class="auth-submit-label">ورود</span>
+          </button>
         </div>
 
-        <?php if ($registration) : ?>
-        <div class="auth-panel" id="auth-panel-register" role="tabpanel" aria-labelledby="auth-tab-register" <?php echo 'register' === $tab ? '' : 'hidden'; ?>>
-          <form class="auth-form" data-form="register" novalidate>
-            <div class="auth-step" data-step="details">
-              <label class="auth-field">
-                <span>نام و نام خانوادگی</span>
-                <input type="text" name="name" autocomplete="name" required>
-              </label>
-              <div class="auth-grid">
-                <label class="auth-field">
-                  <span>نام کاربری</span>
-                  <input type="text" name="username" autocomplete="username" dir="ltr" placeholder="nasim_fit" required>
-                </label>
-                <label class="auth-field">
-                  <span>شماره موبایل</span>
-                  <input type="tel" name="mobile" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="09123456789" required>
-                </label>
+        <!-- مرحله ۲: ورود کد تأیید (+ نام برای کاربر جدید) -->
+        <div class="auth-step space-y-5" data-step="code" hidden>
+          <div class="text-center -mt-3">
+            <p class="text-sm font-medium text-muted-foreground leading-7">
+              کد تأیید ارسال شده به تلفن همراه <bdi dir="ltr" data-masked-mobile class="font-extrabold text-ink-950 mx-0.5"></bdi> را وارد کنید
+            </p>
+            <button type="button" class="mt-3 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-sand hover:bg-sand-deep text-xs font-bold text-ink-700 transition-colors" data-edit>
+              ویرایش تلفن همراه
+            </button>
+          </div>
+
+          <div data-name-field hidden>
+            <label for="authName" class="sr-only">نام و نام خانوادگی</label>
+            <input
+              id="authName"
+              type="text"
+              name="name"
+              autocomplete="name"
+              placeholder="نام و نام خانوادگی شما"
+              maxlength="60"
+              class="auth-input"
+            />
+          </div>
+
+          <div>
+            <label class="sr-only" for="authCode">کد تأیید</label>
+            <div class="auth-otp" data-otp style="--otp-len:<?php echo (int) $code_length; ?>">
+              <input
+                id="authCode"
+                type="text"
+                name="code"
+                class="auth-otp-input"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                dir="ltr"
+                maxlength="<?php echo (int) $code_length; ?>"
+                pattern="[0-9]*"
+                aria-describedby="authResend"
+              />
+              <div class="auth-otp-cells" aria-hidden="true">
+                <?php for ($i = 0; $i < $code_length; $i++) : ?><span></span><?php endfor; ?>
               </div>
-              <label class="auth-field">
-                <span>رمز عبور <small>(حداقل ۸ کاراکتر)</small></span>
-                <span class="auth-password">
-                  <input type="password" name="password" autocomplete="new-password" dir="ltr" minlength="8" required>
-                  <button type="button" class="auth-password-toggle" data-toggle-password aria-label="نمایش رمز عبور"><?php echo nasim_icon('eye'); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?></button>
-                </span>
-              </label>
-              <button type="submit" class="button button-primary auth-submit">دریافت کد تأیید <span>←</span></button>
             </div>
+          </div>
 
-            <div class="auth-step" data-step="code" hidden>
-              <p class="auth-code-hint">برای تأیید شماره، کد ارسال‌شده به <bdi dir="ltr" data-masked-mobile></bdi> را وارد کن. <button type="button" class="auth-link" data-edit>ویرایش اطلاعات</button></p>
-              <label class="auth-field">
-                <span>کد تأیید</span>
-                <input type="text" name="code" class="auth-code-input" inputmode="numeric" autocomplete="one-time-code" dir="ltr" maxlength="<?php echo esc_attr($code_length); ?>" placeholder="<?php echo esc_attr(str_repeat('•', $code_length)); ?>">
-              </label>
-              <button type="submit" class="button button-primary auth-submit">ساخت حساب <span>←</span></button>
-              <div class="auth-resend"><span data-countdown></span><button type="button" class="auth-link" data-resend hidden>ارسال دوباره کد</button></div>
-            </div>
+          <button type="submit" class="auth-submit auth-submit-btn" data-verify-submit disabled>
+            <span class="auth-submit-label" data-verify-label>تأیید</span>
+            <span class="auth-btn-timer" data-countdown></span>
+          </button>
 
-            <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirect_to); ?>">
-            <p class="auth-message" role="alert" aria-live="polite"></p>
-          </form>
+          <div class="text-center" id="authResend">
+            <button type="button" class="text-xs font-extrabold text-violet-700 hover:text-ink-950 transition-colors" data-resend hidden>
+              ارسال دوباره کد تأیید
+            </button>
+          </div>
         </div>
-        <?php endif; ?>
-      </section>
 
-      <aside class="auth-aside" aria-hidden="true">
-        <span class="auth-aside-ring"></span>
-        <div class="auth-aside-copy">
-          <?php if (function_exists('nasim_theme_logo_url') && nasim_theme_logo_url('white')) : ?>
-          <img src="<?php echo esc_url(nasim_theme_logo_url('white')); ?>" alt="<?php echo esc_attr(get_bloginfo('name') ?: 'نیلوفر وفایی'); ?>" width="160" height="72" decoding="async" style="height:48px;width:auto;margin-bottom:22px">
-          <?php else : ?>
-          <span class="brand-mark">ن</span>
+        <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirect_to); ?>" />
+        <p class="auth-message mt-4" role="alert" aria-live="polite"></p>
+
+        <!-- لینک تغییر به ورود با رمز عبور -->
+        <div class="mt-6 text-center">
+          <button type="button" class="text-sm font-extrabold text-ink-900 hover:text-violet-700 transition-colors" data-switch="password">
+            ورود با رمز عبور
+          </button>
+        </div>
+      </form>
+      <?php endif; ?>
+
+      <!-- فرم ورود با رمز عبور -->
+      <form class="auth-form" data-view="password" novalidate <?php echo $otp_flow ? 'hidden' : ''; ?>>
+        <div class="auth-step space-y-4">
+          <div>
+            <label for="authIdentifier" class="sr-only">موبایل، ایمیل یا نام کاربری</label>
+            <input
+              id="authIdentifier"
+              type="text"
+              name="identifier"
+              autocomplete="username"
+              dir="ltr"
+              placeholder="موبایل یا ایمیل"
+              required
+              class="auth-input"
+            />
+          </div>
+
+          <div class="relative">
+            <label for="authPassword" class="sr-only">رمز عبور</label>
+            <input
+              id="authPassword"
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              dir="ltr"
+              placeholder="رمز عبور ..."
+              required
+              class="auth-input px-12"
+            />
+            <button
+              type="button"
+              class="absolute inset-y-0 start-0 px-3.5 text-muted-foreground hover:text-ink-900 transition-colors"
+              data-toggle-password
+              aria-label="نمایش رمز عبور"
+            >
+              <?php echo nasim_icon('eye'); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?>
+            </button>
+          </div>
+
+          <input type="hidden" name="remember" value="1" />
+
+          <button type="submit" class="auth-submit auth-submit-btn mt-1" data-password-submit disabled>
+            <span class="auth-submit-label">ورود</span>
+          </button>
+        </div>
+
+        <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirect_to); ?>" />
+        <p class="auth-message mt-4" role="alert" aria-live="polite"></p>
+
+        <div class="mt-6 flex items-center justify-between gap-3 text-sm font-extrabold text-ink-900">
+          <a class="hover:text-violet-700 transition-colors" href="<?php echo esc_url(wp_lostpassword_url()); ?>">فراموشی رمز عبور</a>
+          <?php if ($otp_flow) : ?>
+          <button type="button" class="hover:text-violet-700 transition-colors" data-switch="otp">ورود با رمز یکبار مصرف</button>
           <?php endif; ?>
-          <h2>آکادمی طراحی سایت، یکجا در پنل تو</h2>
-          <ul>
-            <li><span>✓</span>دوره‌های خریداری‌شده همیشه در دسترس</li>
-            <li><span>✓</span>توکن اسپات‌پلیر و پیشرفت یادگیری</li>
-            <li><span>✓</span>ورود سریع و امن با کد پیامکی</li>
-          </ul>
         </div>
-      </aside>
-    </div>
+      </form>
+    </section>
+
+    <!-- قوانین زیر کارت -->
+    <p class="mt-6 text-center text-xs sm:text-[13px] font-medium text-muted-foreground leading-7 max-w-md">
+      ورود شما به معنای پذیرش
+      <a href="<?php echo esc_url($privacy_url); ?>" class="font-extrabold text-ink-900 hover:text-violet-700 transition-colors">قوانین حریم خصوصی</a>
+      و
+      <a href="<?php echo esc_url($terms_url); ?>" class="font-extrabold text-ink-900 hover:text-violet-700 transition-colors">شرایط <?php echo esc_html($site_name); ?></a>
+      است.
+    </p>
   </main>
 
-<?php
-get_footer();
+<?php wp_footer(); ?>
+</body>
+</html>
