@@ -189,7 +189,7 @@ while (have_posts()) :
     $is_long_content  = mb_strlen($raw_content_text) > 750;
 ?>
 
-  <main id="main-content" class="flex-1 pb-24 lg:pb-0">
+  <main id="main-content" class="flex-1 pb-24">
 
     <!-- ═══════════ ۱) هیرو دوره (مطابق دیزاین ریدیزاین) ═══════════ -->
     <section class="relative bg-ink-950 text-cream overflow-hidden" aria-label="معرفی دوره">

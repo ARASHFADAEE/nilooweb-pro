@@ -9,26 +9,51 @@ if (!$course_id || 'nasim_course' !== get_post_type($course_id)) {
     return;
 }
 
-if (function_exists('nasim_user_has_course_access') && nasim_user_has_course_access($course_id)) {
+$has_access = function_exists('nasim_user_has_course_access') && nasim_user_has_course_access($course_id);
+$mode       = function_exists('nasim_course_access_mode') ? nasim_course_access_mode($course_id) : 'subscription';
+$delivery   = function_exists('nasim_course_delivery_mode') ? nasim_course_delivery_mode($course_id) : 'lms';
+$plan       = function_exists('nasim_express_plan_for_course') ? nasim_express_plan_for_course($course_id) : null;
+$label      = function_exists('nasim_course_cta_label') ? nasim_course_cta_label($course_id) : 'ثبت‌نام در دوره';
+$title      = get_the_title($course_id);
+
+if ($has_access) {
+    $access_url = 'spot' === $delivery
+        ? (function_exists('nasim_subscription_url') ? nasim_subscription_url(['tab' => 'spot']) : home_url('/'))
+        : (function_exists('nasim_course_start_url') ? nasim_course_start_url($course_id) : get_permalink($course_id));
+    $access_cta = 'spot' === $delivery ? 'دریافت لایسنس اسپات‌پلیر' : 'ادامه تماشای دوره';
+    ?>
+<!-- نوار چسبان پایین صفحه (موبایل و دسکتاپ - کاربر دارای دسترسی) -->
+<div class="fixed bottom-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur-md border-t border-ink-700/80 shadow-[0_-10px_30px_rgba(14,10,26,0.35)] safe-bottom" data-express-bar>
+  <div class="container-site flex items-center justify-between gap-4 py-3">
+    <div class="flex flex-col min-w-0">
+      <span class="text-xs sm:text-[13px] text-cream font-extrabold truncate"><?php echo esc_html($title); ?></span>
+      <span class="text-mint-300 font-bold text-xs mt-0.5">✓ دسترسی شما به این دوره فعال است</span>
+    </div>
+    <a class="btn btn-violet rounded-full px-5 sm:px-7 font-black shrink-0 text-[13px] sm:text-[14px]" href="<?php echo esc_url($access_url); ?>">
+      <?php echo esc_html($access_cta); ?>
+      <span aria-hidden="true">←</span>
+    </a>
+  </div>
+</div>
+    <?php
     return;
 }
-
-$mode  = function_exists('nasim_course_access_mode') ? nasim_course_access_mode($course_id) : 'subscription';
-$plan  = function_exists('nasim_express_plan_for_course') ? nasim_express_plan_for_course($course_id) : null;
-$label = function_exists('nasim_course_cta_label') ? nasim_course_cta_label($course_id) : 'ثبت‌نام در دوره';
-$title = get_the_title($course_id);
 
 if ('free' === $mode) {
     $start = function_exists('nasim_course_start_url') ? nasim_course_start_url($course_id) : get_permalink($course_id);
     $cta   = function_exists('nasim_course_cta_label') ? nasim_course_cta_label($course_id) : 'ورود و شروع رایگان';
     ?>
-<div class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur border-t border-ink-700 safe-bottom" data-express-bar>
-  <div class="container-site flex items-center justify-between gap-3 py-3">
+<!-- نوار چسبان پایین صفحه (موبایل و دسکتاپ - دوره رایگان) -->
+<div class="fixed bottom-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur-md border-t border-ink-700/80 shadow-[0_-10px_30px_rgba(14,10,26,0.35)] safe-bottom" data-express-bar>
+  <div class="container-site flex items-center justify-between gap-4 py-3">
     <div class="flex flex-col min-w-0">
-      <span class="text-xs text-ink-300 font-medium truncate"><?php echo esc_html($title); ?></span>
+      <span class="text-xs sm:text-[13px] text-ink-200 font-bold truncate"><?php echo esc_html($title); ?></span>
       <span class="text-mint-300 font-extrabold text-[15px]">رایگان</span>
     </div>
-    <a class="btn btn-violet rounded-full px-6 font-black shrink-0" href="<?php echo esc_url($start); ?>"><?php echo esc_html($cta); ?></a>
+    <a class="btn btn-violet rounded-full px-5 sm:px-7 font-black shrink-0 text-[13px] sm:text-[14px]" href="<?php echo esc_url($start); ?>">
+      <?php echo esc_html($cta); ?>
+      <span aria-hidden="true">←</span>
+    </a>
   </div>
 </div>
     <?php
@@ -43,16 +68,35 @@ $price_label    = function_exists('nasim_format_price') ? nasim_format_price((in
 $user           = wp_get_current_user();
 $prefill_name   = is_user_logged_in() ? ($user->display_name ?: '') : '';
 $prefill_mobile = is_user_logged_in() ? nasim_get_user_mobile($user->ID) : '';
+
+$inst_names = [];
+if (function_exists('nasim_installment_gateways')) {
+    foreach (nasim_installment_gateways() as $gw) {
+        if (!empty($gw['name'])) {
+            $inst_names[] = $gw['name'];
+        }
+    }
+}
 ?>
 
-<!-- نوار خرید چسبان موبایل (مطابق دیزاین ریدیزاین) -->
-<div class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur border-t border-ink-700 safe-bottom" data-express-bar>
-  <div class="container-site flex items-center justify-between gap-3 py-3">
-    <div class="flex flex-col min-w-0">
-      <span class="text-xs text-ink-300 font-medium">سرمایه‌گذاری روی مهارت</span>
-      <span class="text-cream font-extrabold text-[15px]"><?php echo esc_html($price_label); ?></span>
+<!-- نوار خرید چسبان پایین صفحه (موبایل و دسکتاپ) -->
+<div class="fixed bottom-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur-md border-t border-ink-700/80 shadow-[0_-10px_30px_rgba(14,10,26,0.35)] safe-bottom" data-express-bar>
+  <div class="container-site flex items-center justify-between gap-4 py-3">
+    <div class="flex items-center gap-4 min-w-0">
+      <div class="flex flex-col min-w-0">
+        <span class="hidden sm:block text-[13px] font-bold text-ink-200 truncate"><?php echo esc_html($title); ?></span>
+        <span class="sm:hidden text-[11px] text-ink-300 font-medium">سرمایه‌گذاری روی مهارت</span>
+        <div class="flex items-center gap-2.5 mt-0.5">
+          <span class="text-cream font-extrabold text-[15px] sm:text-[16px]"><?php echo esc_html($price_label); ?></span>
+          <?php if ($inst_names) : ?>
+          <span class="hidden md:inline-flex items-center rounded-full bg-mint-500/15 border border-mint-400/30 px-2.5 py-0.5 text-[11px] font-bold text-mint-300">
+            قسطی با <?php echo esc_html(implode(' و ', $inst_names)); ?>
+          </span>
+          <?php endif; ?>
+        </div>
+      </div>
     </div>
-    <button type="button" class="btn btn-violet rounded-full px-6 font-black shrink-0" data-express-open>
+    <button type="button" class="btn btn-violet rounded-full px-5 sm:px-7 font-black shrink-0 text-[13px] sm:text-[14px]" data-express-open>
       <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg>
       <?php echo esc_html($label); ?>
     </button>
