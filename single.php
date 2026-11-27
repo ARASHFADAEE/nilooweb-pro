@@ -30,7 +30,7 @@ while (have_posts()) :
       <nav aria-label="مسیر صفحه" class="flex flex-wrap items-center gap-1.5 text-[12px] font-semibold text-muted-foreground">
         <a href="<?php echo esc_url(home_url('/')); ?>" class="hover:text-foreground">خانه</a>
         <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-        <a href="<?php echo esc_url($blog_url); ?>" class="hover:text-foreground"><?php echo $is_radio ? 'رادیو نیل' : 'مقالات'; ?></a>
+        <a href="<?php echo esc_url($is_radio && function_exists('nasim_radio_url') ? nasim_radio_url() : $blog_url); ?>" class="hover:text-foreground"><?php echo $is_radio ? 'رادیو نیل' : 'مقالات'; ?></a>
         <svg class="size-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
         <span class="text-foreground/80 truncate max-w-[260px]"><?php the_title(); ?></span>
       </nav>
@@ -51,6 +51,25 @@ while (have_posts()) :
           <figure class="mt-6 rounded-3xl overflow-hidden border border-border shadow-soft">
             <?php the_post_thumbnail('large', ['class' => 'w-full h-auto object-cover', 'alt' => the_title_attribute(['echo' => false])]); ?>
           </figure>
+          <?php endif; ?>
+
+          <?php $radio_audio = $is_radio && function_exists('nasim_radio_audio_url') ? nasim_radio_audio_url($pid) : ''; ?>
+          <?php if ($radio_audio) : ?>
+          <div class="mt-6 rounded-3xl border border-border bg-card p-5 md:p-6 shadow-soft" data-radio-player>
+            <div class="flex items-center gap-4">
+              <button type="button" data-radio-toggle aria-label="پخش قسمت" aria-pressed="false" class="grid place-items-center size-14 rounded-2xl shrink-0 transition-colors bg-ink-900 text-violet-300 hover:bg-ink-800">
+                <svg data-icon-play xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 me-0.5" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                <svg data-icon-pause xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6" aria-hidden="true" hidden><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
+              </button>
+              <audio src="<?php echo esc_url($radio_audio); ?>" preload="none" class="hidden" data-radio-audio></audio>
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="h-2 flex-1 rounded-full bg-sand overflow-hidden cursor-pointer" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="پیشرفت پخش" data-radio-track>
+                  <div class="h-full rounded-full bg-gradient-to-l from-violet-400 to-mint-400 transition-[width] duration-300" style="width: 0%;" data-radio-bar></div>
+                </div>
+                <span class="text-xs font-bold text-muted-foreground shrink-0" data-radio-time>MP3</span>
+              </div>
+            </div>
+          </div>
           <?php endif; ?>
 
           <div class="article-body article-prose mt-8">

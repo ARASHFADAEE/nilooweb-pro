@@ -68,10 +68,7 @@ function nasim_niloo_install_menus(bool $force = false): array
 
     $courses = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : home_url('/courses/');
     $blog    = function_exists('nasim_blog_url') ? nasim_blog_url() : home_url('/blog/');
-    $radio   = home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/');
-    if (function_exists('nasim_mod') && nasim_mod('radio_more_url')) {
-        $radio = (string) nasim_mod('radio_more_url');
-    }
+    $radio   = function_exists('nasim_radio_url') ? nasim_radio_url() : $blog;
 
     $primary_items = [
         ['title' => 'خانه', 'url' => home_url('/')],

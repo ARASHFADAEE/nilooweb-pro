@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 $radio_cat = nasim_mod('radio_cat') ?: 'radionil';
-$more_url  = nasim_mod('radio_more_url') ?: home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/');
+$more_url  = function_exists('nasim_radio_url') ? nasim_radio_url() : home_url('/blog/');
 
 $episodes = get_posts([
     'post_type'      => 'post',

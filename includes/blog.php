@@ -252,3 +252,134 @@ function nasim_post_author_name() {
 
     return get_the_author() ?: get_bloginfo('name');
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   رادیو نیل: آدرس آرشیو، فایل صوتی هر قسمت و ریدایرکت آدرس قدیمی
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Slug of the category that holds the podcast episodes.
+ */
+function nasim_radio_category_slug() {
+
+    $slug = function_exists('nasim_mod') ? (string) nasim_mod('radio_cat') : '';
+
+    return $slug ?: 'radionil';
+}
+
+
+/**
+ * Radio Nil archive URL. Legacy default (/رادیونیل/) is ignored because it only
+ * exists on the old site; the real WordPress category archive is used instead.
+ */
+function nasim_radio_url() {
+
+    $custom = function_exists('nasim_mod') ? trim((string) nasim_mod('radio_more_url')) : '';
+    $legacy = untrailingslashit(home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/'));
+
+    if ($custom && untrailingslashit(urldecode($custom)) !== untrailingslashit(urldecode($legacy))) {
+        return $custom;
+    }
+
+    $term = get_category_by_slug(nasim_radio_category_slug());
+    if ($term && !is_wp_error($term)) {
+        $link = get_category_link($term->term_id);
+        if (!is_wp_error($link)) {
+            return $link;
+        }
+    }
+
+    return nasim_blog_url();
+}
+
+
+/**
+ * Audio file of an episode: explicit meta first, then the first audio URL found in the content.
+ */
+function nasim_radio_audio_url($post_id = 0) {
+
+    $post_id = $post_id ?: get_the_ID();
+    $meta    = trim((string) get_post_meta($post_id, '_nasim_audio_url', true));
+
+    if ($meta) {
+        return esc_url_raw($meta);
+    }
+
+    $content = (string) get_post_field('post_content', $post_id);
+    if (preg_match('#(?:src|href|mp3|m4a|ogg|wav)\s*=\s*["\']?(https?://[^"\'\s>]+\.(?:mp3|m4a|ogg|wav)(?:\?[^"\'\s>]*)?)#i', $content, $m)) {
+        return esc_url_raw($m[1]);
+    }
+    if (preg_match('#https?://[^\s"\'<>]+\.(?:mp3|m4a|ogg|wav)(?:\?[^\s"\'<>]*)?#i', $content, $m)) {
+        return esc_url_raw($m[0]);
+    }
+
+    return '';
+}
+
+
+/**
+ * Old site served the podcast archive at /رادیونیل/. Send those visitors to the new archive.
+ */
+function nasim_radio_legacy_redirect() {
+
+    if (!is_404()) {
+        return;
+    }
+
+    $path = trim((string) wp_parse_url(isset($_SERVER['REQUEST_URI']) ? wp_unslash($_SERVER['REQUEST_URI']) : '', PHP_URL_PATH), '/');
+    if ('رادیونیل' !== urldecode($path)) {
+        return;
+    }
+
+    $target = nasim_radio_url();
+    if ($target) {
+        wp_safe_redirect($target, 301);
+        exit;
+    }
+}
+add_action('template_redirect', 'nasim_radio_legacy_redirect');
+
+
+/**
+ * Meta box: audio file URL for podcast episodes.
+ */
+function nasim_radio_audio_meta_box() {
+
+    add_meta_box(
+        'nasim_radio_audio',
+        'فایل صوتی رادیو نیل',
+        static function ($post) {
+            wp_nonce_field('nasim_radio_audio', 'nasim_radio_audio_nonce');
+            $val = (string) get_post_meta($post->ID, '_nasim_audio_url', true);
+            echo '<p style="margin-top:0">لینک مستقیم فایل MP3 این قسمت (برای دسته رادیو نیل):</p>';
+            echo '<input type="url" name="nasim_audio_url" value="' . esc_attr($val) . '" dir="ltr" class="widefat" placeholder="https://.../episode.mp3" />';
+        },
+        'post',
+        'side',
+        'default'
+    );
+}
+add_action('add_meta_boxes', 'nasim_radio_audio_meta_box');
+
+
+function nasim_radio_audio_save($post_id) {
+
+    if (!isset($_POST['nasim_radio_audio_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nasim_radio_audio_nonce'])), 'nasim_radio_audio')) {
+        return;
+    }
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    $url = isset($_POST['nasim_audio_url']) ? esc_url_raw(wp_unslash($_POST['nasim_audio_url'])) : '';
+    if ($url) {
+        update_post_meta($post_id, '_nasim_audio_url', $url);
+    } else {
+        delete_post_meta($post_id, '_nasim_audio_url');
+    }
+}
+add_action('save_post_post', 'nasim_radio_audio_save');

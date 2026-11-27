@@ -507,6 +507,75 @@
     });
   });
 
+  /* ---------- Radio Nil Audio Players (one at a time) ---------- */
+  var radioPlayers = d.querySelectorAll("[data-radio-player]");
+  if (radioPlayers.length) {
+    var fmtTime = function (s) {
+      if (!isFinite(s) || s < 0) return "MP3";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return toFaDigits(m + ":" + (sec < 10 ? "0" : "") + sec);
+    };
+    var toFaDigits = function (s) {
+      return String(s).replace(/\d/g, function (c) { return "۰۱۲۳۴۵۶۷۸۹"[c]; });
+    };
+
+    radioPlayers.forEach(function (card) {
+      var audio = card.querySelector("[data-radio-audio]");
+      var btn = card.querySelector("[data-radio-toggle]");
+      if (!audio || !btn) return;
+      var bar = card.querySelector("[data-radio-bar]");
+      var track = card.querySelector("[data-radio-track]");
+      var time = card.querySelector("[data-radio-time]");
+      var icPlay = btn.querySelector("[data-icon-play]");
+      var icPause = btn.querySelector("[data-icon-pause]");
+
+      function setState(playing) {
+        btn.setAttribute("aria-pressed", String(playing));
+        btn.setAttribute("aria-label", playing ? "توقف پخش" : "پخش قسمت");
+        if (icPlay) icPlay.hidden = playing;
+        if (icPause) icPause.hidden = !playing;
+      }
+
+      btn.addEventListener("click", function () {
+        if (audio.paused) {
+          d.querySelectorAll("[data-radio-audio]").forEach(function (other) {
+            if (other !== audio && !other.paused) other.pause();
+          });
+          audio.play().catch(function () {
+            if (window.toast) window.toast("پخش فایل صوتی ممکن نشد.", "error");
+          });
+        } else {
+          audio.pause();
+        }
+      });
+
+      audio.addEventListener("play", function () { setState(true); });
+      audio.addEventListener("pause", function () { setState(false); });
+      audio.addEventListener("ended", function () {
+        setState(false);
+        if (bar) bar.style.width = "0%";
+        if (track) track.setAttribute("aria-valuenow", "0");
+        if (time) time.textContent = "MP3";
+      });
+      audio.addEventListener("timeupdate", function () {
+        var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+        if (bar) bar.style.width = pct.toFixed(1) + "%";
+        if (track) track.setAttribute("aria-valuenow", String(Math.round(pct)));
+        if (time) time.textContent = fmtTime(audio.currentTime) + (audio.duration ? " / " + fmtTime(audio.duration) : "");
+      });
+
+      if (track) {
+        track.addEventListener("click", function (e) {
+          if (!audio.duration) return;
+          var rect = track.getBoundingClientRect();
+          // RTL: progress grows from the right edge
+          var ratio = (rect.right - e.clientX) / rect.width;
+          audio.currentTime = Math.min(1, Math.max(0, ratio)) * audio.duration;
+        });
+      }
+    });
+  }
+
   /* ---------- Flash URL Toast (newsletter / contact) ---------- */
   var params = new URLSearchParams(window.location.search);
   var nl = params.get("newsletter");

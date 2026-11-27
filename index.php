@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 $radio_slug  = nasim_mod('radio_cat') ?: 'radionil';
 $is_radio    = is_category($radio_slug);
 $heading     = function_exists('nasim_archive_heading') ? nasim_archive_heading() : ['مجله آموزشی', 'مقالات و آموزش‌های', 'رایگان', ''];
-$radio_url   = nasim_mod('radio_more_url') ?: home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/');
+$radio_url   = function_exists('nasim_radio_url') ? nasim_radio_url() : home_url('/blog/');
 $contact_url = function_exists('nasim_default_page_url') ? nasim_default_page_url('contact', home_url('/contact/')) : home_url('/contact/');
 $courses_url = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : home_url('/courses/');
 
@@ -57,6 +57,9 @@ get_header();
     </section>
     <?php endif; ?>
 
+    <?php if ($is_radio) : ?>
+      <?php get_template_part('template-parts/radio/archive'); ?>
+    <?php else : ?>
     <!-- لیست مطالب + سایدبار -->
     <section class="container-site py-12 md:py-16">
       <div class="grid lg:grid-cols-12 gap-8">
@@ -182,6 +185,7 @@ get_header();
 
       </div>
     </section>
+    <?php endif; ?>
 
   </main>
 

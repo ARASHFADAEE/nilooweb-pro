@@ -254,9 +254,7 @@ function nasim_fallback_menu_items($location) {
     $courses_url = function_exists('nasim_courses_listing_url') ? nasim_courses_listing_url() : $courses_url;
 
     $home_url  = is_front_page() ? '#home' : home_url('/');
-    $radio_url = function_exists('nasim_mod') && nasim_mod('radio_more_url')
-        ? (string) nasim_mod('radio_more_url')
-        : home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/');
+    $radio_url = function_exists('nasim_radio_url') ? nasim_radio_url() : home_url('/blog/');
 
     $items = [
         'primary' => [

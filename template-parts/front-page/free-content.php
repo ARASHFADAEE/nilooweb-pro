@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 $radio_cat_slug = nasim_mod('radio_cat') ?: 'radionil';
-$radio_more_url = nasim_mod('radio_more_url') ?: home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/');
+$radio_more_url = function_exists('nasim_radio_url') ? nasim_radio_url() : home_url('/blog/');
 $blog_url       = function_exists('nasim_blog_url') ? nasim_blog_url() : home_url('/blog/');
 
 /* ── رادیو نیل: ۳ قسمت آخر ── */

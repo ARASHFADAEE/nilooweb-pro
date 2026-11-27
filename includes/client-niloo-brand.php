@@ -105,7 +105,7 @@ function nasim_niloo_customizer_sections(array $sections): array
         'radio_title'                  => ['label' => __('رادیو نیل: عنوان', 'niloo-web'), 'default' => 'پادکست و گفتگو'],
         'radio_title_highlight'        => ['label' => __('رادیو نیل: رنگی', 'niloo-web'), 'default' => 'در مسیر طراحی'],
         'radio_cat'                    => ['label' => __('اسلاگ دسته مقالات رادیو', 'niloo-web'), 'default' => 'radionil'],
-        'radio_more_url'               => ['label' => __('لینک همه', 'niloo-web'), 'type' => 'url', 'default' => home_url('/%d8%b1%d8%a7%d8%af%db%8c%d9%88%d9%86%db%8c%d9%84/')],
+        'radio_more_url'               => ['label' => __('لینک همه', 'niloo-web'), 'type' => 'url', 'default' => ''],
     ]);
 
     return $sections;

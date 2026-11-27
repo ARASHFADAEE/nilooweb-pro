@@ -56,7 +56,7 @@ class Nasim_Elementor_Widget_Radio_Nil extends Nasim_Elementor_Widget_Base
         $this->add_control('more_url', [
             'label'   => __('لینک همه اپیزودها', 'niloo-web'),
             'type'    => Controls_Manager::URL,
-            'default' => ['url' => (string) (nasim_mod('radio_more_url') ?: home_url('/blog/'))],
+            'default' => ['url' => (string) (function_exists('nasim_radio_url') ? nasim_radio_url() : home_url('/blog/'))],
         ]);
 
         $this->end_controls_section();
