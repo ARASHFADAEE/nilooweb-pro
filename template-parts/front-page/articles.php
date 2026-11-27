@@ -10,7 +10,7 @@ $radio_cat = get_category_by_slug(nasim_mod('radio_cat') ?: 'radionil');
 $query_args = [
     'post_type'      => 'post',
     'post_status'    => 'publish',
-    'posts_per_page' => 3,
+    'posts_per_page' => max(1, min(12, (int) (nasim_mod('articles_count') ?: 3))),
     'no_found_rows'  => true,
 ];
 if ($radio_cat && !is_wp_error($radio_cat)) {

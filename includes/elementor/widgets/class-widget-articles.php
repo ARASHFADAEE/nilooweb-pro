@@ -65,45 +65,11 @@ class Nasim_Elementor_Widget_Articles extends Nasim_Elementor_Widget_Base
     protected function render(): void
     {
         $s = $this->get_settings_for_display();
-        $mods = [
+        $this->render_template('articles', [
             'articles_eyebrow'         => $s['articles_eyebrow'] ?? '',
             'articles_title'           => $s['articles_title'] ?? '',
             'articles_title_highlight' => $s['articles_title_highlight'] ?? '',
-            'articles_count'           => (int) ($s['count'] ?? 3),
-        ];
-
-        $args = [
-            'post_type'           => 'post',
-            'posts_per_page'      => max(1, (int) ($s['count'] ?? 3)),
-            'ignore_sticky_posts' => true,
-            'no_found_rows'       => true,
-        ];
-
-        $cats = array_filter(array_map('absint', (array) ($s['category'] ?? [])));
-        if ($cats) {
-            $args['category__in'] = $cats;
-        }
-
-        $articles = new WP_Query($args);
-        if (!$articles->have_posts()) {
-            return;
-        }
-
-        $this->with_theme_mods($mods, static function () use ($articles) {
-            ?>
-    <section class="section container-wide articles-section niloo-el-articles" id="articles">
-      <div class="section-heading">
-        <?php nasim_section_title('articles'); ?>
-        <a class="text-link" href="<?php echo esc_url(nasim_blog_url()); ?>">همه مقاله‌ها <span>←</span></a>
-      </div>
-      <div class="article-grid">
-        <?php while ($articles->have_posts()) : $articles->the_post(); ?>
-          <?php get_template_part('template-parts/blog/card'); ?>
-        <?php endwhile; ?>
-      </div>
-    </section>
-            <?php
-            wp_reset_postdata();
-        });
+            'articles_count'           => max(1, (int) ($s['count'] ?? 3)),
+        ]);
     }
 }

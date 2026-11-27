@@ -67,62 +67,30 @@ class Nasim_Elementor_Widget_Radio_Nil extends Nasim_Elementor_Widget_Base
         $s   = $this->get_settings_for_display();
         $cat = sanitize_title((string) ($s['category_slug'] ?? 'radionil'));
         $count = max(1, (int) ($s['count'] ?? 3));
-        $more  = !empty($s['more_url']['url']) ? $s['more_url']['url'] : home_url('/blog/');
+        $more  = !empty($s['more_url']['url']) ? $s['more_url']['url'] : (function_exists('nasim_radio_url') ? nasim_radio_url() : home_url('/blog/'));
 
-        $mods = [
-            'radio_eyebrow'         => $s['radio_eyebrow'] ?? '',
-            'radio_title'           => $s['radio_title'] ?? '',
-            'radio_title_highlight' => $s['radio_title_highlight'] ?? '',
-            'radio_cat'             => $cat,
-            'radio_more_url'        => $more,
-        ];
+        $eyebrow   = (string) ($s['radio_eyebrow'] ?? '');
+        $title     = (string) ($s['radio_title'] ?? '');
+        $highlight = (string) ($s['radio_title_highlight'] ?? '');
 
-        $posts = get_posts([
-            'post_type'      => 'post',
-            'post_status'    => 'publish',
-            'posts_per_page' => $count,
-            'category_name'  => $cat,
-            'no_found_rows'  => true,
-        ]);
-
-        if (!$posts) {
-            $posts = get_posts([
-                'post_type'      => 'post',
-                'post_status'    => 'publish',
-                'posts_per_page' => $count,
-                'no_found_rows'  => true,
-            ]);
-        }
-
-        if (!$posts) {
-            return;
-        }
-
-        $this->with_theme_mods($mods, static function () use ($posts, $more, $s) {
-            ?>
-    <section class="section container-wide home-radio niloo-el-radio" id="radio">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow"><span class="eyebrow-line"></span> <?php echo esc_html($s['radio_eyebrow'] ?? 'رادیو نیل'); ?></span>
-          <h2><?php echo esc_html($s['radio_title'] ?? ''); ?> <span class="accent"><?php echo esc_html($s['radio_title_highlight'] ?? ''); ?></span></h2>
-        </div>
-        <a class="text-link" href="<?php echo esc_url($more); ?>">همه اپیزودها <span>←</span></a>
-      </div>
-      <div class="home-radio-grid">
-        <?php foreach ($posts as $post) : ?>
-        <a class="home-radio-card" href="<?php echo esc_url(get_permalink($post)); ?>">
-          <?php if (has_post_thumbnail($post)) : ?>
-          <?php echo get_the_post_thumbnail($post, 'medium_large', ['loading' => 'lazy', 'decoding' => 'async']); // phpcs:ignore WordPress.Security.EscapeOutput ?>
-          <?php endif; ?>
-          <div>
-            <time datetime="<?php echo esc_attr(get_the_date('c', $post)); ?>"><?php echo esc_html(get_the_date('', $post)); ?></time>
-            <strong><?php echo esc_html(get_the_title($post)); ?></strong>
-          </div>
-        </a>
-        <?php endforeach; ?>
-      </div>
-    </section>
-            <?php
+        // Same dark radio card as the homepage "محتوای رایگان" section.
+        $this->with_theme_mods([
+            'radio_cat'      => $cat,
+            'radio_more_url' => $more,
+        ], static function () use ($count, $eyebrow, $title, $highlight) {
+            echo '<section class="container-site py-14 md:py-18" aria-label="پادکست رادیو نیل">';
+            if ($eyebrow || $title) {
+                echo '<div class="mb-8">';
+                if ($eyebrow) {
+                    echo '<span class="inline-flex items-center gap-2 rounded-full bg-accent px-3.5 py-1.5 text-[13px] font-semibold mb-4 text-accent-foreground"><span class="size-1.5 rounded-full bg-violet-400 inline-block"></span>' . esc_html($eyebrow) . '</span>';
+                }
+                if ($title) {
+                    echo '<h2 class="text-2xl md:text-[2rem] font-extrabold text-foreground">' . esc_html($title) . ($highlight ? ' <span class="mark-violet">' . esc_html($highlight) . '</span>' : '') . '</h2>';
+                }
+                echo '</div>';
+            }
+            get_template_part('template-parts/front-page/radio-nil', null, ['count' => $count]);
+            echo '</section>';
         });
     }
 }

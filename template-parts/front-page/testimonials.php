@@ -14,7 +14,7 @@ $success_url = function_exists('nasim_page_url') ? nasim_page_url('success') : h
 $wp_testimonials = get_posts([
     'post_type'      => 'nasim_testimonial',
     'post_status'    => 'publish',
-    'posts_per_page' => 3,
+    'posts_per_page' => max(1, min(12, (int) (nasim_mod('testimonials_count') ?: 3))),
     'orderby'        => ['menu_order' => 'ASC', 'date' => 'DESC'],
     'no_found_rows'  => true,
 ]);

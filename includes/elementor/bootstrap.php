@@ -46,6 +46,8 @@ final class Nasim_Elementor_Bootstrap
             'class-widget-articles.php'     => 'Nasim_Elementor_Widget_Articles',
             'class-widget-newsletter.php'   => 'Nasim_Elementor_Widget_Newsletter',
             'class-widget-bundles.php'      => 'Nasim_Elementor_Widget_Bundles',
+            'class-widget-learning-path.php' => 'Nasim_Elementor_Widget_Learning_Path',
+            'class-widget-free-content.php'  => 'Nasim_Elementor_Widget_Free_Content',
         ];
 
         foreach ($widgets as $file => $class) {

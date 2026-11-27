@@ -4,21 +4,21 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$radio_cat_slug = nasim_mod('radio_cat') ?: 'radionil';
-$radio_more_url = function_exists('nasim_radio_url') ? nasim_radio_url() : home_url('/blog/');
 $blog_url       = function_exists('nasim_blog_url') ? nasim_blog_url() : home_url('/blog/');
+$radio_cat_slug = nasim_mod('radio_cat') ?: 'radionil';
 
-/* ── رادیو نیل: ۳ قسمت آخر ── */
-$radio_cat = get_category_by_slug($radio_cat_slug);
-$episodes  = get_posts([
+/* ── رادیو نیل: همان کارت تیره‌ای که ویجت رادیو هم استفاده می‌کند ── */
+$has_radio = (bool) get_posts([
     'post_type'      => 'post',
     'post_status'    => 'publish',
-    'posts_per_page' => 3,
+    'posts_per_page' => 1,
     'category_name'  => $radio_cat_slug,
     'no_found_rows'  => true,
+    'fields'         => 'ids',
 ]);
 
 /* ── مجله آموزشی: ۳ مقاله آخر (به‌جز دسته رادیو) ── */
+$radio_cat = get_category_by_slug($radio_cat_slug);
 $blog_args = [
     'post_type'      => 'post',
     'post_status'    => 'publish',
@@ -37,15 +37,15 @@ if ($capsule_post instanceof WP_Post && 'publish' === $capsule_post->post_status
     $cid   = (int) $capsule_post->ID;
     $thumb = get_the_post_thumbnail_url($cid, 'large');
     $capsule = [
-        'url'      => get_permalink($cid),
-        'title'    => get_the_title($cid),
-        'excerpt'  => wp_strip_all_tags(get_the_excerpt($cid)),
-        'thumb'    => $thumb ?: (THEME_URL . '/assets/images/brand/niloo-banner.webp'),
-        'is_free'  => function_exists('nasim_course_access_mode') && 'free' === nasim_course_access_mode($cid),
+        'url'     => get_permalink($cid),
+        'title'   => get_the_title($cid),
+        'excerpt' => wp_strip_all_tags(get_the_excerpt($cid)),
+        'thumb'   => $thumb ?: (THEME_URL . '/assets/images/brand/niloo-banner.webp'),
+        'is_free' => function_exists('nasim_course_access_mode') && 'free' === nasim_course_access_mode($cid),
     ];
 }
 
-if (!$episodes && !$articles && !$capsule) {
+if (!$has_radio && !$articles && !$capsule) {
     return;
 }
 ?>
@@ -68,36 +68,9 @@ if (!$episodes && !$articles && !$capsule) {
 
   <div class="grid lg:grid-cols-12 gap-6">
 
-    <!-- رادیو نیل (تیره) -->
-    <?php if ($episodes) : ?>
+    <?php if ($has_radio) : ?>
     <div class="lg:col-span-5 min-w-0">
-      <div class="h-full rounded-3xl bg-ink-900 text-cream p-6 md:p-7 flex flex-col">
-        <div class="flex items-center justify-between gap-3">
-          <h3 class="text-xl font-extrabold flex items-center gap-2.5">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5.5 text-violet-300" aria-hidden="true"><path d="M12 19v3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><rect x="9" y="2" width="6" height="13" rx="3"/></svg>
-            رادیو نیل
-          </h3>
-          <a href="<?php echo esc_url($radio_more_url); ?>" class="inline-flex items-center gap-1.5 px-2.5 py-2.5 -my-2.5 rounded-xl text-[13px] font-bold text-violet-300 hover:text-violet-200 hover:bg-ink-800 transition-colors shrink-0">
-            همه قسمت‌ها
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-          </a>
-        </div>
-        <p class="mt-2.5 text-[13px] fa-line text-ink-200">پادکست تخصصی تکنولوژی و وب با صدای نیلوفر وفایی.</p>
-
-        <ul class="mt-5 space-y-2.5 flex-1">
-          <?php foreach ($episodes as $ep) : ?>
-          <li>
-            <a href="<?php echo esc_url(get_permalink($ep->ID)); ?>" class="flex items-center gap-3 rounded-2xl bg-ink-800/70 border border-ink-800 px-4 py-3 hover:bg-ink-800 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-7 text-violet-300 shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-              <span class="min-w-0">
-                <span class="block text-[13.5px] font-bold truncate"><?php echo esc_html($ep->post_title); ?></span>
-                <span class="block text-xs font-semibold text-ink-300 mt-0.5"><?php echo esc_html(get_the_date('', $ep->ID)); ?></span>
-              </span>
-            </a>
-          </li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
+      <?php get_template_part('template-parts/front-page/radio-nil', null, ['count' => 3]); ?>
     </div>
     <?php endif; ?>
 

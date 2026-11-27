@@ -61,7 +61,7 @@ class Nasim_Elementor_Widget_Testimonials extends Nasim_Elementor_Widget_Base
             'testimonials_eyebrow'         => $s['testimonials_eyebrow'] ?? '',
             'testimonials_title'           => $s['testimonials_title'] ?? '',
             'testimonials_title_highlight' => $s['testimonials_title_highlight'] ?? '',
-            'testimonials_count'           => (int) ($s['count'] ?? 6),
+            'testimonials_count'           => max(1, (int) ($s['count'] ?? 6)),
         ]);
     }
 }
