@@ -97,6 +97,7 @@ include_once THEME_DIR . '/includes/default-pages.php';
 * Include blog: /blog/ route, article helpers (TOC, related posts)
 */
 include_once THEME_DIR . '/includes/blog.php';
+include_once THEME_DIR . '/includes/contact.php';
 
 
 /**

@@ -584,5 +584,7 @@
   else if (nl === "limit") window.toast("تعداد تلاش‌ها زیاد است؛ کمی بعد دوباره امتحان کن.", "error");
   var ct = params.get("contact");
   if (ct === "ok") window.toast("پیامت با موفقیت ثبت شد؛ خیلی زود پاسخ می‌دم.", "ok");
-  else if (ct === "error") window.toast("لطفاً همه فیلدهای الزامی را به درستی پر کن.", "error");
+  else if (ct === "invalid") window.toast("لطفاً نام، ایمیل یا موبایل معتبر و متن پیام را کامل وارد کن.", "error");
+  else if (ct === "limit") window.toast("تعداد پیام‌ها زیاد است؛ کمی بعد دوباره امتحان کن.", "error");
+  else if (ct === "expired") window.toast("نشست فرم منقضی شد؛ لطفاً صفحه را تازه کن و دوباره بفرست.", "error");
 })();

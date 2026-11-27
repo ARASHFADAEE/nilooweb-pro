@@ -198,10 +198,10 @@ add_action('after_switch_theme', 'nasim_install_default_pages');
 
 
 /**
- * Safety net: if the About page (/about/ or /connect/) was never created or was deleted,
- * still serve the designed About template instead of a 404.
+ * Safety net: if a designed page (/about/, /connect/, /contact/) was never created or was deleted,
+ * still serve its designed template instead of a 404.
  */
-function nasim_about_page_fallback() {
+function nasim_designed_page_fallback() {
 
     if (!is_404()) {
         return;
@@ -214,7 +214,13 @@ function nasim_about_page_fallback() {
         $req_path = trim(substr($req_path, strlen($home_path)), '/');
     }
 
-    if (!in_array(urldecode($req_path), ['about', 'connect'], true)) {
+    $map = [
+        'about'   => 'page-about.php',
+        'connect' => 'page-connect.php',
+        'contact' => 'page-contact.php',
+    ];
+    $key = urldecode($req_path);
+    if (!isset($map[$key])) {
         return;
     }
 
@@ -222,7 +228,7 @@ function nasim_about_page_fallback() {
     $wp_query->is_404 = false;
     status_header(200);
 
-    include THEME_DIR . '/page-about.php';
+    include THEME_DIR . '/' . $map[$key];
     exit;
 }
-add_action('template_redirect', 'nasim_about_page_fallback', 20);
+add_action('template_redirect', 'nasim_designed_page_fallback', 20);
