@@ -17,8 +17,7 @@ get_header();
         get_template_part('template-parts/front-page/benefits');
         get_template_part('template-parts/front-page/testimonials');
         get_template_part('template-parts/front-page/about');
-        get_template_part('template-parts/front-page/radio-nil');
-        get_template_part('template-parts/front-page/articles');
+        get_template_part('template-parts/front-page/free-content');
         get_template_part('template-parts/front-page/newsletter');
     } elseif (have_posts()) {
         while (have_posts()) {
