@@ -449,6 +449,64 @@
     });
   });
 
+  /* ---------- Interactive Learning Path Stepper (#learning-path) ---------- */
+  d.querySelectorAll("[data-learning-path]").forEach(function (section) {
+    var tabs = Array.prototype.slice.call(section.querySelectorAll("[data-path-tab]"));
+    var panels = Array.prototype.slice.call(section.querySelectorAll("[data-path-panel]"));
+    if (!tabs.length || !panels.length) return;
+
+    var activeBadgeClasses = ["bg-ink-900", "text-violet-300", "border-ink-900", "shadow-lift", "scale-105"];
+    var idleBadgeClasses = ["bg-card", "text-ink-500", "border-border", "group-hover:border-violet-400"];
+
+    function activateStep(stepId, focusTab) {
+      tabs.forEach(function (tab) {
+        var isActive = tab.getAttribute("data-path-tab") === stepId;
+        tab.setAttribute("aria-selected", String(isActive));
+        tab.setAttribute("tabindex", isActive ? "0" : "-1");
+        tab.classList.toggle("bg-accent/50", isActive);
+
+        var badge = tab.querySelector("[data-path-badge]");
+        if (badge) {
+          activeBadgeClasses.forEach(function (c) { badge.classList.toggle(c, isActive); });
+          idleBadgeClasses.forEach(function (c) { badge.classList.toggle(c, !isActive); });
+        }
+
+        var label = tab.querySelector("[data-path-label]");
+        if (label) {
+          label.classList.toggle("text-ink-900", isActive);
+          label.classList.toggle("text-muted-foreground", !isActive);
+          label.classList.toggle("group-hover:text-foreground", !isActive);
+        }
+
+        if (isActive && focusTab) {
+          tab.focus();
+          tab.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest", inline: "center" });
+        }
+      });
+
+      panels.forEach(function (panel) {
+        panel.hidden = panel.getAttribute("data-path-panel") !== stepId;
+      });
+    }
+
+    tabs.forEach(function (tab, idx) {
+      tab.addEventListener("click", function () {
+        activateStep(tab.getAttribute("data-path-tab"), false);
+      });
+      tab.addEventListener("keydown", function (e) {
+        var nextIdx = null;
+        if (e.key === "ArrowLeft") nextIdx = (idx + 1) % tabs.length;
+        else if (e.key === "ArrowRight") nextIdx = (idx - 1 + tabs.length) % tabs.length;
+        else if (e.key === "Home") nextIdx = 0;
+        else if (e.key === "End") nextIdx = tabs.length - 1;
+        if (nextIdx !== null) {
+          e.preventDefault();
+          activateStep(tabs[nextIdx].getAttribute("data-path-tab"), true);
+        }
+      });
+    });
+  });
+
   /* ---------- Flash URL Toast (newsletter / contact) ---------- */
   var params = new URLSearchParams(window.location.search);
   var nl = params.get("newsletter");

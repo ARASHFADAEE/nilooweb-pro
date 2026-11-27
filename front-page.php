@@ -11,6 +11,7 @@ get_header();
     <?php
     if (nasim_use_theme_front_sections()) {
         get_template_part('template-parts/front-page/hero');
+        get_template_part('template-parts/front-page/learning-path');
         get_template_part('template-parts/front-page/courses-showcase');
         get_template_part('template-parts/front-page/bundles');
         get_template_part('template-parts/front-page/benefits');
